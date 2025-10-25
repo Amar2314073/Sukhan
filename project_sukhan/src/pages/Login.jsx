@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../redux/slices/authSlice';
+import { loginUser } from '../redux/slices/authSlice';
 
 // Validation schema
 const loginSchema = z.object({
@@ -28,12 +28,12 @@ const Login = () => {
 
   const onSubmit = async (data) => {
     try {
-      const result = await dispatch(login(data)).unwrap();
+      const result = await dispatch(loginUser(data)).unwrap();
       if (result) {
         navigate('/');
       }
     } catch (error) {
-      // Error is handled by Redux
+      console.log("Login Error : " + error.message)
     }
   };
 
@@ -129,7 +129,7 @@ const Login = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="form-control mt-6">
+              <div className="form-control mt-6 m-auto">
                 <button
                   type="submit"
                   className={`btn btn-primary ${isLoading ? 'loading' : ''}`}

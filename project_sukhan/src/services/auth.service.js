@@ -27,17 +27,17 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-  login: async (credentials) => {
+  loginUser: async (credentials) => {
     const response = await api.post('/login', credentials);
     return response.data;
   },
 
-  register: async (userData) => {
+  registerUser: async (userData) => {
     const response = await api.post('/register', userData);
     return response.data;
   },
 
-  logout: async () => {
+  logoutUser: async () => {
     const response = await api.post('/logout');
     return response.data;
   },

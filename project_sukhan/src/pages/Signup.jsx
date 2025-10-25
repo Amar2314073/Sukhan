@@ -1,17 +1,17 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
-import { register } from '../redux/slices/authSlice';
+import { useNavigate, NavLink } from 'react-router';
+import { registerUser } from '../redux/slices/authSlice';
 
 // Validation schema
 const signupSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email address'),
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Invalid email address"),
   password: z.string()
-    .min(6, 'Password must be at least 6 characters')
+    .min(6, "Password must be at least 6 characters")
     .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 'Password must contain at least one uppercase letter, one lowercase letter, and one number'),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -19,48 +19,45 @@ const signupSchema = z.object({
   path: ["confirmPassword"],
 });
 
-const Signup = () => {
+function Signup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isLoading, error } = useSelector((state) => state.auth);
+  const { isAuthenticated, isLoading, error } = useSelector((state) => state.auth);
 
   const {
     register,
     handleSubmit,
-    formState: { errors }
-  } = useForm({
-    resolver: zodResolver(signupSchema)
-  });
+    formState: { errors },
+  } = useForm({ resolver: zodResolver(signupSchema) });
 
-  const onSubmit = async (data) => {
-    try {
-      const { confirmPassword, ...userData } = data;
-      const result = await dispatch(register(userData)).unwrap();
-      if (result) {
-        navigate('/');
-      }
-    } catch (error) {
-      // Error is handled by Redux
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/');
     }
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = (data) => {
+    const { confirmPassword, ...userData } = data;
+    dispatch(registerUser(userData));
   };
 
   return (
-    <div className="min-h-screen bg-base-200 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-base-200">
       <div className="max-w-md w-full space-y-8">
         {/* Header */}
         <div className="text-center">
-          <Link to="/" className="btn btn-ghost text-xl font-bold text-primary mb-4">
+          <NavLink to="/" className="btn btn-ghost text-xl font-bold text-primary mb-4">
             <span className="text-2xl">📖</span>
             Sukhan
-          </Link>
+          </NavLink>
           <h2 className="text-3xl font-bold text-base-content">Create your account</h2>
           <p className="mt-2 text-sm text-base-content/60">
             Already have an account?{' '}
-            <Link to="/login" className="font-medium text-primary hover:text-primary/80">
+            <NavLink to="/login" className="font-medium text-primary hover:text-primary/80">
               Sign in
-            </Link>
+            </NavLink>
           </p>
         </div>
 
@@ -86,7 +83,7 @@ const Signup = () => {
                 <input
                   type="text"
                   placeholder="Enter your full name"
-                  className={`input input-bordered ${errors.name ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full ${errors.name ? 'input-error' : ''}`}
                   {...register('name')}
                 />
                 {errors.name && (
@@ -104,7 +101,7 @@ const Signup = () => {
                 <input
                   type="email"
                   placeholder="Enter your email"
-                  className={`input input-bordered ${errors.email ? 'input-error' : ''}`}
+                  className={`input input-bordered w-full ${errors.email ? 'input-error' : ''}`}
                   {...register('email')}
                 />
                 {errors.email && (
@@ -121,15 +118,16 @@ const Signup = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
-                    className={`input input-bordered w-full ${errors.password ? 'input-error' : ''}`}
+                    className={`input input-bordered w-full pr-10 ${errors.password ? 'input-error' : ''}`}
                     {...register('password')}
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-3 text-base-content/60 hover:text-base-content"
+                    className="absolute top-1/2 right-3 transform -translate-y-1/2 text-base-content/60 hover:text-base-content"
                     onClick={() => setShowPassword(!showPassword)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,15 +155,16 @@ const Signup = () => {
                 </label>
                 <div className="relative">
                   <input
-                    type={showConfirmPassword ? 'text' : 'password'}
+                    type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
-                    className={`input input-bordered w-full ${errors.confirmPassword ? 'input-error' : ''}`}
+                    className={`input input-bordered w-full pr-10 ${errors.confirmPassword ? 'input-error' : ''}`}
                     {...register('confirmPassword')}
                   />
                   <button
                     type="button"
-                    className="absolute right-3 top-3 text-base-content/60 hover:text-base-content"
+                    className="absolute top-1/2 right-3 transform -translate-y-1/2 text-base-content/60 hover:text-base-content"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
                     {showConfirmPassword ? (
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -187,7 +186,7 @@ const Signup = () => {
               </div>
 
               {/* Submit Button */}
-              <div className="form-control mt-6">
+              <div className="form-control mt-6 m-auto">
                 <button
                   type="submit"
                   className={`btn btn-primary ${isLoading ? 'loading' : ''}`}
@@ -205,30 +204,30 @@ const Signup = () => {
                 <p className="text-sm text-base-content/60 mb-4">
                   Want to explore without an account?
                 </p>
-                <Link to="/" className="btn btn-outline btn-sm">
+                <NavLink to="/" className="btn btn-outline btn-sm">
                   Continue as Guest
-                </Link>
+                </NavLink>
               </div>
             </div>
           </div>
         </form>
 
-        {/* Additional Links */}
+        {/* Additional Links - Kept as is from your original */}
         <div className="text-center">
           <p className="text-sm text-base-content/60">
             By creating an account, you agree to our{' '}
-            <Link to="/terms" className="link link-primary">
+            <NavLink to="/terms" className="link link-primary">
               Terms of Service
-            </Link>{' '}
+            </NavLink>{' '}
             and{' '}
-            <Link to="/privacy" className="link link-primary">
+            <NavLink to="/privacy" className="link link-primary">
               Privacy Policy
-            </Link>
+            </NavLink>
           </p>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Signup;

@@ -5,10 +5,18 @@ const main = require('./config/database');
 const cookieParser = require('cookie-parser');
 const routes = require('./routes');
 const redisClient = require('./config/redis');
+const cors = require('cors')
 
 app.use(express.json());   // to convert json into js object
 app.use(cookieParser());   // to parse cookie
 
+
+app.use(cors({
+    origin:'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true
+}))
 
 
 app.use('/api', routes);
