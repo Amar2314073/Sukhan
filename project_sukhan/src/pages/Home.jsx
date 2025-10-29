@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, NavLink } from 'react-router';
+import { Link } from 'react-router';
 
 const Home = () => {
   const [featuredPoems, setFeaturedPoems] = useState([]);
@@ -187,9 +187,9 @@ const Home = () => {
           </div>
           
           <div className="text-center mt-8">
-            <NavLink to="/poems" className="btn btn-primary btn-outline">
+            <Link to="/poems" className="btn btn-primary btn-outline">
               Explore All Poems
-            </NavLink>
+            </Link>
           </div>
         </div>
       </section>

@@ -17,7 +17,7 @@ const categorySchema = new Schema({
   type: {
     type: String,
     required: true,
-    enum: ['sher', 'ghazal', 'nazm', 'kitaa', 'other']
+    enum: ['sher', 'ghazal', 'nazm', 'other']
   },
   isActive: {
     type: Boolean,

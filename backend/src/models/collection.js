@@ -28,6 +28,10 @@ const collectionSchema = new Schema({
     type: String,
     default: ''
   },
+  trending:{
+    type: Boolean,
+    default: false
+  },
   createdBy: {
     type: Schema.Types.ObjectId,
     ref: 'user',

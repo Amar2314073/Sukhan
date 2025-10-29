@@ -8,6 +8,7 @@ import Login from './pages/Login'
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Poems from './pages/Poem';
+import Poets from './pages/Poets';
 
 function App() {
   const dispatch = useDispatch();
@@ -29,10 +30,10 @@ function App() {
             <Route path="/register" element={<Signup />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/poems" element={<Poems />} />
+            <Route path="/poets" element={<Poets />} />
             {/* Add other routes as you create them */}
             {/* <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/poets" element={<Poets />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/dictionary" element={<Dictionary />} /> */}
           </Routes>

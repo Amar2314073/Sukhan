@@ -10,6 +10,7 @@ router.get('/search', collectionController.searchCollections);
 router.get('/stats/overview', collectionController.getCollectionsStats);
 router.get('/category/:categoryId', collectionController.getCollectionsByCategory);
 router.get('/:id', collectionController.getCollectionById);
+router.get('/trending', collectionController.getTrendingCollections);
 
 // Admin only routes
 router.post('/', adminMiddleware, collectionController.createCollection);

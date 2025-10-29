@@ -410,3 +410,71 @@ exports.searchPoets = async (req, res) => {
         res.status(500).json({ message: "Error searching poets" });
     }
 }
+
+// get popular poets
+exports.getPopularPoets = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Get all active poets
+    const poets = await Poet.find({ isActive: true })
+      .skip(skip)
+      .limit(limit)
+      .lean(); // lean() makes it faster and returns plain JS objects
+
+    if (!poets || poets.length === 0) {
+      return res.status(404).json({ message: "No poets found" });
+    }
+
+    // For each poet, compute stats
+    const poetsWithStats = await Promise.all(
+      poets.map(async (poet) => {
+        const poemCount = await Poem.countDocuments({
+          poet: poet._id,
+          isActive: true,
+        });
+
+        const totalViewsAgg = await Poem.aggregate([
+          { $match: { poet: poet._id, isActive: true } },
+          { $group: { _id: null, totalViews: { $sum: "$views" } } },
+        ]);
+
+        const totalViews = totalViewsAgg[0]?.totalViews || 0;
+
+        return {
+          ...poet,
+          stats: {
+            poemCount,
+            totalViews,
+          },
+        };
+      })
+    );
+
+    // Sort by popularity (based on totalViews)
+    poetsWithStats.sort((a, b) => b.stats.totalViews - a.stats.totalViews);
+
+    // Get total count for pagination
+    const totalPoets = await Poet.countDocuments({ isActive: true });
+    const totalPages = Math.ceil(totalPoets / limit);
+
+    res.status(200).json({
+      poets: poetsWithStats,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalPoets,
+        hasNext: page < totalPages,
+        hasPrev: page > 1,
+      },
+      message: "Popular poets fetched successfully",
+    });
+
+  } catch (error) {
+    console.error("Get popular poets error:", error);
+    res.status(500).json({ message: "Error fetching popular poets" });
+  }
+};
+

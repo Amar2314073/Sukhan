@@ -18,6 +18,10 @@ const poetSchema = new Schema({
     required: [true, 'Era is required'],
     enum: ['Classical', 'Modern', 'Contemporary']
   },
+  popular:{
+    type: Boolean,
+    default: false
+  },
   birthYear: {
     type: Number
   },

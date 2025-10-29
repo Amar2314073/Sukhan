@@ -32,6 +32,10 @@ const poemSchema = new Schema({
     ref: 'category',
     required: [true, 'Category reference is required']
   },
+  featured:{
+    type: Boolean,
+    default: false
+  },
   tags: [{
     type: String,
     trim: true

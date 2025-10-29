@@ -9,6 +9,7 @@ router.get('/search', poemController.searchPoem);
 router.get('/poet/:poetId', poemController.getPoemsByPoet);
 router.get('/category/:categoryId', poemController.getPoemsByCategory);
 router.get('/:id', poemController.getPoemById);
+router.get('/featured', poemController.getFeaturedPoems);
 
 // Admin only routes
 router.post('/', adminMiddleware, poemController.createPoem);

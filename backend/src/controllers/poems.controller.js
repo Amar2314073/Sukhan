@@ -397,3 +397,31 @@ exports.getPoemsByCategory = async (req, res) => {
     }
 }
 
+// get featured poems
+exports.getFeaturedPoems = async (req, res) => {
+  try {
+    const poems = await Poem.find({ featured: true, isActive: true })
+      .populate('poet', 'name era bio birthYear deathYear image')
+      .populate('category', 'name type');
+
+    if (!poems || poems.length === 0) {
+      return res.status(404).json({ message: "No featured poems found" });
+    }
+
+    res.status(200).json({
+      poems,
+      message: "Featured poems fetched successfully",
+    });
+
+  } catch (error) {
+    console.error("Get featured poems error:", error);
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid poem ID" });
+    }
+
+    res.status(500).json({ message: "Error fetching featured poems" });
+  }
+};
+
+

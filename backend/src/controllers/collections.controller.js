@@ -552,3 +552,43 @@ exports.getCollectionsStats = async (req, res) => {
         res.status(500).json({ message: "Error fetching collections statistics" });
     }
 }
+
+// get trending collections 
+exports.getTrendingCollections = async (req, res) => {
+  try {
+    const collections = await Collection.find({ trending: true, isActive: true })
+      .populate('category', 'name type')
+      .populate('createdBy', 'name email')
+      .populate({
+        path: 'poems',
+        populate: [
+          { path: 'poet', select: 'name era' },
+          { path: 'category', select: 'name type' }
+        ]
+      });
+
+    if (!collections || collections.length === 0) {
+      return res.status(404).json({ message: "No trending collections found" });
+    }
+
+    // Add stats to each collection
+    const collectionsWithStats = collections.map((col) => {
+      const poemCount = col.poems?.length || 0;
+      const stats = { poemCount, totalPoems: poemCount };
+
+      return {
+        ...col.toObject(),
+        stats
+      };
+    });
+
+    res.status(200).json({
+      collections: collectionsWithStats,
+      message: "Trending collections fetched successfully",
+    });
+
+  } catch (error) {
+    console.error("Get trending collections error:", error);
+    res.status(500).json({ message: "Error fetching trending collections" });
+  }
+};
