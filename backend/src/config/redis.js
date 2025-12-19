@@ -5,15 +5,15 @@ const redisClient = createClient({
     username: 'default',
     password: process.env.REDIS_PASS,
     socket: {
-        host: 'redis-14923.c12.us-east-1-4.ec2.redns.redis-cloud.com',
-        port: 14923
+        host: 'redis-13626.crce179.ap-south-1-1.ec2.cloud.redislabs.com',
+        port: 13626
     }
 });
+
 
 redisClient.on('error', (err) => {
   console.log('Redis Client Error', err);
 });
 
 module.exports = redisClient;
-
 

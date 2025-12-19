@@ -9,6 +9,9 @@ import Signup from './pages/Signup';
 import Profile from './pages/Profile';
 import Poems from './pages/Poem';
 import Poets from './pages/Poets';
+import Search from './pages/Search'
+import PoetProfile from './pages/PoetProfile';
+import PoemDetail from './pages/PoemDetail';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,6 +34,9 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/poems" element={<Poems />} />
             <Route path="/poets" element={<Poets />} />
+            <Route path="/search" element={<Search />} />
+            <Route path='/poets/:id' element={<PoetProfile />} />
+            <Route path="/poems/:id" element={<PoemDetail />} />
             {/* Add other routes as you create them */}
             {/* <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

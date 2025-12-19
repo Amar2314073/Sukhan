@@ -1,2 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;700&display=swap');
 @import "tailwindcss";
 @plugin "daisyui";
+
+/* Google Fonts */
+
+/* Rekhta-style serif font */
+.font-rekhta {
+  font-family: 'Noto Serif', serif;
+}
+
+/* Urdu text styling */
+.urdu-text {
+  font-family: 'Noto Nastaliq Urdu', 'Scheherazade', serif;
+  direction: rtl;
+  text-align: right;
+}
+
+/* Card hover effects */
+.poetry-card {
+  transition: all 0.3s ease;
+  border: 1px solid #fef3c7;
+}
+
+.poetry-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(245, 158, 11, 0.1);
+}
+
+/* Gradient border utility */
+.gradient-border {
+  border: 2px solid transparent;
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(to right, #d97706, #f59e0b) border-box;
+}

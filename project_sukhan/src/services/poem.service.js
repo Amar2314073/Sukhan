@@ -37,6 +37,7 @@ export const poemService = {
 
   getPoemsByCategory: async (categoryId) => {
     const response = await api.get(`/category/${categoryId}`);
+    console.log(response)
     return response.data;
   },
 
