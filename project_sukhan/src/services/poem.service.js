@@ -1,65 +1,12 @@
-import axios from 'axios';
-
-const API_URL = 'http://localhost:5000/api/poems';
-
-const api = axios.create({
-  baseURL: API_URL,
-  withCredentials: true,
-});
-
-// Add token to requests for admin routes
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
+import axiosClient from "../utils/axiosClient";
 
 export const poemService = {
-  // Public routes
-  getAllPoems: async () => {
-    const response = await api.get('/');
-    return response.data;
-  },
-
-  searchPoems: async (query) => {
-    const response = await api.get('/search', {
-      params: { q: query }
-    });
-    return response.data;
-  },
-
-  getPoemsByPoet: async (poetId) => {
-    const response = await api.get(`/poet/${poetId}`);
-    return response.data;
-  },
-
-  getPoemsByCategory: async (categoryId) => {
-    const response = await api.get(`/category/${categoryId}`);
-    return response.data;
-  },
-
-  getPoemById: async (poemId) => {
-    const response = await api.get(`/${poemId}`);
-    return response.data;
-  },
-
-  // Admin routes
-  createPoem: async (poemData) => {
-    const response = await api.post('/', poemData);
-    return response.data;
-  },
-
-  updatePoem: async (poemId, poemData) => {
-    const response = await api.put(`/update/${poemId}`, poemData);
-    return response.data;
-  },
-
-  deletePoem: async (poemId) => {
-    const response = await api.delete(`/delete/${poemId}`);
-    return response.data;
-  }
+  getAllPoems: () => axiosClient.get("/poems").then(r => r.data),
+  searchPoems: (q) => axiosClient.get("/poems/search", { params:{ q }}).then(r=>r.data),
+  getPoemsByPoet: (id) => axiosClient.get(`/poems/poet/${id}`).then(r=>r.data),
+  getPoemsByCategory: (id) => axiosClient.get(`/poems/category/${id}`).then(r=>r.data),
+  getPoemById: (id) => axiosClient.get(`/poems/${id}`).then(r=>r.data),
+  createPoem: (d) => axiosClient.post("/poems", d).then(r=>r.data),
+  updatePoem: (id,d) => axiosClient.put(`/poems/update/${id}`, d).then(r=>r.data),
+  deletePoem: (id) => axiosClient.delete(`/poems/delete/${id}`).then(r=>r.data),
 };
-
-export default poemService;

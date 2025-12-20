@@ -1,14 +1,14 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axiosClient from "../../utils/axiosClient";
+const BASE_URL = "/categories";
 
-const BASE_URL = 'http://localhost:5000/api/categories';
 
 // Get all categories
 export const getAllCategories = createAsyncThunk(
   'categories/getAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(BASE_URL);
+      const response = await axiosClient.get(BASE_URL);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -21,7 +21,7 @@ export const searchCategories = createAsyncThunk(
   'categories/search',
   async (searchQuery, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/search?query=${searchQuery}`);
+      const response = await axiosClient.get(`${BASE_URL}/search?query=${searchQuery}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -34,7 +34,7 @@ export const getCategoryStats = createAsyncThunk(
   'categories/stats',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/stats/types`);
+      const response = await axiosClient.get(`${BASE_URL}/stats/types`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -47,7 +47,7 @@ export const getCategoriesByType = createAsyncThunk(
   'categories/byType',
   async (type, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/type/${type}`);
+      const response = await axiosClient.get(`${BASE_URL}/type/${type}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -60,7 +60,7 @@ export const getCategoryById = createAsyncThunk(
   'categories/getById',
   async (categoryId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/${categoryId}`);
+      const response = await axiosClient.get(`${BASE_URL}/${categoryId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data);
@@ -73,7 +73,7 @@ export const getPoemsByCategory = createAsyncThunk(
   'categories/getPoems',
   async ({ categoryId, page = 1, limit = 10 }, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
+      const response = await axiosClient.get(
         `${BASE_URL}/${categoryId}/poems?page=${page}&limit=${limit}`
       );
       return response.data; // { poems, pagination }
@@ -89,7 +89,7 @@ export const createCategory = createAsyncThunk(
   async (categoryData, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-      const response = await axios.post(BASE_URL, categoryData, {
+      const response = await axiosClient.post(BASE_URL, categoryData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -105,7 +105,7 @@ export const updateCategory = createAsyncThunk(
   async ({ id, categoryData }, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-      const response = await axios.put(`${BASE_URL}/${id}`, categoryData, {
+      const response = await axiosClient.put(`${BASE_URL}/${id}`, categoryData, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return response.data;
@@ -121,7 +121,7 @@ export const deleteCategory = createAsyncThunk(
   async (categoryId, { rejectWithValue, getState }) => {
     try {
       const token = getState().auth.token;
-      await axios.delete(`${BASE_URL}/${categoryId}`, {
+      await axiosClient.delete(`${BASE_URL}/${categoryId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       return categoryId;
