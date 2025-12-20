@@ -6,8 +6,9 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
     name: poet?.name || '',
     bio: poet?.bio || '',
     era: poet?.era || 'Classical',
-    birthYear: poet?.birthYear || '',
-    deathYear: poet?.deathYear || '',
+    birthYear: Number(poet?.birthYear) || '',
+    deathYear: Number(poet?.deathYear) || '',
+    country: poet?.country || '',
     image: poet?.image || ''
   });
 
@@ -53,9 +54,10 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
           value={form.era}
           onChange={e => setForm({ ...form, era: e.target.value })}
         >
-          <option>Classical</option>
-          <option>Modern</option>
-          <option>Contemporary</option>
+          <option value='Classical'>Classical</option>
+          <option value='Modern'>Modern</option>
+          <option value='Contemporary'>Contemporary</option>
+          <option value='Other'>Other</option>
         </select>
 
         <div className="flex gap-3">
@@ -70,6 +72,12 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
             className="input input-bordered w-full"
             value={form.deathYear}
             onChange={e => setForm({ ...form, deathYear: e.target.value })}
+          />
+          <input
+            placeholder="Country"
+            className="input input-bordered w-full"
+            value={form.country}
+            onChange={e => setForm({ ...form, country: e.target.value })}
           />
         </div>
 
