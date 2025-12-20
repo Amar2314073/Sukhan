@@ -20,66 +20,52 @@ exports.dashboard = async (req, res) => {
 
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
-    try {
-        const { name, bio, era, birthYear, deathYear, image } = req.body;
+  try {
+    const { name, bio, era, birthYear, deathYear, image, country } = req.body;
 
-        // Validate required fields
-        if (!name || !bio || !era) {
-            return res.status(400).json({ 
-                message: "Name, bio, and era are required" 
-            });
-        }
-
-        // Validate era
-        const validEras = ['Classical', 'Modern', 'Contemporary'];
-        if (!validEras.includes(era)) {
-            return res.status(400).json({ 
-                message: "Invalid era. Must be: Classical, Modern, or Contemporary" 
-            });
-        }
-
-        // Check if poet already exists (case insensitive)
-        const existingPoet = await Poet.findOne({ 
-            name: { $regex: new RegExp(`^${name}$`, 'i') } 
-        });
-
-        if (existingPoet) {
-            return res.status(409).json({ 
-                message: "Poet with this name already exists" 
-            });
-        }
-
-        // Create poet
-        const poet = await Poet.create({
-            name: name.trim(),
-            bio: bio.trim(),
-            era,
-            birthYear: birthYear || null,
-            deathYear: deathYear || null,
-            image: image || ''
-        });
-
-        res.status(201).json({
-            poet,
-            message: "Poet created successfully"
-        });
-
-    } catch (error) {
-        console.error("Create poet error:", error);
-        
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ message: error.message });
-        }
-        
-        res.status(500).json({ message: "Error creating poet" });
+    if (!name || !bio || !era || !country) {
+      return res.status(400).json({
+        message: "Name, bio, era, and country are required"
+      });
     }
-}
+
+    const validEras = ['Classical', 'Modern', 'Contemporary', 'Other'];
+    if (!validEras.includes(era)) {
+      return res.status(400).json({ message: "Invalid era" });
+    }
+
+    const existingPoet = await Poet.findOne({
+      name: { $regex: new RegExp(`^${name}$`, 'i') }
+    });
+
+    if (existingPoet) {
+      return res.status(409).json({ message: "Poet already exists" });
+    }
+
+    const poet = await Poet.create({
+      name: name.trim(),
+      bio: bio.trim(),
+      era,
+      birthYear: birthYear || null,
+      deathYear: deathYear || null,
+      country: country.trim(),
+      image: image || ''
+    });
+
+    res.status(201).json({ poet });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error creating poet" });
+  }
+};
+
 
 // PUT /poets/:id - update poet (admin only)
 exports.updatePoet = async (req, res) => {
     try {
         const poetId = req.params.id;
-        const { name, bio, era, birthYear, deathYear, image } = req.body;
+        const { name, bio, era, country, birthYear, deathYear, image } = req.body;
 
         // Find existing poet
         const existingPoet = await Poet.findById(poetId);
@@ -89,10 +75,10 @@ exports.updatePoet = async (req, res) => {
 
         // Validate era if provided
         if (era) {
-            const validEras = ['Classical', 'Modern', 'Contemporary'];
+            const validEras = ['Classical', 'Modern', 'Contemporary', 'Other'];
             if (!validEras.includes(era)) {
                 return res.status(400).json({ 
-                    message: "Invalid era. Must be: Classical, Modern, or Contemporary" 
+                    message: "Invalid era. Must be: Classical, Modern, Contemporary, or Other" 
                 });
             }
         }
@@ -116,6 +102,7 @@ exports.updatePoet = async (req, res) => {
         if (name) updateData.name = name.trim();
         if (bio) updateData.bio = bio.trim();
         if (era) updateData.era = era;
+        if (country) updateData.country = country.trim();
         if (birthYear !== undefined) updateData.birthYear = birthYear;
         if (deathYear !== undefined) updateData.deathYear = deathYear;
         if (image !== undefined) updateData.image = image;

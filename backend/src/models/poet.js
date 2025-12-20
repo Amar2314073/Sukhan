@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { trim } = require('validator');
 const { Schema } = mongoose;
 
 const poetSchema = new Schema({
@@ -16,7 +17,13 @@ const poetSchema = new Schema({
   era: {
     type: String,
     required: [true, 'Era is required'],
-    enum: ['Classical', 'Modern', 'Contemporary']
+    enum: ['Classical', 'Modern', 'Contemporary', 'Other']
+  },
+  country: {
+    type: String,
+    required: [true, 'Country is required'],
+    maxlength: [100, 'Country cannot exceed 100 characters'],
+    trim: true
   },
   popular:{
     type: Boolean,
