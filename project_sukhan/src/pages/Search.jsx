@@ -11,22 +11,19 @@ const Search = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [isRedirecting, setIsRedirecting] = useState(false);
+  const [showShimmer, setShowShimmer] = useState(false);
+  const [fadeOut, setFadeOut] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
-  const {
-    searchResults: poemResults,
-    searchLoading: poemLoading
-  } = useSelector(state => state.poems);
+  const { searchResults: poemResults, searchLoading: poemLoading } =
+    useSelector(state => state.poems);
 
-  const {
-    searchResults: poetResults,
-    searchLoading: poetLoading
-  } = useSelector(state => state.poets);
+  const { searchResults: poetResults, searchLoading: poetLoading } =
+    useSelector(state => state.poets);
 
   /* ---------- FIRE SEARCH ---------- */
   useEffect(() => {
     if (!q) return;
-
     dispatch(clearSearchResults());
     dispatch(searchPoems(q));
     dispatch(searchPoets(q));
@@ -34,42 +31,58 @@ const Search = () => {
 
   const loading = poemLoading || poetLoading;
 
-  /* ---------- AUTO REDIRECT (REKHTA STYLE) ---------- */
+  /* ---------- REDIRECT LOGIC ---------- */
   useEffect(() => {
     if (loading) return;
 
-    // Single clear poet match → go to profile directly
     if (poetResults.length === 1) {
-      setIsRedirecting(true);
+      setRedirecting(true);      // 🔑 stop normal UI
+      setShowShimmer(true);
 
       setTimeout(() => {
-        navigate(`/poets/${poetResults[0]._id}`);
-      }, 200);
+        setFadeOut(true);
+        setTimeout(() => {
+          navigate(`/poets/${poetResults[0]._id}`, { replace: true });
+        }, 350);
+      }, 900);
     }
+  }, [loading, poetResults, navigate]);
 
-    // Single poem match (optional – enable if you want)
-    // else if (poemResults.length === 1 && poetResults.length === 0) {
-    //   setIsRedirecting(true);
-    //   setTimeout(() => {
-    //     navigate(`/poems/${poemResults[0]._id}`, { replace: true });
-    //   }, 200);
-    // }
-
-  }, [loading, poetResults, poemResults, navigate]);
-
-  /* ---------- SHIMMER WHILE REDIRECTING ---------- */
-  if (isRedirecting) {
+  /* ---------- SHIMMER ONLY ---------- */
+  if (showShimmer) {
     return (
-      <div className="container mx-auto px-4 py-20">
-        <div className="max-w-xl mx-auto space-y-4">
-          <div className="h-20 bg-amber-100 rounded animate-pulse"></div>
-          <div className="h-20 bg-amber-100 rounded animate-pulse"></div>
-          <div className="h-20 bg-amber-100 rounded animate-pulse"></div>
-          <div className="h-20 bg-amber-100 rounded animate-pulse"></div>
+      <div className={`container mx-auto px-4 py-24 fade-in ${fadeOut ? 'fade-out' : ''}`}>
+        <div className="max-w-4xl mx-auto space-y-10">
+
+          <div className="h-10 w-2/3 rounded shimmer"></div>
+
+          <div className="flex items-center gap-8">
+            <div className="w-28 h-28 rounded-full shimmer"></div>
+            <div className="flex-1 space-y-4">
+              <div className="h-6 w-1/2 rounded shimmer"></div>
+              <div className="h-4 w-1/3 rounded shimmer"></div>
+            </div>
+          </div>
+
+          <div className="space-y-4 mt-6">
+            <div className="h-4 w-full rounded shimmer"></div>
+            <div className="h-4 w-11/12 rounded shimmer"></div>
+            <div className="h-4 w-10/12 rounded shimmer"></div>
+          </div>
+
+          <div className="space-y-5 mt-10">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-6 w-full rounded shimmer"></div>
+            ))}
+          </div>
+
         </div>
       </div>
     );
   }
+
+  /* ---------- BLOCK UI DURING REDIRECT ---------- */
+  if (redirecting) return null;
 
   /* ---------- NORMAL SEARCH UI ---------- */
   return (
@@ -79,9 +92,9 @@ const Search = () => {
         Search results for “{q}”
       </h1>
 
-      {loading && <p className="text-gray-600">Searching…</p>}
+      {/* ⛔ searching text only when NOT redirecting */}
+      {loading && <p className="text-gray-500">Searching…</p>}
 
-      {/* ---------- POETS ---------- */}
       {poetResults.length > 0 && (
         <>
           <h2 className="text-xl mb-3 font-semibold">Poets</h2>
@@ -100,7 +113,6 @@ const Search = () => {
         </>
       )}
 
-      {/* ---------- POEMS ---------- */}
       {poemResults.length > 0 && (
         <>
           <h2 className="text-xl mb-3 font-semibold">Poems</h2>
@@ -126,7 +138,7 @@ const Search = () => {
       )}
 
       {!loading && poetResults.length === 0 && poemResults.length === 0 && (
-        <p className="text-gray-600">No results found.</p>
+        <p className="text-gray-500">No results found.</p>
       )}
     </div>
   );

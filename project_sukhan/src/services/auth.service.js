@@ -60,6 +60,16 @@ export const authService = {
   deleteProfile: async () => {
     const response = await api.delete('/profile');
     return response.data;
+  },
+
+  toggleLike: async (poemId) => {
+    const response = await api.post(`/like/${poemId}`);
+    return response.data;
+  },
+
+  toggleSave: async (poemId) => {
+    const response = await api.post(`/save/${poemId}`);
+    return response.data;
   }
 };
 

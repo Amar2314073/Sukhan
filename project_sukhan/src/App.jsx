@@ -12,6 +12,7 @@ import Poets from './pages/Poets';
 import Search from './pages/Search'
 import PoetProfile from './pages/PoetProfile';
 import PoemDetail from './pages/PoemDetail';
+import PrivateRoute from './pages/PrivateRoute';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,12 +32,12 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
-            <Route path="/profile" element={<Profile />} />
             <Route path="/poems" element={<Poems />} />
             <Route path="/poets" element={<Poets />} />
             <Route path="/search" element={<Search />} />
             <Route path='/poets/:id' element={<PoetProfile />} />
             <Route path="/poems/:id" element={<PoemDetail />} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
             {/* Add other routes as you create them */}
             {/* <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />

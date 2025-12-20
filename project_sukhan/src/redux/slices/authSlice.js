@@ -68,6 +68,29 @@ export const deleteProfile = createAsyncThunk(
   }
 );
 
+export const toggleLikePoem = createAsyncThunk(
+  'auth/toggleLikePoem',
+  async (poemId, { rejectWithValue }) => {
+    try {
+      return await authService.toggleLike(poemId);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Like failed');
+    }
+  }
+);
+
+export const toggleSavePoem = createAsyncThunk(
+  'auth/toggleSavePoem',
+  async (poemId, { rejectWithValue }) => {
+    try {
+      return await authService.toggleSave(poemId);
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Save failed');
+    }
+  }
+);
+
+
 // Initial state
 const initialState = {
   user: null,
@@ -195,7 +218,22 @@ const authSlice = createSlice({
       .addCase(deleteProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
-      });
+      })
+      // Toggle Like
+      .addCase(toggleLikePoem.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.likedPoems = action.payload.likedPoems;
+          state.user.stats.favoritesCount = action.payload.favoritesCount;
+        }
+      })
+
+      // Toggle Save
+      .addCase(toggleSavePoem.fulfilled, (state, action) => {
+        if (state.user) {
+          state.user.savedPoems = action.payload.savedPoems;
+        }
+      })
+
   }
 });
 

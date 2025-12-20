@@ -34,3 +34,43 @@
     linear-gradient(white, white) padding-box,
     linear-gradient(to right, #d97706, #f59e0b) border-box;
 }
+
+
+/* Premium shimmer animation */
+@keyframes shimmerMove {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    #e5e7eb 0%,
+    #f3f4f6 40%,
+    #e5e7eb 80%
+  );
+  background-size: 1000px 100%;
+  animation: shimmerMove 1.6s infinite linear;
+}
+
+.fade-in {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+.fade-out {
+  animation: fadeOut 0.35s ease-in forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0 }
+  to { opacity: 1 }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1 }
+  to { opacity: 0 }
+}

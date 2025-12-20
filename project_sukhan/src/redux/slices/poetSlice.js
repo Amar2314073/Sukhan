@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5000/api/poets';
+const BASE_URL = 'http://localhost:5000/api/poets';
 
 // Async thunks
 export const fetchAllPoets = createAsyncThunk(
@@ -15,7 +15,7 @@ export const fetchAllPoets = createAsyncThunk(
         params.era = era;
       }
 
-      const response = await axios.get(`${API_URL}`, { params });
+      const response = await axios.get(BASE_URL, { params });
       return response.data;
     } catch (error) {
       return rejectWithValue(

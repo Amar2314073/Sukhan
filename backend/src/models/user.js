@@ -61,10 +61,20 @@ const userSchema = new Schema({
     default: false
   },
 
-  stats: {
-    favoritesCount: { type: Number, default: 0 },
-    collectionsCreated: { type: Number, default: 0 }
-  }
+  likedPoems: [{
+    type: Schema.Types.ObjectId,
+    ref: 'poem'
+  }],
+
+  savedPoems: [{
+    type: Schema.Types.ObjectId,
+    ref: 'poem'
+  }],
+
+  collections: [{
+    type: Schema.Types.ObjectId,
+    ref: 'collection' // future use
+  }]
 }, {
   timestamps: true
 });

@@ -21,7 +21,6 @@ const PoemDetail = () => {
     };
   }, [id, dispatch]);
 
-  if (loading) return <p className="p-6">Loading poem…</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
   if (!currentPoem) return null;
 

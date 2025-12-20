@@ -13,6 +13,7 @@ import {
   clearCurrentCategory,
   clearError 
 } from '../redux/slices/categorySlice';
+import PoemCard from '../components/PoemCard';
 
 const Poems = () => {
   const dispatch = useDispatch();
@@ -297,159 +298,9 @@ const Poems = () => {
         ) : (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              {displayPoems.map((poem) => {
-                const availableLanguages = getAvailableLanguages(poem);
-                const content = getPoemContent(poem);
-                
-                return (
-                  <div key={poem._id} className="bg-white rounded-xl shadow-sm border border-amber-100 hover:shadow-lg transition-all duration-300 group overflow-hidden">
-                    <div className="p-6">
-                      {/* Header with title and poet */}
-                      <div className="flex justify-between items-start mb-4">
-                        <h3 className="font-serif text-xl font-bold text-amber-900 group-hover:text-amber-700 transition-colors line-clamp-2">
-                          {poem.title || 'Untitled Poem'}
-                        </h3>
-                        {poem.language && (
-                          <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
-                            {poem.language}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Poet information */}
-                      {poem.poet && (
-                        <div className="flex items-center gap-2 mb-4">
-                          <span className="font-semibold text-amber-800">
-                            — {poem.poet.name}
-                          </span>
-                          {poem.poet.era && (
-                            <span className="text-sm text-gray-600">
-                              ({poem.poet.era})
-                            </span>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Poem content preview */}
-                      <div className="mb-5">
-                        <p className="text-gray-600 italic text-base leading-relaxed line-clamp-3 border-l-2 border-amber-200 pl-4 py-2">
-                          "{content?.substring(0, 120)}..."
-                        </p>
-                      </div>
-
-                      {/* Full content with read more */}
-                      <div className="mb-5">
-                        <div className="collapse collapse-arrow bg-amber-50 rounded-lg">
-                          <input type="checkbox" />
-                          <div className="collapse-title text-base font-medium text-amber-700 px-4 py-3">
-                            Read Full Poem
-                          </div>
-                          <div className="collapse-content">
-                            {/* Language Tabs */}
-                            {availableLanguages.length > 1 && (
-                              <div className="flex gap-2 mb-4 p-1 bg-white rounded-lg shadow-inner">
-                                {availableLanguages.map((lang, index) => (
-                                  <button
-                                    key={lang}
-                                    className={`flex-1 px-3 py-2 text-sm rounded-md transition-colors ${
-                                      activeTab === index 
-                                        ? 'bg-amber-600 text-white' 
-                                        : 'text-gray-600 hover:bg-amber-50'
-                                    }`}
-                                    onClick={() => setActiveTab(index)}
-                                  >
-                                    {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-
-                            {/* Poem Content Display */}
-                            <div className="space-y-6">
-                              {/* Urdu Content */}
-                              {poem.content?.urdu && (
-                                <div className={`${activeTab !== 0 && availableLanguages.length > 1 ? 'hidden' : ''}`}>
-                                  <div className="text-sm font-semibold text-amber-700 mb-2">Urdu</div>
-                                  <div dir="rtl" className="text-xl font-urdu text-right leading-relaxed whitespace-pre-line">
-                                    {poem.content.urdu}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Hindi Content */}
-                              {poem.content?.hindi && (
-                                <div className={`${activeTab !== 1 && availableLanguages.length > 1 ? 'hidden' : ''}`}>
-                                  <div className="text-sm font-semibold text-amber-700 mb-2">Hindi</div>
-                                  <div className="text-xl font-hindi leading-relaxed whitespace-pre-line">
-                                    {poem.content.hindi}
-                                  </div>
-                                </div>
-                              )}
-
-                              {/* Roman Content */}
-                              {poem.content?.roman && (
-                                <div className={`${activeTab !== 2 && availableLanguages.length > 1 ? 'hidden' : ''}`}>
-                                  <div className="text-sm font-semibold text-amber-700 mb-2">Roman</div>
-                                  <div className="text-xl italic leading-relaxed whitespace-pre-line">
-                                    {poem.content.roman}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Tags */}
-                            {poem.tags && poem.tags.length > 0 && (
-                              <div className="mt-6 pt-4 border-t border-amber-200">
-                                <div className="flex flex-wrap gap-2">
-                                  {poem.tags.map((tag, index) => (
-                                    <span key={index} className="text-xs text-amber-700 bg-amber-50 px-2 py-1 rounded-full">
-                                      #{tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Stats and actions */}
-                      <div className="flex justify-between items-center pt-4 border-t border-amber-100">
-                        <div className="flex items-center gap-4 text-sm text-gray-600">
-                          {poem.views !== undefined && (
-                            <div className="flex items-center gap-1">
-                              <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                                <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                              </svg>
-                              {poem.views}
-                            </div>
-                          )}
-                          {poem.likes !== undefined && (
-                            <div className="flex items-center gap-1">
-                              <svg className="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                              </svg>
-                              {poem.likes}
-                            </div>
-                          )}
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          <button className="text-amber-600 hover:text-amber-800">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
-                            </svg>
-                          </button>
-                          <button className="px-4 py-2 bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors text-sm font-medium">
-                            Save
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              {displayPoems.map((poem) => (
+              <PoemCard key={poem._id} poem={poem} />
+            ))}
             </div>
 
             {/* No results message */}

@@ -72,7 +72,7 @@ export const fetchPoemById = createAsyncThunk(
   }
 );
 
-// Admin thunks (if you need them in frontend)
+// Admin thunks
 export const createPoem = createAsyncThunk(
   'poems/create',
   async (poemData, { rejectWithValue }) => {

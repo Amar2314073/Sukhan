@@ -20,7 +20,6 @@ const PoetProfile = () => {
     };
   }, [id, dispatch]);
 
-  if (loading) return <p className="p-6">Loading poet…</p>;
   if (error) return <p className="p-6 text-red-600">{error}</p>;
   if (!currentPoet) return null;
 

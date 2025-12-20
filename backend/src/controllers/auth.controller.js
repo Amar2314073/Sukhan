@@ -380,5 +380,88 @@ exports.changePassword = async (req, res) => {
     }
 };
 
+// Toggle Like Poem
+exports.toggleLike = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { poemId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const index = user.likedPoems.findIndex(
+            id => id.toString() === poemId
+        );
+
+        let liked;
+
+        if (index === -1) {
+            // like
+            user.likedPoems.push(poemId);
+            liked = true;
+        } else {
+            // unlike
+            user.likedPoems.splice(index, 1);
+            liked = false;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            liked,
+            totalLikes: user.likedPoems.length,
+            message: liked ? "Poem liked" : "Poem unliked"
+        });
+
+    } catch (error) {
+        console.error("Toggle like error:", error);
+        res.status(500).json({ message: "Error toggling like" });
+    }
+};
+
+// Toggle Save Poem
+exports.toggleSave = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const { poemId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const index = user.savedPoems.findIndex(
+            id => id.toString() === poemId
+        );
+
+        let saved;
+
+        if (index === -1) {
+            // save
+            user.savedPoems.push(poemId);
+            saved = true;
+        } else {
+            // unsave
+            user.savedPoems.splice(index, 1);
+            saved = false;
+        }
+
+        await user.save();
+
+        res.status(200).json({
+            saved,
+            totalSaved: user.savedPoems.length,
+            message: saved ? "Poem saved" : "Poem removed from saved"
+        });
+
+    } catch (error) {
+        console.error("Toggle save error:", error);
+        res.status(500).json({ message: "Error toggling save" });
+    }
+};
+
+
 
 
