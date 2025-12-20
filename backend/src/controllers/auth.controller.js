@@ -5,7 +5,7 @@ const ms = require('ms');
 const User = require('../models/user');
 const userValidator = require('../utils/userValidator');
 
-const tokenValidity = '1d';
+const tokenValidity = '100d';
 
 
 // Register

@@ -13,6 +13,10 @@ import Search from './pages/Search'
 import PoetProfile from './pages/PoetProfile';
 import PoemDetail from './pages/PoemDetail';
 import PrivateRoute from './pages/PrivateRoute';
+import AdminRoutes from './pages/AdminRoutes';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminPoets from './pages/AdminPoets';
+import AdminPoems from './pages/AdminPoems';
 
 function App() {
   const dispatch = useDispatch();
@@ -43,6 +47,12 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/collections" element={<Collections />} />
             <Route path="/dictionary" element={<Dictionary />} /> */}
+            <Route path="/admin" element={<AdminRoutes />}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="poets" element={<AdminPoets />} />
+            <Route path="poems" element={<AdminPoems />} />
+            </Route>
+
           </Routes>
         </main>
       </div>

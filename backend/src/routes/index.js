@@ -8,5 +8,6 @@ router.use('/favorites', require('./favorites.routes'));
 router.use('/categories', require('./categories.routes'));
 router.use('/collections', require('./collections.routes'));
 router.use('/userCollections', require('./userCollections.routes'));
+router.use('/admin', require('./admin.routes'));
 
 module.exports = router;
