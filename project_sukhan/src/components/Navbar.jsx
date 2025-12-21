@@ -414,7 +414,12 @@ const Navbar = () => {
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={handleSearch}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+              setMobileSearchOpen(false);
+            }
+          }}
           placeholder={
             currentLang === 'hi'
               ? 'तलाश कीजिए'
