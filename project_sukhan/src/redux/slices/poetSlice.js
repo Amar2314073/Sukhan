@@ -1,8 +1,6 @@
 // redux/slices/poetSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-const BASE_URL = 'http://localhost:5000/api/poets';
+import axiosClient from '../../utils/axiosClient';
 
 // Async thunks
 export const fetchAllPoets = createAsyncThunk(
@@ -15,7 +13,7 @@ export const fetchAllPoets = createAsyncThunk(
         params.era = era;
       }
 
-      const response = await axios.get(BASE_URL, { params });
+      const response = await axiosClient.get('/poets', { params });
       return response.data;
     } catch (err) {
         return rejectWithValue(
@@ -32,7 +30,9 @@ export const searchPoets = createAsyncThunk(
   'poets/search',
   async (query, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/poets/search?q=${query}`);
+      const response = await axiosClient.get('/poets/search', {
+        params: { q: query }
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Search failed');
@@ -44,7 +44,7 @@ export const getPoetById = createAsyncThunk(
   'poets/getById',
   async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/poets/${id}`);
+      const response = await axiosClient.get(`/poets/${id}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch poet');
@@ -56,7 +56,7 @@ export const getPoemsByPoet = createAsyncThunk(
   'poets/getPoems',
   async (poetId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/poets/${poetId}/poems`);
+      const response = await axiosClient.get(`/poets/${poetId}/poems`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch poems by poet');
@@ -68,7 +68,7 @@ export const getPopularPoets = createAsyncThunk(
   'poets/getPopular',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/poets/popular`);
+      const response = await axiosClient.get(`/poets/popular`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch popular poets');
@@ -80,7 +80,7 @@ export const getPoetsByEra = createAsyncThunk(
   'poets/getByEra',
   async (era, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/poets/era/${era}`);
+      const response = await axiosClient.get(`/poets/era/${era}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch poets by era');
@@ -180,6 +180,7 @@ const poetSlice = createSlice({
         state.searchResults = action.payload.poets || [];
         state.totalPages = action.payload.pagination?.totalPages || 1;
         state.totalPoets = action.payload.pagination?.totalResults || 0;
+        state.currentPage = 1;
       })
       .addCase(searchPoets.rejected, (state, action) => {
         state.searchLoading = false;
