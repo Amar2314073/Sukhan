@@ -180,18 +180,25 @@ exports.adminRegister = async (req,res) => {
 }
 
 // Check
-exports.check = async (req,res) => {
-    const reply = {
+exports.check = async(req,res)=>{
+    try{
+        const reply = {
         name:req.user.name,
         email:req.user.email,
         _id:req.user._id,
-        role:req.user.role
+        role:req.user.role,
+        profileImage: req.user.avatar
     }
     res.status(200).json({
         user:reply,
         message:"Valid User!"
     })
+    }catch(error){
+        console.error("Check error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 }
+
 
 // getProfile
 exports.getProfile = async (req, res) => {

@@ -73,7 +73,7 @@ const userSchema = new Schema({
 
   collections: [{
     type: Schema.Types.ObjectId,
-    ref: 'collection' // future use
+    ref: 'collection'
   }]
 }, {
   timestamps: true

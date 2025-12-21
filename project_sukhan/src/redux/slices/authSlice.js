@@ -90,12 +90,24 @@ export const toggleSavePoem = createAsyncThunk(
   }
 );
 
+export const checkAuth = createAsyncThunk(
+  'auth/check',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await authService.check();
+      return res.user;
+    } catch (err) {
+      return rejectWithValue(null);
+    }
+  }
+);
+
 
 // Initial state
 const initialState = {
   user: null,
   token: localStorage.getItem('token'),
-  isAuthenticated: !!localStorage.getItem('token'),
+  isAuthenticated: false,
   isLoading: false,
   error: null
 };
@@ -234,6 +246,22 @@ const authSlice = createSlice({
         }
       })
 
+      // Check Auth
+      .addCase(checkAuth.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isLoading = false;
+        state.isAuthenticated = true;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isLoading = false;
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        localStorage.removeItem('token');
+      });
   }
 });
 

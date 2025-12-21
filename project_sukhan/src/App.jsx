@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { getProfile } from './redux/slices/authSlice';
+import { checkAuth } from './redux/slices/authSlice';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login'
@@ -22,9 +22,7 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (localStorage.getItem('token')) {
-      dispatch(getProfile());
-    }
+    dispatch(checkAuth());
   }, [dispatch]);
 
   return (

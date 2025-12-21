@@ -12,7 +12,7 @@ const Navbar = () => {
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const langRef = useRef(null);
   const profileRef = useRef(null);
-  const { user } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, isLoading } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -418,12 +418,19 @@ const Navbar = () => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleSearch}
-          placeholder="Search poems, poets..."
+          placeholder={
+            currentLang === 'hi'
+              ? 'तलाश कीजिए'
+              : currentLang === 'ur'
+              ? 'تلاش کیجیے'
+              : 'Search poems, poets...'
+            }
           className="w-full input input-bordered input-sm 
-          bg-white border-amber-200 focus:border-amber-400"
+          bg-white border-amber-200 focus:border-amber-400 text-base-100 placeholder-gray-400"
         />
       </div>
       )}
+    
       {/* 📱 Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white border-b border-amber-100 shadow">
