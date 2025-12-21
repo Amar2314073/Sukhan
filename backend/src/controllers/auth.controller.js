@@ -30,7 +30,7 @@ exports.register = async (req,res) => {
         const token = jwt.sign({ _id: user._id, email: email, role: 'user' }, process.env.JWT_KEY, { expiresIn: tokenValidity })
         res.cookie("token", token, {
             httpOnly: true,           
-            secure: true,             
+            secure: process.env.NODE_ENV === "production",             
             sameSite: "none",
             maxAge: ms(tokenValidity)
         });
@@ -75,7 +75,7 @@ exports.login = async (req,res) => {
         const token = jwt.sign({ _id: user._id, email: email, role: user.role }, process.env.JWT_KEY, { expiresIn: tokenValidity })
         res.cookie("token", token, {
             httpOnly: true,           
-            secure: true,             
+            secure: process.env.NODE_ENV === "production",             
             sameSite: "none",
             maxAge: ms(tokenValidity)
         });
@@ -112,7 +112,7 @@ exports.logout = async (req,res) => {
 
         res.clearCookie("token", {
             httpOnly: true,
-            secure: true,
+            secure: process.env.NODE_ENV === "production",
             sameSite: "none"
         });
 
@@ -145,7 +145,7 @@ exports.adminRegister = async (req,res) => {
         const token = jwt.sign({ _id: newUser._id, email: email, role: 'admin' }, process.env.JWT_KEY, { expiresIn: tokenValidity })
         res.cookie("token", token, {
             httpOnly: true,           
-            secure: true,             
+            secure: process.env.NODE_ENV === "production",             
             sameSite: "none",
             maxAge: ms(tokenValidity)
         });
