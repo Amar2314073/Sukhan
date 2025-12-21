@@ -47,7 +47,7 @@ const Navbar = () => {
   ];
 
     const handleSearch = (e) => {
-    if (e.key === 'Enter' && searchQuery.trim()) {
+    if ((e.key === 'Enter') && searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
       setSearchQuery('');
       }
@@ -409,7 +409,7 @@ const Navbar = () => {
       </div>
     {/* 📱 Mobile Search Bar */}
     {mobileSearchOpen && (
-      <div className="md:hidden bg-white border-b border-amber-100 px-4 py-3">
+      <div className="md:hidden relative bg-white border-b border-amber-100 px-4 py-3">
         <input
           type="text"
           value={searchQuery}
@@ -425,6 +425,19 @@ const Navbar = () => {
           className="w-full input input-bordered input-sm 
           bg-white border-amber-200 focus:border-amber-400 text-base-100 placeholder-gray-400"
         />
+        <button
+          onClick={() => {
+            if (searchQuery.trim()) {
+              navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+              setMobileSearchOpen(false);
+            }
+          }}
+          className="absolute right-4 top-1/2 -translate-y-1/2 text-amber-600 hover:text-amber-800"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </button>
       </div>
       )}
     
