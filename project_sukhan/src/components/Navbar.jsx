@@ -212,26 +212,23 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="p-2 rounded-full hover:bg-amber-100 transition-colors duration-200"
+                className="p-2 rounded-full hover:bg-amber-100 transition-colors duration-200 shadow-0"
                 aria-label="Profile menu"
               >
                 {user ? (
                   user.profileImage ? (
-                    // यूजर की अपनी इमेज अगर है
                     <img 
                       src={user.profileImage} 
                       alt={user.name || 'User'} 
-                      className="w-8 h-8 rounded-full object-cover border border-amber-200"
+                      className="w-8 h-8 min-w-8 min-h-8 rounded-full object-cover border border-amber-200 aspect-square"
                     />
                   ) : (
-                    // यूजर की इमेज नहीं है तो उनके नाम का पहला अक्षर
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 
-                    text-white flex items-center justify-center font-semibold text-sm">
+                    <div className="w-8 h-8 min-w-8 min-h-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 
+                    text-white flex items-center justify-center font-semibold text-sm aspect-square">
                       {user.name?.charAt(0).toUpperCase() || 'U'}
                     </div>
                   )
                 ) : (
-                  // लॉग इन नहीं है तो डिफॉल्ट आइकन
                   defaultProfileImage
                 )}
               </button>
