@@ -167,7 +167,7 @@ const poetSlice = createSlice({
           action.payload ||
           action.error?.message ||
           JSON.stringify(action.error);
-      });
+      })
 
       
       // Search poets
