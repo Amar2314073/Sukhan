@@ -17,6 +17,9 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -107,6 +110,34 @@ const Navbar = () => {
 
           {/* RIGHT SECTION */}
           <div className="flex items-center gap-4">
+
+          {/* 🔍 Mobile Search Icon */}
+          <button
+            onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+            className="md:hidden p-2 rounded-full hover:bg-amber-100"
+          >
+            <svg className="w-5 h-5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+
+          {/* ☰ Mobile Hamburger */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(!mobileMenuOpen);
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+
+            className="md:hidden p-2 rounded-full hover:bg-amber-100"
+          >
+            <svg className="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+            
 
             {/* 🔍 SEARCH BOX */}
             <div className="hidden md:block relative">
@@ -379,6 +410,45 @@ const Navbar = () => {
           </div>
         </div>
       </div>
+    {/* 📱 Mobile Search Bar */}
+    {mobileSearchOpen && (
+      <div className="md:hidden bg-white border-b border-amber-100 px-4 py-3">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleSearch}
+          placeholder="Search poems, poets..."
+          className="w-full input input-bordered input-sm 
+          bg-white border-amber-200 focus:border-amber-400"
+        />
+      </div>
+      )}
+      {/* 📱 Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden bg-white border-b border-amber-100 shadow">
+          <NavLink to="/" onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-3 text-gray-700 hover:bg-amber-50">
+            {t('home')}
+          </NavLink>
+          <NavLink to="/poets" onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-3 text-gray-700 hover:bg-amber-50">
+            {t('poets')}
+          </NavLink>
+          <NavLink to="/poems" onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-3 text-gray-700 hover:bg-amber-50">
+            {t('poems')}
+          </NavLink>
+          <NavLink to="/collections" onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-3 text-gray-700 hover:bg-amber-50">
+            {t('collections')}
+          </NavLink>
+          <NavLink to="/dictionary" onClick={() => setMobileMenuOpen(false)}
+            className="block px-4 py-3 text-gray-700 hover:bg-amber-50">
+            {t('dictionary')}
+          </NavLink>
+        </div>
+      )}
     </nav>
   );
 };
