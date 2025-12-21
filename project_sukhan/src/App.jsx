@@ -12,8 +12,8 @@ import Poets from './pages/Poets';
 import Search from './pages/Search'
 import PoetProfile from './pages/PoetProfile';
 import PoemDetail from './pages/PoemDetail';
-import PrivateRoute from './pages/PrivateRoute';
-import AdminRoutes from './pages/AdminRoutes';
+import PrivateRoute from './routes/PrivateRoute';
+import AdminRoutes from './routes/AdminRoutes';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPoets from './pages/AdminPoets';
 import AdminPoems from './pages/AdminPoems';

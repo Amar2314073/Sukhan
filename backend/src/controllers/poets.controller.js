@@ -477,4 +477,3 @@ exports.getPopularPoets = async (req, res) => {
     res.status(500).json({ message: "Error fetching popular poets" });
   }
 };
-

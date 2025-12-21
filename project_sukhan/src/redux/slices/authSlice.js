@@ -96,11 +96,12 @@ export const checkAuth = createAsyncThunk(
     try {
       const res = await authService.check();
       return res.user;
-    } catch (err) {
+    } catch {
       return rejectWithValue(null);
     }
   }
 );
+
 
 
 // Initial state
@@ -108,9 +109,10 @@ const initialState = {
   user: null,
   token: localStorage.getItem('token'),
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null
 };
+
 
 // Auth slice
 const authSlice = createSlice({
@@ -250,18 +252,21 @@ const authSlice = createSlice({
       .addCase(checkAuth.pending, (state) => {
         state.isLoading = true;
       })
+
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.user = action.payload;
-        state.isLoading = false;
         state.isAuthenticated = true;
-      })
-      .addCase(checkAuth.rejected, (state) => {
         state.isLoading = false;
+      })
+
+      .addCase(checkAuth.rejected, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
+        state.isLoading = false;
         localStorage.removeItem('token');
       });
+
   }
 });
 

@@ -249,7 +249,7 @@ const poemSlice = createSlice({
         if (state.currentPoem && state.currentPoem._id === deletedPoemId) {
           state.currentPoem = null;
         }
-      });
+      })
   }
 });
 

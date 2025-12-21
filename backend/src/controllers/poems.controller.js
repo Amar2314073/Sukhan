@@ -424,4 +424,3 @@ exports.getFeaturedPoems = async (req, res) => {
   }
 };
 
-
