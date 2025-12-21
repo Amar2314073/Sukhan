@@ -17,10 +17,12 @@ export const fetchAllPoets = createAsyncThunk(
 
       const response = await axios.get(BASE_URL, { params });
       return response.data;
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message || 'Failed to fetch poets'
-      );
+    } catch (err) {
+        return rejectWithValue(
+          err.response?.data?.message ||
+          err.message ||
+          'Unknown error'
+        );
     }
   }
 );
@@ -161,8 +163,12 @@ const poetSlice = createSlice({
       })
       .addCase(fetchAllPoets.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload || 'Failed to load poets';
-      })
+        state.error =
+          action.payload ||
+          action.error?.message ||
+          JSON.stringify(action.error);
+      });
+
       
       // Search poets
       .addCase(searchPoets.pending, (state) => {
