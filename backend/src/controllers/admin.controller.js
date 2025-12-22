@@ -18,6 +18,19 @@ exports.dashboard = async (req, res) => {
   });
 };
 
+/* -------- POETS -------- */
+
+// GET /poets - get all poets (admin only)
+exports.getAllPoets = async (req, res) => {
+  try {
+    const poets = await Poet.find().sort({ name: 1 }).select('name'); // Sort by name ascending
+    res.status(200).json({ poets });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error fetching poets" });
+  }
+};
+
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
   try {
@@ -173,6 +186,8 @@ exports.deletePoet = async (req, res) => {
         res.status(500).json({ message: "Error deleting poet" });
     }
 }
+
+/* -------- POEMS -------- */
 
 // POST /poems - create poem (admin only)
 exports.createPoem = async (req, res) => {
@@ -346,5 +361,3 @@ exports.deletePoem = async (req, res) => {
         res.status(500).json({ message: "Error deleting poem" });
     }
 }
-
-

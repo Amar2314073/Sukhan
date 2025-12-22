@@ -19,6 +19,7 @@ const AdminPoets = () => {
       setLoading(true);
       const res = await adminService.getPoets();
       setPoets(res.data.poets || []);
+      console.log(res);
     } catch (err) {
       console.error(err);
     } finally {

@@ -132,7 +132,7 @@ const Navbar = () => {
                 placeholder="Search poems, poets…"
                 className="input input-bordered input-sm w-64
                   bg-base-200/60 border-base-300/40
-                  text-base-content placeholder:text-base-content/60"
+                  text-base-content placeholder:text-base-content/90"
               />
               <button className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer
               text-base-content/90 hover:text-base-content/70">

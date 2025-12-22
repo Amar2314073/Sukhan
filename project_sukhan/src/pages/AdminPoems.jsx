@@ -108,7 +108,7 @@ const AdminPoems = () => {
           overflow-hidden
         ">
           <table className="w-full">
-            <thead className="border-b border-base-300/40 bg-base-200/30 shadow-sm sticky top-0 z-10">
+            <thead className="border-b border-base-300/40 bg-base-200/30 shadow-sm sticky top-0">
               <tr>
                 <th className="p-4 text-left font-medium text-base-content">Title</th>
                 <th className="p-4 text-left font-medium text-base-content">Poet</th>

@@ -1,9 +1,21 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../services/admin.service';
-
+import { useDispatch } from 'react-redux';
+import { 
+  getAllCategories, 
+  clearCurrentCategory,
+  clearError 
+} from '../redux/slices/categorySlice';
+import { useSelector } from 'react-redux';
 const PoemForm = ({ poem, onClose, onSuccess }) => {
   const [poets, setPoets] = useState([]);
-  const [categories, setCategories] = useState([]);
+  const { 
+    categories, 
+    currentCategory,
+    loading: categoriesLoading 
+  } = useSelector((state) => state.categories);
+  const dispatch = useDispatch();
+
 
   const [form, setForm] = useState({
     title: poem?.title || '',
@@ -16,16 +28,21 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
     },
     tags: poem?.tags?.join(', ') || ''
   });
+  const poetNames = async () => {
+    try {
+      const response = await adminService.getPoetNames();
+      setPoets(response.data.poets);
+      } catch (error) {
+        console.error('Error fetching poet names:', error);
+    }
+  };
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/poets')
-      .then(res => res.json())
-      .then(data => setPoets(data.poets || []));
+    poetNames();
+    dispatch(getAllCategories());
+  }, [dispatch]);
 
-    fetch('http://localhost:5000/api/categories')
-      .then(res => res.json())
-      .then(data => setCategories(data.categories || []));
-  }, []);
+console.log('Categories from Redux:', categories);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -85,7 +102,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
             onChange={e => setForm({ ...form, category: e.target.value })}
           >
             <option value="">Select Category</option>
-            {categories.map(c => (
+            {categories.categories.map(c => (
               <option key={c._id} value={c._id}>{c.name}</option>
             ))}
           </select>
@@ -93,7 +110,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
 
         {/* CONTENT */}
         <textarea
-          placeholder="Urdu (optional)"
+          placeholder="Urdu"
           className="textarea textarea-bordered w-full font-urdu text-right"
           value={form.content.urdu}
           onChange={e =>
