@@ -1,6 +1,9 @@
 import axios from "axios";
 import { BASE_URL } from "../config/api";
 
+console.log("API URL:", import.meta.env.VITE_API_URL);
+
+
 const axiosClient = axios.create({
   baseURL: `${BASE_URL}`,
   withCredentials: true,
