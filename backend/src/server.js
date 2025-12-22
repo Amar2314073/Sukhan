@@ -7,8 +7,6 @@ const routes = require('./routes');
 const redisClient = require('./config/redis');
 const cors = require('cors')
 
-app.use(express.json());   // to convert json into js object
-app.use(cookieParser());   // to parse cookie
 
 
 app.use(cors({
@@ -18,6 +16,8 @@ app.use(cors({
     credentials: true
 }))
 
+app.use(express.json());   // to convert json into js object
+app.use(cookieParser());   // to parse cookie
 
 app.use('/api', routes);
 
