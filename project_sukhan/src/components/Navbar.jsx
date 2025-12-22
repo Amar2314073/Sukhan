@@ -53,7 +53,7 @@ const Navbar = () => {
 
   const handleLogout = () => {
     dispatch(logoutUser());
-    navigate('/');
+    navigate('/', { replace: true });
     setProfileMenuOpen(false);
     setMobileMenuOpen(false);
   };
@@ -323,16 +323,6 @@ const Navbar = () => {
           <NavLink to="/poems" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Poems</NavLink>
           <NavLink to="/collections" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Collections</NavLink>
           <NavLink to="/dictionary" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Dictionary</NavLink>
-
-          {user && (
-            <>
-              <NavLink to="/profile" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">My Profile</NavLink>
-              {user.role === 'admin' && (
-                <NavLink to="/admin" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Admin Panel</NavLink>
-              )}
-              <button onClick={handleLogout} className="w-full text-left px-4 py-3 text-error hover:bg-error/10">Logout</button>
-            </>
-          )}
         </div>
       )}
     </nav>
