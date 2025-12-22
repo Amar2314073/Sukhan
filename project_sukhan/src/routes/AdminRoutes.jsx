@@ -6,8 +6,7 @@ const AdminRoutes = () => {
   const { isLoading, isAuthenticated, user } = useSelector(s => s.auth);
 
   if (isLoading) return <AdminShimmer />;
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (user?.role !== 'admin') return <Navigate to="/" replace/>;
+  if (!isAuthenticated || user?.role !== 'admin') return <Navigate to="/" replace />;
   return <Outlet />;
 };
 

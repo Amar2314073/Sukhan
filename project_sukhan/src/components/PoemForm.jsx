@@ -42,8 +42,6 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
     dispatch(getAllCategories());
   }, [dispatch]);
 
-console.log('Categories from Redux:', categories);
-
   const submit = async (e) => {
     e.preventDefault();
 
@@ -102,7 +100,7 @@ console.log('Categories from Redux:', categories);
             onChange={e => setForm({ ...form, category: e.target.value })}
           >
             <option value="">Select Category</option>
-            {categories.categories.map(c => (
+            {categories?.categories?.map(c => (
               <option key={c._id} value={c._id}>{c.name}</option>
             ))}
           </select>
