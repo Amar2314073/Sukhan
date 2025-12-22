@@ -78,3 +78,5 @@ const PoetProfile = () => {
 };
 
 export default PoetProfile;
+
+// https://rekhta.pc.cdn.bitgravity.com/Images/poet-profile-banner.png
