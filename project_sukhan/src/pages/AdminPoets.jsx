@@ -6,7 +6,8 @@ import AdminPoemsShimmer from '../shimmer/AdminPoemsShimmer';
 
 const AdminPoets = () => {
   const [poets, setPoets] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [editingPoet, setEditingPoet] = useState(null);
@@ -18,10 +19,10 @@ const AdminPoets = () => {
   const [hasNext, setHasNext] = useState(true);
   const observerRef = useRef(null);
 
-
   const loadPoets = async (pageNo = 1) => {
     try {
-      setLoading(true);
+      if (pageNo === 1) setInitialLoading(true);
+      else setLoading(true);
 
       const res = await adminService.getPoets({
         page: pageNo,
@@ -40,30 +41,42 @@ const AdminPoets = () => {
       console.error(err);
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
+
 
   useEffect(() => {
     loadPoets(1);
   }, []);
 
   useEffect(() => {
-    if (!hasNext || loading) return;
+    setPage(1);
+    setPoets([]);
+    loadPoets(1);
+  }, [search]);
+
+  useEffect(() => {
+    if (!hasNext) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && hasNext && !loading) {
+        if (entry.isIntersecting && !loading && !initialLoading) {
           setPage(prev => prev + 1);
         }
       },
-      { rootMargin: '200px' }
+      { rootMargin: '300px' }
     );
 
     const el = observerRef.current;
     if (el) observer.observe(el);
 
-    return () => el && observer.unobserve(el);
-  }, [hasNext, loading]);
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [hasNext, loading, initialLoading]);
+
+
 
   useEffect(() => {
   if (page > 1) {
@@ -73,19 +86,8 @@ const AdminPoets = () => {
 
 
 
-  /* ===================== SEARCH FILTER ===================== */
-  const filteredPoets = poets.filter(poet => {
-    const q = search.toLowerCase();
 
-    return (
-      poet.name?.toLowerCase().includes(q) ||
-      poet.era?.toLowerCase().includes(q) ||
-      String(poet.birthYear || '').includes(q) ||
-      String(poet.deathYear || '').includes(q)
-    );
-  });
-
-  if (loading) return <AdminPoemsShimmer />;
+  if (initialLoading) return <AdminPoemsShimmer />;
 
   return (
     <div className="min-h-screen bg-base-100 px-4 md:px-6 py-6">
@@ -135,7 +137,7 @@ const AdminPoets = () => {
       </div>
 
       {/* NO RESULT */}
-      {!loading && filteredPoets.length === 0 && (
+      {!loading && poets.length === 0 && (
         <div className="text-center py-10 text-base-content/60">
           No poets found
         </div>
@@ -171,7 +173,7 @@ const AdminPoets = () => {
             </thead>
 
             <tbody>
-              {filteredPoets.map(poet => (
+              {poets.map(poet => (
                 <tr
                   key={poet._id}
                   className="
@@ -215,7 +217,7 @@ const AdminPoets = () => {
 
       {/* ===================== MOBILE CARDS ===================== */}
       <div className="md:hidden space-y-4">
-        {filteredPoets.map(poet => (
+        {poets.map(poet => (
           <div
             key={poet._id}
             className="
@@ -261,7 +263,7 @@ const AdminPoets = () => {
       </div>
 
       {hasNext && (
-        <div ref={observerRef} className="h-20">
+        <div ref={observerRef} className="h-1 w-full">
           {loading && <AdminPoemsShimmer />}
         </div>
       )}
