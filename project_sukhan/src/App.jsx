@@ -28,11 +28,11 @@ function App() {
 
   return (
     <Router>
+      <Toaster position="bottom-center" />
       <div className="min-h-screen bg-base-100">
         <Navbar />
         <main>
           <Routes>
-            <Toaster position="bottom-center" />
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
