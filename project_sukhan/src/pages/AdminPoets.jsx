@@ -14,6 +14,7 @@ const AdminPoets = () => {
   const [deletePoet, setDeletePoet] = useState(null);
 
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
 
   const [page, setPage] = useState(1);
   const [hasNext, setHasNext] = useState(true);
@@ -27,7 +28,7 @@ const AdminPoets = () => {
       const res = await adminService.getPoets({
         page: pageNo,
         limit: 12,
-        search: search.trim() || undefined
+        search: debouncedSearch.trim() || undefined
       });
 
       const { poets: newPoets, pagination } = res.data;
@@ -54,7 +55,16 @@ const AdminPoets = () => {
     setPage(1);
     setPoets([]);
     loadPoets(1);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500); // 👈 500ms wait
+
+    return () => clearTimeout(timer);
   }, [search]);
+
 
   useEffect(() => {
     if (!hasNext) return;
