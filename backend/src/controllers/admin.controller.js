@@ -23,7 +23,7 @@ exports.dashboard = async (req, res) => {
 // GET /poets - get all poets (admin only)
 exports.getAllPoets = async (req, res) => {
   try {
-    const poets = await Poet.find().sort({ name: 1 }).select('name'); // Sort by name ascending
+    const poets = await Poet.find().sort({ name: 1 }).select('name');
     res.status(200).json({ poets });
   } catch (err) {
     console.error(err);

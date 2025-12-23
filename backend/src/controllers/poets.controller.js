@@ -21,7 +21,7 @@ exports.getAllPoets = async (req, res) => {
 
         // Get poets with sorting
         const poets = await Poet.find(filter)
-            .sort({ popularity: -1, name: 1 })
+            .sort({ popularity: -1, _id: 1 })
             .skip(skip)
             .limit(limit)
             .select('-isActive');
@@ -164,7 +164,7 @@ exports.getPoetsByEra = async (req, res) => {
         }
 
         const poets = await Poet.find({ era, isActive: true })
-            .sort({ popularity: -1, name: 1 })
+            .sort({ popularity: -1, name: 1, _id: 1 })
             .skip(skip)
             .limit(limit);
 
@@ -385,7 +385,7 @@ exports.searchPoets = async (req, res) => {
 
         // Search poets
         const poets = await Poet.find(searchFilter)
-            .sort({ popularity: -1, name: 1 })
+            .sort({ popularity: -1, name: 1, _id: 1 })
             .skip(skip)
             .limit(limit);
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { adminService } from '../services/admin.service';
 import PoetForm from '../components/PoetForm';
 import ConfirmDelete from '../components/ConfirmDelete';
@@ -14,12 +14,28 @@ const AdminPoets = () => {
 
   const [search, setSearch] = useState('');
 
-  const loadPoets = async () => {
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(true);
+  const observerRef = useRef(null);
+
+
+  const loadPoets = async (pageNo = 1) => {
     try {
       setLoading(true);
-      const res = await adminService.getPoets();
-      setPoets(res.data.poets || []);
-      console.log(res);
+
+      const res = await adminService.getPoets({
+        page: pageNo,
+        limit: 12,
+        search: search.trim() || undefined
+      });
+
+      const { poets: newPoets, pagination } = res.data;
+
+      setPoets(prev =>
+        pageNo === 1 ? newPoets : [...prev, ...newPoets]
+      );
+
+      setHasNext(pagination.hasNext);
     } catch (err) {
       console.error(err);
     } finally {
@@ -28,8 +44,34 @@ const AdminPoets = () => {
   };
 
   useEffect(() => {
-    loadPoets();
+    loadPoets(1);
   }, []);
+
+  useEffect(() => {
+    if (!hasNext || loading) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNext && !loading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { rootMargin: '200px' }
+    );
+
+    const el = observerRef.current;
+    if (el) observer.observe(el);
+
+    return () => el && observer.unobserve(el);
+  }, [hasNext, loading]);
+
+  useEffect(() => {
+  if (page > 1) {
+    loadPoets(page);
+  }
+}, [page]);
+
+
 
   /* ===================== SEARCH FILTER ===================== */
   const filteredPoets = poets.filter(poet => {
@@ -43,6 +85,7 @@ const AdminPoets = () => {
     );
   });
 
+  console.log({ filteredPoets });
   if (loading) return <AdminPoemsShimmer />;
 
   return (
@@ -93,7 +136,7 @@ const AdminPoets = () => {
       </div>
 
       {/* NO RESULT */}
-      {filteredPoets.length === 0 && (
+      {!loading && filteredPoets.length === 0 && (
         <div className="text-center py-10 text-base-content/60">
           No poets found
         </div>
@@ -217,6 +260,13 @@ const AdminPoets = () => {
           </div>
         ))}
       </div>
+
+      {hasNext && (
+        <div ref={observerRef} className="h-20">
+          {loading && <AdminPoemsShimmer />}
+        </div>
+      )}
+
 
       {/* ===================== MODALS ===================== */}
       {showForm && (

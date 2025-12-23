@@ -4,7 +4,7 @@ export const adminService = {
   dashboard: () => axiosClient.get("/admin/dashboard"),
 
   getPoetNames : () => axiosClient.get(`admin/poets`),
-  getPoets: () => axiosClient.get("/poets"),
+  getPoets: (params) => axiosClient.get("/poets", { params }),
   createPoet: (d) => axiosClient.post("/admin/poet", d),
   updatePoet: (id,d) => axiosClient.put(`/admin/poet/${id}`, d),
   deletePoet: (id) => axiosClient.delete(`/admin/poet/${id}`),
