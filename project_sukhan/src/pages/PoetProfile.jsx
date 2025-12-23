@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
+import { BookOpen, Calendar, Clock, MapPin } from 'lucide-react';
 import {
   getPoetById,
   getPoemsByPoet,
@@ -16,6 +17,19 @@ const PoetProfile = () => {
   );
 
   const [activeCategory, setActiveCategory] = useState(null);
+  const categoryCounts = useMemo(() => {
+    const counts = {};
+
+    poetPoems.forEach(poem => {
+      const cat = poem.category?.name;
+      if (!cat) return;
+
+      counts[cat] = (counts[cat] || 0) + 1;
+    });
+
+    return counts;
+  }, [poetPoems]);
+
 
   useEffect(() => {
     dispatch(getPoetById(id));
@@ -83,10 +97,25 @@ const PoetProfile = () => {
                 {currentPoet.name}
               </h1>
 
-              <p className="text-sm text-white/70 mt-1">
-                {currentPoet.birthYear || '—'}
-                {currentPoet.deathYear && ` – ${currentPoet.deathYear}`} • {currentPoet.country}
+              <p className="text-sm text-white/70 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                {/* Birth / Death Year */}
+                <span className="flex items-center gap-1">
+                  <Calendar size={14} className="opacity-70" />
+                  {currentPoet.birthYear || '—'}
+                  {currentPoet.deathYear && ` – ${currentPoet.deathYear}`}
+                </span>
+
+                <span>|</span>
+
+                {/* Country */}
+                {currentPoet.country && (
+                  <span className="flex items-center gap-1">
+                    <MapPin size={14} className="opacity-70" />
+                    {currentPoet.country}
+                  </span>
+                )}
               </p>
+
 
               {currentPoet.bio && (
                 <p className="
@@ -156,21 +185,43 @@ const PoetProfile = () => {
                   key={poem._id}
                   to={`/poems/${poem._id}`}
                   className="
-                    block py-5
-                    transition
-                    hover:bg-base-200/40
-                    px-2 -mx-2
+                    ghazal-card
+                    relative
+                    block
+                    rounded-2xl
+                    px-7 py-6
+                    mb-7
                   "
                 >
+                  <div
+                    className="
+                      pointer-events-none
+                      absolute inset-0
+                      bg-gradient-to-r
+                      from-transparent
+                      via-white/5
+                      to-transparent
+                    "
+                  />
+
+                  {/* ================= POEM LINES ================= */}
                   {misre?.map((line, i) => (
                     <p
                       key={i}
-                      className="font-serif text-lg leading-relaxed"
+                      className="
+                        relative z-10
+                        font-serif
+                        text-lg
+                        leading-relaxed
+                        text-base-content
+                      "
                     >
                       {line}
                     </p>
                   ))}
                 </Link>
+
+
               );
             })}
           </div>
@@ -178,19 +229,73 @@ const PoetProfile = () => {
 
         {/* RIGHT SIDEBAR */}
         <aside className="hidden md:block">
-          <div className="
-            bg-base-200/40
-            border border-base-300/40
-            rounded-xl
-            p-5
-            text-sm
-            space-y-3
-          ">
-            <div>📚 कुल रचनाएँ: {poetPoems.length}</div>
-            <div>🕰 दौर: {currentPoet.era || '—'}</div>
-            <div>🌍 देश: {currentPoet.country || '—'}</div>
+          <div
+            className="
+              bg-base-200/40
+              border border-base-300/40
+              rounded-2xl
+              p-6
+              text-sm
+              space-y-5
+            "
+          >
+            {/* Heading */}
+            <h3 className="font-serif text-base font-semibold text-base-content">
+              प्रोफ़ाइल विवरण
+            </h3>
+
+            {/* Category-wise counts */}
+            <div className="pt-2 space-y-2">
+              <div className="text-xs uppercase tracking-wide text-base-content/60">
+                रचनाओं का प्रकार
+              </div>
+
+              {Object.entries(categoryCounts).map(([cat, count]) => (
+                <div
+                  key={cat}
+                  className="flex justify-between items-center text-sm"
+                >
+                  <span className="text-base-content">
+                    {cat}
+                  </span>
+                  <span className="
+                    px-2 py-0.5
+                    rounded-full
+                    bg-base-300/40
+                    text-xs
+                    font-medium
+                  ">
+                    {count}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+
+            {/* Era */}
+            <div className="flex items-center gap-3">
+              <Clock size={18} className="text-primary/80" />
+              <div>
+                <div className="text-xs text-base-content/60">दौर</div>
+                <div className="font-medium text-base-content">
+                  {currentPoet.era || '—'}
+                </div>
+              </div>
+            </div>
+
+            {/* Country */}
+            <div className="flex items-center gap-3">
+              <MapPin size={18} className="text-primary/80" />
+              <div>
+                <div className="text-xs text-base-content/60">देश</div>
+                <div className="font-medium text-base-content">
+                  {currentPoet.country || '—'}
+                </div>
+              </div>
+            </div>
           </div>
         </aside>
+
 
       </div>
     </div>

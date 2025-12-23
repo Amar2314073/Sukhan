@@ -101,14 +101,16 @@
   to { transform: translateX(100%); }
 }
 
-.shimmer-card {
-  background-color: hsl(var(--b2));
-  border: 1px solid hsl(var(--b3) / 0.35);
+
+.ghazal-card {
+  background-color: hsl(var(--b2)); /* bg-base-200 */
+  border: 1px solid hsl(var(--b3) / 0.4);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
   position: relative;
   overflow: hidden;
 }
 
-.shimmer-card::after {
+.ghazal-card::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -118,10 +120,10 @@
     rgba(255,255,255,0.06) 37%,
     transparent 50%
   );
-  animation: shimmer 1.4s infinite;
+  animation: ghazal 8s infinite;
 }
 
-@keyframes shimmer {
+@keyframes ghazal {
   from { transform: translateX(-100%); }
   to { transform: translateX(100%); }
 }
