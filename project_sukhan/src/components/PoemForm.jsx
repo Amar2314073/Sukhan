@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminService } from '../services/admin.service';
 import { useDispatch } from 'react-redux';
+import toast from 'react-hot-toast';
 import { 
   getAllCategories, 
   clearCurrentCategory,
@@ -34,7 +35,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
       setPoets(response.data.poets);
       } catch (error) {
         console.error('Error fetching poet names:', error);
-    }
+    } 
   };
 
   useEffect(() => {
@@ -53,13 +54,25 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
         .filter(Boolean)
     };
 
-    if (poem) {
-      await adminService.updatePoem(poem._id, payload);
-    } else {
-      await adminService.createPoem(payload);
-    }
+    toast.loading(poem ? 'Updating poem...' : 'Saving poem...', {
+      id: 'poem-save'
+    });
 
-    onSuccess();
+    try {
+      if (poem) {
+        await adminService.updatePoem(poem._id, payload);
+        toast.success('Poem updated successfully', { id: 'poem-save' });
+      } else {
+        await adminService.createPoem(payload);
+        toast.success('Poem added successfully', { id: 'poem-save' });
+      }
+
+      onSuccess();
+
+    } catch (error) {
+      toast.error('Something went wrong', { id: 'poem-save' });
+      console.error(error);
+    }
   };
 
   return (

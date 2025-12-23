@@ -17,6 +17,7 @@ import AdminRoutes from './routes/AdminRoutes';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminPoets from './pages/AdminPoets';
 import AdminPoems from './pages/AdminPoems';
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ function App() {
         <Navbar />
         <main>
           <Routes>
+            <Toaster position="bottom-center" />
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
