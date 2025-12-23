@@ -85,7 +85,6 @@ const AdminPoets = () => {
     );
   });
 
-  console.log({ filteredPoets });
   if (loading) return <AdminPoemsShimmer />;
 
   return (

@@ -78,8 +78,8 @@ const PoetProfile = () => {
           <div className="flex flex-col sm:flex-row items-center gap-5 sm:gap-6">
 
             <img
-              src={currentPoet.image || '/poet-placeholder.png'}
-              alt={currentPoet.name}
+              src={currentPoet?.image || '/poet-placeholder.png'}
+              alt={currentPoet?.name}
               className="
                 w-28 h-28
                 sm:w-36 sm:h-36
@@ -94,27 +94,40 @@ const PoetProfile = () => {
 
             <div className="text-center sm:text-left max-w-[560px]">
               <h1 className="text-2xl md:text-3xl font-serif font-bold text-white">
-                {currentPoet.name}
+                {currentPoet?.name}
               </h1>
 
-              <p className="text-sm text-white/70 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                {/* Birth / Death Year */}
-                <span className="flex items-center gap-1">
-                  <Calendar size={14} className="opacity-70" />
-                  {currentPoet.birthYear || '—'}
-                  {currentPoet.deathYear && ` – ${currentPoet.deathYear}`}
-                </span>
+              {(currentPoet?.birthYear || currentPoet?.country) && (
+                <p className="text-sm text-white/70 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 justify-center sm:justify-start">
 
-                <span>|</span>
+                  {/* Birth / Death */}
+                  {currentPoet.birthYear && (
+                    <span className="flex items-center gap-1">
+                      <Calendar size={14} className="opacity-70" />
+                      {currentPoet.birthYear}
+                      {currentPoet.deathYear
+                        ? ` – ${currentPoet.deathYear}`
+                        : ' – Present'}
+                    </span>
+                  )}
 
-                {/* Country */}
-                {currentPoet.country && (
-                  <span className="flex items-center gap-1">
-                    <MapPin size={14} className="opacity-70" />
-                    {currentPoet.country}
-                  </span>
-                )}
-              </p>
+                  {/* Separator */}
+                  {currentPoet.birthYear && (
+                    <span className="opacity-50">|</span>
+                  )}
+
+                  {/* Country */}
+                  {currentPoet.country && (
+                    <span className="flex items-center gap-1">
+                      <MapPin size={14} className="opacity-70" />
+                      {currentPoet.country}
+                    </span>
+                  )}
+
+                </p>
+              )}
+
+
 
 
               {currentPoet.bio && (
