@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { adminService } from '../services/admin.service';
+import toast from 'react-hot-toast';
 
 const PoetForm = ({ poet, onClose, onSuccess }) => {
   const [form, setForm] = useState({
@@ -15,10 +16,16 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
   const submit = async (e) => {
     e.preventDefault();
 
+    toast.loading(poet ? 'Updating poet...' : 'Saving poet...', {
+      id: 'poet-save'
+    });
+
     if (poet) {
       await adminService.updatePoet(poet._id, form);
+      toast.success('Poet updated successfully!', { id: 'poet-save' });
     } else {
       await adminService.createPoet(form);
+      toast.success('Poet created successfully!', { id: 'poet-save' });
     }
 
     onSuccess();
