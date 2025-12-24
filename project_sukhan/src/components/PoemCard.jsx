@@ -1,81 +1,65 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router';
-import { toggleLikePoem, toggleSavePoem } from '../redux/slices/authSlice';
+import { Link } from "react-router";
 
 const PoemCard = ({ poem }) => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const { user, isAuthenticated } = useSelector(state => state.auth);
-
-  const isLiked = user?.likedPoems?.includes(poem._id);
-  const isSaved = user?.savedPoems?.includes(poem._id);
-
-  const requireLogin = (action) => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    action();
-  };
+  const misre =
+    poem.content?.hindi
+      ?.split("\n")
+      .filter(Boolean)
+      .slice(0, 2) || [];
 
   return (
-    <div className="bg-base-200 rounded-xl p-5 hover:bg-amber-100 transition">
+    <Link
+      to={`/poems/${poem._id}`}
+      className="
+        relative block rounded-2xl
+        px-7 py-6
+        bg-base-200/40
+        border border-base-300/40
+        hover:bg-base-200/60
+        transition
+      "
+    >
+      {/* light sweep */}
+      <div
+        className="
+          pointer-events-none absolute inset-0
+          bg-gradient-to-r
+          from-transparent via-white/5 to-transparent
+          opacity-0 hover:opacity-100
+        "
+      />
 
-      {/* POEM TEXT */}
-      <Link to={`/poems/${poem._id}`}>
-        <p className="font-serif italic line-clamp-3 text-gray-500 leading-relaxed">
-          {poem.content?.hindi || poem.content?.roman}
-        </p>
-      </Link>
-
-      {/* POET */}
-      <p className="text-sm text-gray-600 mt-2">
-        — {poem.poet?.name}
-      </p>
-
-      {/* ACTION BAR */}
-      <div className="flex items-center justify-between mt-4">
-
-        <div className="flex items-center gap-5">
-
-          {/* ❤️ LIKE */}
-          <button
-            onClick={() =>
-              requireLogin(() => dispatch(toggleLikePoem(poem._id)))
-            }
-            className={`flex items-center gap-1 transition
-              ${isLiked ? 'text-red-600' : 'text-gray-500 hover:text-red-500'}
-            `}
+      {/* poem lines */}
+      <div className="space-y-1">
+        {misre.map((line, i) => (
+          <p
+            key={i}
+            className="
+              font-serif
+              text-lg
+              leading-relaxed
+              text-base-content
+            "
           >
-            ❤️
-            <span className="text-sm">{poem.likes || 0}</span>
-          </button>
-
-          {/* 🔖 SAVE */}
-          <button
-            onClick={() =>
-              requireLogin(() => dispatch(toggleSavePoem(poem._id)))
-            }
-            className={`transition
-              ${isSaved ? 'text-amber-700' : 'text-gray-500 hover:text-amber-600'}
-            `}
-          >
-            🔖
-          </button>
-
-        </div>
-
-        {/* READ */}
-        <Link
-          to={`/poems/${poem._id}`}
-          className="text-sm text-amber-700 hover:underline"
-        >
-          Read →
-        </Link>
-
+            {line}
+          </p>
+        ))}
       </div>
-    </div>
+
+      {/* poet */}
+      {poem.poet && (
+        <div className="mt-4 text-sm text-base-content/60">
+          — by{" "}
+          <Link
+            to={`/poets/${poem.poet._id}`}
+            onClick={e => e.stopPropagation()}
+            className="hover:text-primary underline-offset-2 hover:underline"
+          >
+            {poem.poet.name}
+          </Link>
+        </div>
+      )}
+    </Link>
   );
 };
 
