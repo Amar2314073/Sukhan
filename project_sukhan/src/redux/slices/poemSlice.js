@@ -205,7 +205,17 @@ const poemSlice = createSlice({
       })
       .addCase(fetchPoemsByCategory.fulfilled, (state, action) => {
         state.loading = false;
-        state.poemsByCategory = action.payload.poems || action.payload;
+
+        const { poems, pagination } = action.payload;
+
+        if (pagination.currentPage === 1) {
+          state.poemsByCategory = poems;
+        } else {
+          state.poemsByCategory.push(...poems);
+        }
+
+        state.currentPage = pagination.currentPage;
+        state.totalPages = pagination.totalPages;
       })
       .addCase(fetchPoemsByCategory.rejected, (state, action) => {
         state.loading = false;
