@@ -8,22 +8,27 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const { user, isAuthenticated, isLoading } = useSelector(state => state.auth);
+    console.log('AUTH STATE:', {
+    user,
+    isAuthenticated,
+    isLoading,
+    token: localStorage.getItem('token')
+  });
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   /* ---------------- AUTH CHECK ---------------- */
   useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      navigate('/');
-      return;
+    if (!isAuthenticated && !isLoading) {
+      navigate('/login');
     }
     if (!user) {
       dispatch(getProfile());
     }
   }, [dispatch, navigate, user]);
 
-  if (!isAuthenticated || !user) return null;
+  if (isLoading) return <p>Loading...</p>;
 
   /* ---------------- HANDLERS ---------------- */
   const handleLogout = () => {

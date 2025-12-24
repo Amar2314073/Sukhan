@@ -18,6 +18,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import AdminPoets from './pages/AdminPoets';
 import AdminPoems from './pages/AdminPoems';
 import { Toaster } from 'react-hot-toast';
+import Collections from './pages/Collections';
 
 function App() {
   const dispatch = useDispatch();
@@ -39,14 +40,11 @@ function App() {
             <Route path="/poems" element={<Poems />} />
             <Route path="/poets" element={<Poets />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/collections" element={<Collections />} />
             <Route path='/poets/:id' element={<PoetProfile />} />
             <Route path="/poems/:id" element={<PoemDetail />} />
             <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            {/* Add other routes as you create them */}
-            {/* <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path="/dictionary" element={<Dictionary />} /> */}
+            {/* <Route path="/dictionary" element={<Dictionary />} /> */}
             <Route path="/admin" element={<AdminRoutes />}>
             <Route index element={<AdminDashboard />} />
             <Route path="poets" element={<AdminPoets />} />

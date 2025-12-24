@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import poemReducer from './slices/poemSlice';
 import categoryReducer from './slices/categorySlice';
 import poetReducer from './slices/poetSlice';
+import collectionReducer from './slices/collectionSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     poems: poemReducer,
     categories: categoryReducer,
     poets: poetReducer,
+    collections: collectionReducer,
   },
   devTools: import.meta.env.MODE !== 'production',
 });
