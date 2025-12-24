@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { adminService } from '../services/admin.service';
 import PoemForm from '../components/PoemForm';
 import ConfirmDelete from '../components/ConfirmDelete';
@@ -6,44 +6,83 @@ import AdminPoemsShimmer from '../shimmer/AdminPoemsShimmer';
 
 const AdminPoems = () => {
   const [poems, setPoems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   const [showForm, setShowForm] = useState(false);
   const [editingPoem, setEditingPoem] = useState(null);
   const [deletePoem, setDeletePoem] = useState(null);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasNext, setHasNext] = useState(true);
+  const observerRef = useRef(null);
 
 
-  const loadPoems = async () => {
+  const loadPoems = async (pageNo = 1) => {
     try {
-      setLoading(true);
-      const res = await adminService.getPoems();
-      setPoems(res.data.poems);
+      if (pageNo === 1) setInitialLoading(true);
+      else setLoading(true);
+
+      const res = await adminService.getPoems({
+        page: pageNo,
+        limit: 12,
+        q: debouncedSearch || undefined
+      });
+
+      const { poems: newPoems, pagination } = res.data;
+
+      setPoems(prev =>
+        pageNo === 1 ? newPoems : [...prev, ...newPoems]
+      );
+
+      setHasNext(pagination.hasNext);
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+      setInitialLoading(false);
     }
   };
 
   useEffect(() => {
-    loadPoems();
-  }, []);
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
 
-  const filteredPoems = poems.filter(poem => {
-    const q = search.toLowerCase();
+    return () => clearTimeout(timer);
+  }, [search]);
 
-    return (
-      poem.title?.toLowerCase().includes(q) ||
-      poem.poet?.name?.toLowerCase().includes(q) ||
-      poem.category?.name?.toLowerCase().includes(q) ||
-      poem.content?.hindi?.toLowerCase().includes(q) ||
-      poem.content?.roman?.toLowerCase().includes(q)
+  useEffect(() => {
+    setPage(1);
+    setPoems([]);
+    loadPoems(1);
+  }, [debouncedSearch]);
+
+  useEffect(() => {
+    if (!hasNext) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNext && !loading && !initialLoading) {
+          setPage(prev => prev + 1);
+        }
+      },
+      { rootMargin: '300px' }
     );
-  });
 
+    const el = observerRef.current;
+    if (el) observer.observe(el);
 
-  if (loading) return <AdminPoemsShimmer />;
+    return () => {
+      if (el) observer.unobserve(el);
+    };
+  }, [hasNext, loading, initialLoading]);
+  useEffect(() => {
+    if (page > 1) loadPoems(page);
+  }, [page]);
+
+  if (initialLoading) return <AdminPoemsShimmer />;
 
   return (
     <div className="min-h-screen bg-base-100 px-4 md:px-6 py-6">
@@ -92,7 +131,7 @@ const AdminPoems = () => {
       </div>
       
 
-      {filteredPoems.length === 0 && (
+      {poems.length === 0 && (
         <div className="text-center py-10 text-base-content/60">
           No poems found
         </div>
@@ -118,7 +157,7 @@ const AdminPoems = () => {
             </thead>
 
             <tbody>
-              {filteredPoems.map(poem => (
+              {poems.map(poem => (
                 <tr
                   key={poem._id}
                   className="
@@ -162,7 +201,7 @@ const AdminPoems = () => {
 
       {/* ===================== MOBILE CARDS ===================== */}
       <div className="md:hidden space-y-4">
-        {filteredPoems.map(poem => (
+        {poems.map(poem => (
           <div
             key={poem._id}
             className="
@@ -208,6 +247,14 @@ const AdminPoems = () => {
       </div>
 
       {/* ===================== MODALS ===================== */}
+
+      {hasNext && (
+        <div ref={observerRef} className="h-1 w-full">
+          {loading && <AdminPoemsShimmer />}
+        </div>
+      )}
+
+
       {showForm && (
         <PoemForm
           poem={editingPoem}

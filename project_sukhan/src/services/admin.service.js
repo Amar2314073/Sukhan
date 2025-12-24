@@ -9,7 +9,7 @@ export const adminService = {
   updatePoet: (id,d) => axiosClient.put(`/admin/poet/${id}`, d),
   deletePoet: (id) => axiosClient.delete(`/admin/poet/${id}`),
 
-  getPoems: () => axiosClient.get("/poems"),
+  getPoems: (params) => axiosClient.get("/poems", { params }),
   createPoem: (d) => axiosClient.post("/admin/poem", d),
   updatePoem: (id,d) => axiosClient.put(`/admin/poem/${id}`, d),
   deletePoem: (id) => axiosClient.delete(`/admin/poem/${id}`),

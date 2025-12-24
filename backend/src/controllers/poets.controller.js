@@ -21,7 +21,7 @@ exports.getAllPoets = async (req, res) => {
 
         // Get poets with sorting
         const poets = await Poet.find(filter)
-            .sort({ popularity: -1, _id: 1 })
+            .sort({ popularity: -1, _id: 1, name: 1 })
             .skip(skip)
             .limit(limit)
             .select('-isActive');
