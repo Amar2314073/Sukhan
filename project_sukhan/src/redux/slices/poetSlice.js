@@ -155,12 +155,21 @@ const poetSlice = createSlice({
       })
       .addCase(fetchAllPoets.fulfilled, (state, action) => {
         state.loading = false;
-        state.poets = action.payload.poets || [];
+
+        const newPoets = action.payload.poets || [];
+
+        if (action.payload.pagination?.currentPage === 1) {
+          state.poets = newPoets;
+        } else {
+          state.poets = [...state.poets, ...newPoets];
+        }
+
         state.totalPages = action.payload.pagination?.totalPages || 1;
         state.totalPoets = action.payload.pagination?.totalPoets || 0;
         state.currentPage = action.payload.pagination?.currentPage || 1;
         state.pagination = action.payload.pagination || {};
       })
+
       .addCase(fetchAllPoets.rejected, (state, action) => {
         state.loading = false;
         state.error =
