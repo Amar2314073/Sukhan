@@ -60,7 +60,7 @@ const AdminPoets = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500); // 👈 500ms wait
+    }, 500);
 
     return () => clearTimeout(timer);
   }, [search]);
@@ -89,13 +89,10 @@ const AdminPoets = () => {
 
 
   useEffect(() => {
-  if (page > 1) {
-    loadPoets(page);
-  }
-}, [page]);
-
-
-
+    if (page > 1) {
+      loadPoets(page);
+    }
+  }, [page]);
 
   if (initialLoading) return <AdminPoemsShimmer />;
 
@@ -165,7 +162,7 @@ const AdminPoets = () => {
           "
         >
           <table className="w-full">
-            <thead className="border-b border-base-300/40 bg-base-200/30 shadow-sm sticky top-0 z-10">
+            <thead className="border-b border-base-300/40 bg-base-200/30 shadow-sm sticky top-0">
               <tr>
                 <th className="p-4 text-left font-medium text-base-content">
                   Name
