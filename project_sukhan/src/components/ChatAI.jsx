@@ -5,7 +5,7 @@ const ChatAI = ({ poem }) => {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: 'Ask anything about this poem...'
+      content: 'Ask meaning of any word from this poem...'
     }
   ]);
 
@@ -127,7 +127,7 @@ const ChatAI = ({ poem }) => {
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          placeholder="Get meaning of a word or ask about this poem…"
+          placeholder="Ask meaning of any word from this poem..."
           className="
             w-full resize-none
             px-6 py-4 rounded-full
