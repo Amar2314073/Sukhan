@@ -9,5 +9,5 @@ router.use('/categories', require('./categories.routes'));
 router.use('/collections', require('./collections.routes'));
 router.use('/userCollections', require('./userCollections.routes'));
 router.use('/admin', require('./admin.routes'));
-
+router.use('/ai', require('./ai.routes'));
 module.exports = router;

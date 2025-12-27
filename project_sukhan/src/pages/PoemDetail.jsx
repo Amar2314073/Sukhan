@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchPoemById, clearCurrentPoem } from '../redux/slices/poemSlice';
+import ChatAI from '../components/ChatAI';
 
 const PoemDetail = () => {
   const { id } = useParams();
@@ -137,6 +138,8 @@ const PoemDetail = () => {
             ))}
           </div>
         )} */}
+        
+        <ChatAI poem={currentPoem} />
 
       </div>
     </div>
