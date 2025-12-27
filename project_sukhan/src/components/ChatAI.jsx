@@ -23,7 +23,7 @@ const ChatAI = ({ poem }) => {
     setMessages([
       {
         role: 'assistant',
-        content: 'Ask anything about this poem...'
+        content: 'Ask meaning of any word from this poem...'
       }
     ]);
     setInput('');
