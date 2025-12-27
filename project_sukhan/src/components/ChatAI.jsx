@@ -127,7 +127,7 @@ const ChatAI = ({ poem }) => {
           onChange={e => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
           rows={1}
-          placeholder="Ask meaning of any word from this poem..."
+          placeholder="Enter any word from the poem"
           className="
             w-full resize-none
             px-6 py-4 rounded-full
