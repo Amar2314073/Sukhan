@@ -21,57 +21,124 @@ const PoemDetail = () => {
     };
   }, [id, dispatch]);
 
-  if (error) return <p className="p-6 text-red-600">{error}</p>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-base-100 flex items-center justify-center">
+        <span className="loading loading-spinner loading-lg text-primary"></span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-base-100 p-6 text-center text-error">
+        {error}
+      </div>
+    );
+  }
+
   if (!currentPoem) return null;
 
   const content = currentPoem.content?.[lang];
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
+    <div className="min-h-screen bg-base-100 text-base-content">
+      <div className="max-w-3xl mx-auto px-4 py-10">
 
-      {/* 🔹 Title */}
-      <h1 className="text-3xl font-serif text-center mb-2">
-        {currentPoem.title}
-      </h1>
+        {/* ================= TITLE ================= */}
+        <h1 className="text-3xl md:text-4xl font-serif text-center mb-2">
+          {currentPoem.title}
+        </h1>
 
-      {/* 🔹 Poet */}
-      {currentPoem.poet && (
-        <p className="text-center text-gray-600 mb-6">
-          by{' '}
-          <Link
-            to={`/poets/${currentPoem.poet._id}`}
-            className="text-amber-700 hover:underline"
+        {/* ================= POET ================= */}
+        {currentPoem.poet && (
+          <p className="text-center text-base-content/60 mb-6">
+            —{' '}
+            <Link
+              to={`/poets/${currentPoem.poet._id}`}
+              className="hover:text-primary hover:underline underline-offset-4"
+            >
+              {currentPoem.poet.name}
+            </Link>
+          </p>
+        )}
+
+        {/* ================= LANGUAGE TOGGLE ================= */}
+        <div className="flex justify-center gap-2 mb-10">
+          {['urdu', 'hindi', 'roman'].map(l => (
+            <button
+              key={l}
+              onClick={() => setLang(l)}
+              className={`
+                px-4 py-1.5 rounded-full text-xs tracking-wide
+                border transition
+                ${lang === l
+                  ? 'bg-primary text-primary-content border-primary'
+                  : 'bg-base-200 text-base-content/70 border-base-300 hover:text-base-content'}
+              `}
+            >
+              {l.toUpperCase()}
+            </button>
+          ))}
+        </div>
+
+        {/* ================= POEM CARD ================= */}
+        <div
+          className={`
+            relative
+            rounded-2xl
+            px-6 md:px-10
+            py-8 md:py-10
+            bg-base-200/60
+            shadow-lg
+          `}
+        >
+          {/* subtle shine */}
+          <div className="
+            pointer-events-none absolute inset-0
+            bg-gradient-to-r
+            from-transparent
+            via-white/5
+            to-transparent
+            rounded-2xl
+          " />
+
+          {/* poem text */}
+          <pre
+            className={`
+              whitespace-pre-wrap
+              text-sm
+              leading-relaxed
+              font-serif
+              ${lang === 'urdu'
+                ? 'text-right font-rekhta text-md leading-loose'
+                : 'text-center'}
+            `}
           >
-            {currentPoem.poet.name}
-          </Link>
-        </p>
-      )}
+            {content}
+          </pre>
+        </div>
 
-      {/* 🔹 Language Toggle */}
-      <div className="flex justify-center gap-3 mb-8">
-        {['urdu', 'hindi', 'roman'].map(l => (
-          <button
-            key={l}
-            onClick={() => setLang(l)}
-            className={`px-4 py-1 rounded border text-sm
-              ${lang === l
-                ? 'bg-amber-600 text-white'
-                : 'bg-white text-gray-700'
-              }`}
-          >
-            {l.toUpperCase()}
-          </button>
-        ))}
+        {/* ================= META INFO ================= */}
+        {/* {(currentPoem.category || currentPoem.tags?.length) && (
+          <div className="mt-8 flex flex-wrap justify-center gap-3 text-xs text-base-content/60">
+            {currentPoem.category && (
+              <span className="px-3 py-1 rounded-full bg-base-200">
+                {currentPoem.category.name}
+              </span>
+            )}
+            {currentPoem.tags?.map(tag => (
+              <span
+                key={tag}
+                className="px-3 py-1 rounded-full bg-base-200"
+              >
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )} */}
+
       </div>
-
-      {/* 🔹 Poem Text */}
-      <pre
-        className={`whitespace-pre-wrap text-lg leading-relaxed text-center
-          ${lang === 'urdu' ? 'font-rekhta text-right' : ''}
-        `}
-      >
-        {content}
-      </pre>
     </div>
   );
 };
