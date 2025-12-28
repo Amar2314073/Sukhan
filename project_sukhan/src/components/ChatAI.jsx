@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import axiosClient from '../utils/axiosClient';
+import { Mic, Speech } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ChatAI = ({ poem }) => {
   const [messages, setMessages] = useState([
@@ -12,6 +14,49 @@ const ChatAI = ({ poem }) => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef(null);
+  const [listening, setListening] = useState(false);
+
+  /* ================= VOICE INPUT ================= */
+  const startVoiceInput = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast.error('Voice input not supported');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN';
+    recognition.interimResults = false;
+
+    setListening(true);
+    const toastId = toast.loading('Listening… Speak now');
+
+    recognition.onresult = (event) => {
+      const spokenText = event.results[0][0].transcript;
+      setInput(spokenText);
+
+      toast.dismiss(toastId);
+      toast.success('Captured');
+      setListening(false);
+    };
+
+    recognition.onerror = () => {
+      toast.dismiss(toastId);
+      toast.error('Could not hear clearly');
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      setListening(false);
+      toast.dismiss(toastId);
+    };
+
+    recognition.start();
+  };
+
+
 
   /* ================= AUTO SCROLL ================= */
   useEffect(() => {
@@ -137,17 +182,33 @@ const ChatAI = ({ poem }) => {
             placeholder:text-base-content/40
             focus:outline-none
             focus:ring-2 focus:ring-primary/40
-            pr-16
+            pr-28
           "
         />
 
+        {/* Mic Button */}
+        <button
+          type="button"
+          onClick={startVoiceInput}
+          className={`absolute right-18 top-1/2 -translate-y-1/2
+            transition
+            ${listening
+              ? 'text-red-500 animate-pulse'
+              : 'text-base-content/60 hover:text-primary'}
+          `}
+        >
+          <Mic size={20} />
+        </button>
+
+
+        {/* Send Button */}
         <button
           onClick={sendMessage}
           disabled={loading}
           className="
             absolute right-2 top-1/2 -translate-y-1/2
             bg-primary text-primary-content
-            px-5 py-2 rounded-full
+            px-4 py-2 text-sm rounded-full
             hover:bg-primary/90
             disabled:opacity-60
             transition
