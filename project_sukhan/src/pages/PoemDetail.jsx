@@ -7,6 +7,7 @@ import { BookOpen, Volume2, VolumeX, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import axiosClient from '../utils/axiosClient';
 import { toggleZenMode } from '../redux/slices/uiSlice';
+import AutoFitMisra from '../components/AutoFitMisra';
 
 const PoemDetail = () => {
   const { id } = useParams();
@@ -109,16 +110,16 @@ const PoemDetail = () => {
   // }, [currentPoem, lang]);
 
 
-  const getClickedWord = () => {
-    const selection = window.getSelection();
-    console.log('Selection object:', selection);
-    const word = selection.toString().trim();
+  // const getClickedWord = () => {
+  //   const selection = window.getSelection();
+  //   // console.log('Selection object:', selection.anchorNode?.data);
+  //   const word = selection?.anchorNode?.data;
 
-    if (!word) return;
+  //   if (!word) return;
 
-    console.log('Clicked word:', word);
-    // yahin tum API / toast / modal call kar sakte ho
-  };
+  //   console.log('Clicked word:', word);
+  //   // yahin tum API / toast / modal call kar sakte ho
+  // };
 
 
 
@@ -143,6 +144,17 @@ const PoemDetail = () => {
   if (!currentPoem) return null;
 
   const content = currentPoem.content?.[lang];
+  const couplets = content?.split('\n\n').map(sher=>sher.trim()).filter(Boolean);
+
+  const handleWordClick = (word) => {
+
+    const cleanWord = word
+      .normalize('NFC')
+      .replace(/[^\p{L}\p{M}']/gu, '');
+
+    if (!cleanWord) return;
+  };
+
 
 
 
@@ -281,32 +293,35 @@ const PoemDetail = () => {
         </div>
 
         {/* ================= POEM CARD ================= */}
+
         <div
           className={`
-            relative rounded-2xl px-6 md:px-12
-            transition-all duration-700 ease-in-out
+            relative rounded-2xl px-6 md:px-10
+            transition-all duration-900 ease-in-out
+            max-w-full overflow-hidden
+            break-words
+            ${zenMode
+              ? 'text-lg md:text-xl leading-loose'
+              : 'text-sm leading-relaxed'}
             ${zenMode
               ? 'py-4 md:py-6 mt-2 bg-transparent shadow-none'
               : 'py-8 md:py-12 mt-0 bg-base-200/70 shadow-lg'}
           `}
         >
-
-          <pre
-            onClick={getClickedWord}
-            className={`
-              whitespace-pre-wrap font-serif transition-all duration-1000 ease-in-out
-              ${zenMode
-                ? 'text-lg md:text-xl leading-loose'
-                : 'text-sm leading-relaxed'}
-              ${lang === 'urdu'
-                ? 'text-right font-rekhta text-md leading-loose'
-                : 'text-center text-sm'}
-            `}
-          >
-            {content}
-          </pre>
-
+          {couplets.map((sher, sherIndex) => (
+            <div key={sherIndex} className="mb-10">
+              {sher.split('\n').map((misra, i) => (
+                <AutoFitMisra
+                  key={i}
+                  text={misra}
+                  lang={lang}
+                  onWordClick={handleWordClick}
+                />
+              ))}
+            </div>
+          ))}
         </div>
+
 
         {/* ================= AI WORD MEANING ================= */}
         <div
