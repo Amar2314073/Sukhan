@@ -4,6 +4,8 @@ import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
+import { Mic, Search } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -13,6 +15,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [listening, setListening] = useState(false);
 
   const langRef = useRef(null);
   const profileRef = useRef(null);
@@ -21,6 +24,50 @@ const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const startVoiceSearch = () => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+      toast.error('Voice search not supported');
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'hi-IN'; // Hindi / Urdu / English
+    recognition.interimResults = false;
+
+    setListening(true);
+    const toastId = toast.loading('Listening… Speak your search');
+
+    recognition.onresult = (event) => {
+      const spokenText = event.results[0][0].transcript;
+
+      setSearchQuery(spokenText);
+
+      toast.dismiss(toastId);
+      toast.success(`Searching for “${spokenText}”`);
+      setListening(false);
+
+      // optional: auto-search
+      navigate(`/search?q=${encodeURIComponent(spokenText)}`);
+    };
+
+    recognition.onerror = () => {
+      toast.dismiss(toastId);
+      toast.error('Could not hear clearly');
+      setListening(false);
+    };
+
+    recognition.onend = () => {
+      toast.dismiss(toastId);
+      setListening(false);
+    };
+
+    recognition.start();
+  };
+
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
@@ -130,17 +177,40 @@ const Navbar = () => {
                 onChange={e => setSearchQuery(e.target.value)}
                 onKeyDown={handleSearch}
                 placeholder="Search poems, poets…"
-                className="input input-bordered input-sm w-64
+                className="
+                  input input-bordered input-sm w-64
                   bg-base-200/60 border-base-300/40
-                  text-base-content placeholder:text-base-content/90"
+                  text-base-content placeholder:text-base-content/90
+                  pr-16
+                "
               />
-              <button className="absolute right-2 top-1/2 transform -translate-y-1/2 cursor-pointer
-              text-base-content/90 hover:text-base-content/70">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+
+              {/* MIC BUTTON */}
+              <button
+                onClick={startVoiceSearch}
+                className={`
+                  absolute right-8 top-1/2 -translate-y-1/2
+                  cursor-pointer
+                  transition
+                  ${listening
+                    ? 'text-error animate-pulse'
+                    : 'text-base-content/80 hover:text-primary'}
+                `}
+                title="Voice search"
+              >
+                <Mic size={16} />
+              </button>
+
+              {/* SEARCH ICON */}
+              <button
+                className="absolute right-2 top-1/2 -translate-y-1/2
+                  cursor-pointer
+                  text-base-content/80 hover:text-base-content/60"
+              >
+                <Search size={14} />
               </button>
             </div>
+
 
             {/* LANGUAGE */}
             <div className="relative" ref={langRef}>
@@ -314,15 +384,28 @@ const Navbar = () => {
             onChange={e => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
             placeholder="Search poems, poets…"
-            className="w-full px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
+            className="w-full px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40 pr-14"
           />
-          <button className="absolute right-8 top-1/2 transform -translate-y-1/2 cursor-pointer
-            text-base-content/90 hover:text-base-content/70">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
+
+          {/* MIC */}
+          <button
+            onClick={startVoiceSearch}
+            className={`
+              absolute right-12 top-1/2 -translate-y-1/2
+              ${listening ? 'text-error animate-pulse' : 'text-base-content/80'}
+            `}
+          >
+            <Mic size={18} />
+          </button>
+
+          {/* SEARCH ICON */}
+          <button
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-base-content/80"
+          >
+            <Search size={16} />
           </button>
         </div>
+
       )}
 
       {/* MOBILE MENU */}
