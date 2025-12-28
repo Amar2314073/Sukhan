@@ -59,9 +59,9 @@ const ChatAI = ({ poem }) => {
 
 
   /* ================= AUTO SCROLL ================= */
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+  // useEffect(() => {
+  //   bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // }, [messages, loading]);
 
   /* ================= RESET CHAT ON POEM CHANGE ================= */
   useEffect(() => {

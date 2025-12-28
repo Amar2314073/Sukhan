@@ -1,5 +1,6 @@
 const { GoogleGenAI } = require("@google/genai");
 const Poem = require("../models/poem");
+const { text } = require("express");
 
 /**
  * POST /api/ai/poemChat
@@ -93,3 +94,71 @@ If the question is not about a word, reply exactly:
     });
   }
 };
+
+
+exports.wordMeaning = async (req, res) => {
+  try {
+    const { poemText, word } = req.body;
+
+    if (!poemText || !word || typeof word !== "string") {
+      return res.status(400).json({
+        meaning: "अर्थ स्पष्ट नहीं"
+      });
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GEMINI_KEY
+    });
+
+    const prompt = `
+You are a literary assistant.
+
+Task:
+Explain the meaning of the given word.
+ONLY in the context of the poem below.
+
+Rules:
+- In the language of the poem (Hindi/Urdu/English).
+- 2 to 8 words maximum
+- Maximum one sentence
+- No explanation
+- Poetic sense, not dictionary meaning
+
+Poem:
+${poemText}
+
+Word:
+${word}
+
+If meaning is unclear, reply exactly:
+अर्थ स्पष्ट नहीं
+`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: [
+        { role: "user", parts: [{ text: prompt }] }
+      ],
+      config: {
+        temperature: 0.1,
+        maxOutputTokens: 40
+      }
+    });
+
+    const meaning =
+      response?.candidates?.[0]?.content?.parts?.[0]?.text
+        ?.replace(/[\n"]/g, "")
+        ?.trim() || "अर्थ स्पष्ट नहीं";
+
+    return res.status(200).json({ meaning });
+
+  } catch (err) {
+    console.error("🔥 Word Meaning AI Error:", err);
+    return res.status(500).json({
+      meaning: "अर्थ स्पष्ट नहीं"
+    });
+  }
+};
+
+
+

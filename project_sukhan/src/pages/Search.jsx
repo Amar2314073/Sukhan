@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams, Link, useNavigate } from 'react-router';
 import { searchPoems, clearSearchResults } from '../redux/slices/poemSlice';
 import { searchPoets } from '../redux/slices/poetSlice';
+import PoetProfileShimmer from '../shimmer/PoetProfileShimmer';
 
 const Search = () => {
   const [params] = useSearchParams();
@@ -36,7 +37,7 @@ const Search = () => {
     if (loading) return;
 
     if (poetResults.length === 1) {
-      setRedirecting(true);      // 🔑 stop normal UI
+      setRedirecting(true);
       setShowShimmer(true);
 
       setTimeout(() => {
@@ -50,35 +51,7 @@ const Search = () => {
 
   /* ---------- SHIMMER ONLY ---------- */
   if (showShimmer) {
-    return (
-      <div className={`container mx-auto px-4 py-24 fade-in ${fadeOut ? 'fade-out' : ''}`}>
-        <div className="max-w-4xl mx-auto space-y-10">
-
-          <div className="h-10 w-2/3 rounded shimmer"></div>
-
-          <div className="flex items-center gap-8">
-            <div className="w-28 h-28 rounded-full shimmer"></div>
-            <div className="flex-1 space-y-4">
-              <div className="h-6 w-1/2 rounded shimmer"></div>
-              <div className="h-4 w-1/3 rounded shimmer"></div>
-            </div>
-          </div>
-
-          <div className="space-y-4 mt-6">
-            <div className="h-4 w-full rounded shimmer"></div>
-            <div className="h-4 w-11/12 rounded shimmer"></div>
-            <div className="h-4 w-10/12 rounded shimmer"></div>
-          </div>
-
-          <div className="space-y-5 mt-10">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-6 w-full rounded shimmer"></div>
-            ))}
-          </div>
-
-        </div>
-      </div>
-    );
+    return <PoetProfileShimmer/>;
   }
 
   /* ---------- BLOCK UI DURING REDIRECT ---------- */

@@ -7,6 +7,7 @@ import i18n from '../i18n';
 import { Mic, Search } from 'lucide-react';
 import toast from 'react-hot-toast';
 
+
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [currentLang, setCurrentLang] = useState('en');
@@ -16,6 +17,7 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [listening, setListening] = useState(false);
+  const zenMode = useSelector(state => state.ui.zenMode);
 
   const langRef = useRef(null);
   const profileRef = useRef(null);
@@ -128,13 +130,17 @@ const Navbar = () => {
   return (
     <nav
       className={`
-        sticky top-0 z-50 transition-all duration-300
+        sticky top-0 z-50
+        transition-all duration-900 ease-in-out
+        ${zenMode
+          ? '-translate-y-full h-0 overflow-hidden'
+          : 'translate-y-0 h-16'}
         ${isScrolled
           ? 'bg-base-100/95 backdrop-blur border-b border-base-300/40 shadow-[0_12px_40px_rgba(0,0,0,0.6)]'
-          : 'bg-base-100'
-        }
+          : 'bg-base-100'}
       `}
     >
+
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
 

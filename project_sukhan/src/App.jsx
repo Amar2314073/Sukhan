@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { checkAuth } from './redux/slices/authSlice';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -22,6 +22,7 @@ import Collections from './pages/Collections';
 
 function App() {
   const dispatch = useDispatch();
+  const zenMode = useSelector(state => state.ui.zenMode);
 
   useEffect(() => {
     dispatch(checkAuth());
@@ -32,7 +33,12 @@ function App() {
       <Toaster position="bottom-center" />
       <div className="min-h-screen bg-base-100">
         <Navbar />
-        <main>
+        <main
+          className={`
+            transition-all duration-900
+            ${zenMode ? 'pt-0' : 'pt-1'}
+          `}
+        >
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
