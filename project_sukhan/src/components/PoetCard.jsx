@@ -46,7 +46,7 @@ const PoetCard = ({ poet }) => {
           font-semibold
           text-base-content
           leading-snug
-          line-clamp-2
+          line-clamp-1
         "
       >
         {poet.name}
@@ -59,6 +59,13 @@ const PoetCard = ({ poet }) => {
           {poet.deathYear ? ` – ${poet.deathYear}` : poet.birthYear ? ' – Present' : ''}
         </p>
       )}
+
+      {/* Era if birth year is not present */}
+        {!poet.birthYear && poet.era && (
+            <p className="mt-1 text-xs text-base-content/60">
+                {poet.era}
+            </p>
+        )}
     </Link>
   );
 };

@@ -13,15 +13,11 @@ const Search = () => {
 
   const dispatch = useDispatch();
 
-  const {
-    searchResults: poemResults,
-    searchLoading: poemLoading
-  } = useSelector(state => state.poems);
+  const { searchResults: poemResults, searchLoading: poemLoading } =
+    useSelector(state => state.poems);
 
-  const {
-    searchResults: poetResults,
-    searchLoading: poetLoading
-  } = useSelector(state => state.poets);
+  const { searchResults: poetResults, searchLoading: poetLoading } =
+    useSelector(state => state.poets);
 
   const loading = poemLoading || poetLoading;
 
@@ -38,40 +34,44 @@ const Search = () => {
     <div className="max-w-6xl mx-auto px-4 py-8">
 
       {/* ================= HEADING ================= */}
-      <h1 className="text-2xl font-serif mb-8">
+      <h1 className="text-2xl font-serif mb-6">
         Search results for “{q}”
       </h1>
 
-      {/* ================= LOADING ================= */}
       {loading && (
-        <p className="text-base-content/60">
-          Searching…
-        </p>
+        <p className="text-base-content/60 mb-6">Searching…</p>
       )}
 
-      {/* ================= POETS ================= */}
+      {/* ================= POETS (HORIZONTAL SCROLL) ================= */}
       {!loading && poetResults.length > 0 && (
-        <section className="mb-12">
-          <h2 className="text-xl font-serif mb-4">
-            Poets
-          </h2>
+        <section className="mb-10">
+          <h2 className="text-xl font-serif mb-4">Poets</h2>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {poetResults.map(poet => (
-              <PoetCard key={poet._id} poet={poet} />
-            ))}
+          <div className="overflow-x-auto pb-2">
+            <div className="flex gap-4 w-max">
+              {poetResults.map(poet => (
+                <div key={poet._id} className="w-[140px] shrink-0">
+                  <PoetCard poet={poet} />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
 
-      {/* ================= POEMS ================= */}
+      {/* ================= POEMS (VERTICAL SCROLL) ================= */}
       {!loading && poemResults.length > 0 && (
         <section>
-          <h2 className="text-xl font-serif mb-4">
-            Poems
-          </h2>
+          <h2 className="text-xl font-serif mb-4">Poems</h2>
 
-          <div className="space-y-5">
+          <div
+            className="
+              space-y-5
+              max-h-[60vh]
+              overflow-y-auto
+              pr-2
+            "
+          >
             {poemResults.map(poem => (
               <PoemCard key={poem._id} poem={poem} />
             ))}
