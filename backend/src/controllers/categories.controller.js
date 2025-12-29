@@ -1,6 +1,8 @@
 const Category = require('../models/category');
 const Poem = require('../models/poem');
 
+const validTypes = ['sher', 'ghazal', 'nazm', 'rubai', "qit'a", 'free verse', 'other'];
+
 // GET /categories - get all categories with pagination
 exports.getAllCategories = async (req, res) => {
     try {
@@ -196,12 +198,10 @@ exports.createCategory = async (req, res) => {
                 message: "Name and type are required" 
             });
         }
-
         // Validate type
-        const validTypes = ['sher', 'ghazal', 'nazm', 'other'];
         if (!validTypes.includes(type)) {
             return res.status(400).json({ 
-                message: "Invalid type. Must be: sher, ghazal, nazm, or other" 
+                message: `Invalid type. Must be one of: ${validTypes.join(', ')}`
             });
         }
 
@@ -253,10 +253,9 @@ exports.updateCategory = async (req, res) => {
 
         // Validate type if provided
         if (type) {
-            const validTypes = ['sher', 'ghazal', 'nazm', 'other'];
             if (!validTypes.includes(type)) {
                 return res.status(400).json({ 
-                    message: "Invalid type. Must be: sher, ghazal, nazm, or other" 
+                    message: `Invalid type. Must be one of: ${validTypes.join(', ')}` 
                 });
             }
         }

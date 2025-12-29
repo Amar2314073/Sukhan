@@ -17,6 +17,8 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   } = useSelector((state) => state.categories);
   const dispatch = useDispatch();
 
+  console.log('Categories in PoemForm:', categories);
+
 
   const [form, setForm] = useState({
     title: poem?.title || '',
@@ -100,7 +102,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
             value={form.poet}
             onChange={e => setForm({ ...form, poet: e.target.value })}
           >
-            <option value="">Select Poet</option>
+            <option value="">Poet</option>
             {poets.map(p => (
               <option key={p._id} value={p._id}>{p.name}</option>
             ))}
@@ -112,7 +114,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
             value={form.category}
             onChange={e => setForm({ ...form, category: e.target.value })}
           >
-            <option value="">Select Category</option>
+            <option value="">Category</option>
             {categories?.categories?.map(c => (
               <option key={c._id} value={c._id}>{c.name}</option>
             ))}
