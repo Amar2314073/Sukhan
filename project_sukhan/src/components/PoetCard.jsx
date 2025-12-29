@@ -46,8 +46,13 @@ const PoetCard = ({ poet }) => {
           font-semibold
           text-base-content
           leading-snug
-          line-clamp-1
+          whitespace-nowrap
+          overflow-x-auto
         "
+        style={{
+            scrollbarWidth: 'none', 
+            msOverflowStyle: 'none' 
+        }}
       >
         {poet.name}
       </h3>

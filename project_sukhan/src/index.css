@@ -128,3 +128,8 @@
   to { transform: translateX(100%); }
 }
 
+/* hide scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  display: none;
+}
+
