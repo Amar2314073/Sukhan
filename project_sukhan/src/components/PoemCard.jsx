@@ -1,6 +1,7 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const PoemCard = ({ poem }) => {
+  const navigate = useNavigate();
   const misre =
     poem.content?.hindi
       ?.split("\n")
@@ -8,10 +9,10 @@ const PoemCard = ({ poem }) => {
       .slice(0, 2) || [];
 
   return (
-    <Link
-      to={`/poems/${poem._id}`}
+    <div
+      onClick={() => navigate(`/poems/${poem._id}`)}
       className="
-        relative block rounded-2xl
+        relative group block rounded-2xl
         px-7 py-6
         bg-base-200/40
         border border-base-300/40
@@ -25,7 +26,7 @@ const PoemCard = ({ poem }) => {
           pointer-events-none absolute inset-0
           bg-gradient-to-r
           from-transparent via-white/5 to-transparent
-          opacity-0 hover:opacity-100
+          opacity-0 group-hover:opacity-100
         "
       />
 
@@ -59,7 +60,7 @@ const PoemCard = ({ poem }) => {
           </Link>
         </div>
       )}
-    </Link>
+    </div>
   );
 };
 
