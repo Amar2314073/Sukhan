@@ -37,7 +37,7 @@ const Navbar = () => {
     }
 
     const recognition = new SpeechRecognition();
-    recognition.lang = 'hi-IN'; // Hindi / Urdu / English
+    recognition.lang = 'hi-IN';
     recognition.interimResults = false;
 
     setListening(true);

@@ -1,118 +1,92 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useSearchParams, Link, useNavigate } from 'react-router';
+import { useSearchParams } from 'react-router';
 import { searchPoems, clearSearchResults } from '../redux/slices/poemSlice';
 import { searchPoets } from '../redux/slices/poetSlice';
-import PoetProfileShimmer from '../shimmer/PoetProfileShimmer';
+
+import PoetCard from '../components/PoetCard';
+import PoemCard from '../components/PoemCard';
 
 const Search = () => {
   const [params] = useSearchParams();
   const q = params.get('q');
 
   const dispatch = useDispatch();
-  const navigate = useNavigate();
 
-  const [showShimmer, setShowShimmer] = useState(false);
-  const [fadeOut, setFadeOut] = useState(false);
-  const [redirecting, setRedirecting] = useState(false);
+  const {
+    searchResults: poemResults,
+    searchLoading: poemLoading
+  } = useSelector(state => state.poems);
 
-  const { searchResults: poemResults, searchLoading: poemLoading } =
-    useSelector(state => state.poems);
+  const {
+    searchResults: poetResults,
+    searchLoading: poetLoading
+  } = useSelector(state => state.poets);
 
-  const { searchResults: poetResults, searchLoading: poetLoading } =
-    useSelector(state => state.poets);
+  const loading = poemLoading || poetLoading;
 
-  /* ---------- FIRE SEARCH ---------- */
+  /* ================= FIRE SEARCH ================= */
   useEffect(() => {
     if (!q) return;
+
     dispatch(clearSearchResults());
     dispatch(searchPoems(q));
     dispatch(searchPoets(q));
   }, [q, dispatch]);
 
-  const loading = poemLoading || poetLoading;
-
-  /* ---------- REDIRECT LOGIC ---------- */
-  useEffect(() => {
-    if (loading) return;
-
-    if (poetResults.length === 1) {
-      setRedirecting(true);
-      setShowShimmer(true);
-
-      setTimeout(() => {
-        setFadeOut(true);
-        setTimeout(() => {
-          navigate(`/poets/${poetResults[0]._id}`, { replace: true });
-        }, 350);
-      }, 900);
-    }
-  }, [loading, poetResults, navigate]);
-
-  /* ---------- SHIMMER ONLY ---------- */
-  if (showShimmer) {
-    return <PoetProfileShimmer/>;
-  }
-
-  /* ---------- BLOCK UI DURING REDIRECT ---------- */
-  if (redirecting) return null;
-
-  /* ---------- NORMAL SEARCH UI ---------- */
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="max-w-6xl mx-auto px-4 py-8">
 
-      <h1 className="text-2xl font-serif mb-6">
+      {/* ================= HEADING ================= */}
+      <h1 className="text-2xl font-serif mb-8">
         Search results for “{q}”
       </h1>
 
-      {/* ⛔ searching text only when NOT redirecting */}
-      {loading && <p className="text-gray-500">Searching…</p>}
+      {/* ================= LOADING ================= */}
+      {loading && (
+        <p className="text-base-content/60">
+          Searching…
+        </p>
+      )}
 
-      {poetResults.length > 0 && (
-        <>
-          <h2 className="text-xl mb-3 font-semibold">Poets</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+      {/* ================= POETS ================= */}
+      {!loading && poetResults.length > 0 && (
+        <section className="mb-12">
+          <h2 className="text-xl font-serif mb-4">
+            Poets
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {poetResults.map(poet => (
-              <Link
-                key={poet._id}
-                to={`/poets/${poet._id}`}
-                className="p-4 border rounded hover:bg-amber-50 transition"
-              >
-                <div className="font-semibold">{poet.name}</div>
-                <div className="text-sm text-gray-500">{poet.era}</div>
-              </Link>
+              <PoetCard key={poet._id} poet={poet} />
             ))}
           </div>
-        </>
+        </section>
       )}
 
-      {poemResults.length > 0 && (
-        <>
-          <h2 className="text-xl mb-3 font-semibold">Poems</h2>
-          <div className="space-y-4">
+      {/* ================= POEMS ================= */}
+      {!loading && poemResults.length > 0 && (
+        <section>
+          <h2 className="text-xl font-serif mb-4">
+            Poems
+          </h2>
+
+          <div className="space-y-5">
             {poemResults.map(poem => (
-              <Link
-                key={poem._id}
-                to={`/poems/${poem._id}`}
-                className="block p-4 border rounded hover:bg-amber-50 transition"
-              >
-                <p className="italic line-clamp-2">
-                  {poem.content?.hindi || poem.content?.roman}
-                </p>
-                {poem.poet && (
-                  <p className="text-sm text-gray-600 mt-1">
-                    — {poem.poet.name}
-                  </p>
-                )}
-              </Link>
+              <PoemCard key={poem._id} poem={poem} />
             ))}
           </div>
-        </>
+        </section>
       )}
 
-      {!loading && poetResults.length === 0 && poemResults.length === 0 && (
-        <p className="text-gray-500">No results found.</p>
-      )}
+      {/* ================= NO RESULTS ================= */}
+      {!loading &&
+        poetResults.length === 0 &&
+        poemResults.length === 0 && (
+          <p className="text-base-content/60">
+            No results found.
+          </p>
+        )}
     </div>
   );
 };
