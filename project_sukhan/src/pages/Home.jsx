@@ -1,12 +1,20 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchStats } from '../redux/slices/homeSlice';
 
 const Home = () => {
+  const dispatch = useDispatch();
   const [featuredPoems, setFeaturedPoems] = useState([]);
   const [popularPoets, setPopularPoets] = useState([]);
   const [trendingCollections, setTrendingCollections] = useState([]);
   const [todaysShayari, setTodaysShayari] = useState([]);
   const [literaryFacts, setLiteraryFacts] = useState([]);
+  const { poemCount, poetCount, loading, error } = useSelector((state) => state.home);
+
+  useEffect(() => {
+    dispatch(fetchStats());
+  }, [dispatch]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -144,6 +152,52 @@ const Home = () => {
             ))}
           </div>
         </section>
+
+        {/* ================= STATS ================= */}
+        <section className="mb-14">
+          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-8">
+            Sukhan in Numbers
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${poemCount-1}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poems
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${poetCount-1}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poets
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                3
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Literary Eras
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                3
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Languages
+              </p>
+            </div>
+          </div>
+        </section>
+
 
         {/* DID YOU KNOW */}
         <section className="mb-14">

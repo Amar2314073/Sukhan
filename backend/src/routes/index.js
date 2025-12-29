@@ -10,4 +10,8 @@ router.use('/collections', require('./collections.routes'));
 router.use('/userCollections', require('./userCollections.routes'));
 router.use('/admin', require('./admin.routes'));
 router.use('/ai', require('./ai.routes'));
+router.use('/home', require('./home.routes'));
+
+
+
 module.exports = router;

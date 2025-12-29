@@ -5,6 +5,7 @@ import categoryReducer from './slices/categorySlice';
 import poetReducer from './slices/poetSlice';
 import collectionReducer from './slices/collectionSlice';
 import uiReducer from './slices/uiSlice';
+import homeReducer from './slices/homeSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     poets: poetReducer,
     collections: collectionReducer,
     ui: uiReducer,
+    home: homeReducer,
   },
   devTools: import.meta.env.MODE !== 'production',
 });
