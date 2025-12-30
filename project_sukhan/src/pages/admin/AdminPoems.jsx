@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { adminService } from '../services/admin.service';
-import PoemForm from '../components/PoemForm';
-import ConfirmDelete from '../components/ConfirmDelete';
-import AdminPoemsShimmer from '../shimmer/AdminPoemsShimmer';
+import { adminService } from '../../services/admin.service';
+import PoemForm from '../../components/admin/PoemForm';
+import ConfirmDelete from '../../components/admin/ConfirmDelete';
+import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 
 const AdminPoems = () => {
   const [poems, setPoems] = useState([]);

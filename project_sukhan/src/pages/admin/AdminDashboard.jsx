@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { adminService } from '../services/admin.service';
+import { adminService } from '../../services/admin.service';
 import { useNavigate } from 'react-router';
-import AdminShimmer from '../shimmer/AdminShimmer';
+import AdminShimmer from '../../shimmer/AdminShimmer';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);

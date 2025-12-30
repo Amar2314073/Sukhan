@@ -14,9 +14,9 @@ import PoetProfile from './pages/PoetProfile';
 import PoemDetail from './pages/PoemDetail';
 import PrivateRoute from './routes/PrivateRoute';
 import AdminRoutes from './routes/AdminRoutes';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminPoets from './pages/AdminPoets';
-import AdminPoems from './pages/AdminPoems';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminPoets from './pages/admin/AdminPoets';
+import AdminPoems from './pages/admin/AdminPoems';
 import { Toaster } from 'react-hot-toast';
 import Collections from './pages/Collections';
 

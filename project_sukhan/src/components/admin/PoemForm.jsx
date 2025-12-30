@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
-import { adminService } from '../services/admin.service';
+import { adminService } from '../../services/admin.service';
 import { useDispatch } from 'react-redux';
 import toast from 'react-hot-toast';
 import { 
   getAllCategories, 
   clearCurrentCategory,
   clearError 
-} from '../redux/slices/categorySlice';
+} from '../../redux/slices/categorySlice';
 import { useSelector } from 'react-redux';
+
 const PoemForm = ({ poem, onClose, onSuccess }) => {
   const [poets, setPoets] = useState([]);
   const { 
