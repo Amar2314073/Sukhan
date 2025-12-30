@@ -34,7 +34,7 @@ function Signup() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/');
+      navigate(location.state?.redirectTo || '/');
     }
   }, [isAuthenticated, navigate]);
 

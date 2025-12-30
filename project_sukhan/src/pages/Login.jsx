@@ -30,7 +30,7 @@ const Login = () => {
     try {
       const result = await dispatch(loginUser(data)).unwrap();
       if (result) {
-        navigate('/');
+        navigate(location.state?.redirectTo || '/');
       }
     } catch (error) {
       console.log("Login Error : " + error.message)

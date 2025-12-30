@@ -1,12 +1,45 @@
 import { Link, useNavigate } from "react-router";
+import { Heart, Bookmark } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleLikePoem, toggleSavePoem } from "../redux/slices/authSlice"
 
 const PoemCard = ({ poem }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const misre =
     poem.content?.hindi
       ?.split("\n")
       .filter(Boolean)
       .slice(0, 2) || [];
+
+    const { user, isAuthenticated } = useSelector(state => state.auth);
+
+    const handleLike = (e) => {
+      e.stopPropagation();
+
+      if (!isAuthenticated) {
+        navigate('/register', {
+          state: { redirectTo: `/poems/${poem._id}` }
+        });
+        return;
+      }
+
+      dispatch(toggleLikePoem(poem._id));
+    };
+
+    const handleSave = (e) => {
+      e.stopPropagation();
+
+      if (!isAuthenticated) {
+        navigate('/register', {
+          state: { redirectTo: `/poems/${poem._id}` }
+        });
+        return;
+      }
+
+      dispatch(toggleSavePoem(poem._id));
+    };
+
 
   return (
     <div
@@ -60,6 +93,46 @@ const PoemCard = ({ poem }) => {
           </Link>
         </div>
       )}
+
+      {/* ACTIONS */}
+      <div
+        className="
+          absolute bottom-5 right-6
+          flex gap-4
+          z-10
+        "
+      >
+        {/* LIKE */}
+        <button
+          onClick={handleLike}
+          className="transition hover:scale-110"
+        >
+          <Heart
+            size={18}
+            className={
+              user?.likedPoems?.some(id => id.toString() === poem._id)
+                ? 'fill-red-500 text-red-500'
+                : 'text-base-content/50 hover:text-red-500'
+            }
+          />
+        </button>
+
+        {/* SAVE */}
+        <button
+          onClick={handleSave}
+          className="transition hover:scale-110"
+        >
+          <Bookmark
+            size={18}
+            className={
+              user?.savedPoems?.some(id => id.toString() === poem._id)
+                ? 'fill-primary text-primary'
+                : 'text-base-content/50 hover:text-primary'
+            }
+          />
+        </button>
+      </div>
+
     </div>
   );
 };

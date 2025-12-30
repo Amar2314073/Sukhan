@@ -237,7 +237,6 @@ const authSlice = createSlice({
       .addCase(toggleLikePoem.fulfilled, (state, action) => {
         if (state.user) {
           state.user.likedPoems = action.payload.likedPoems;
-          state.user.stats.favoritesCount = action.payload.favoritesCount;
         }
       })
 

@@ -418,8 +418,7 @@ exports.toggleLike = async (req, res) => {
 
         res.status(200).json({
             liked,
-            totalLikes: user.likedPoems.length,
-            message: liked ? "Poem liked" : "Poem unliked"
+            likedPoems: user.likedPoems
         });
 
     } catch (error) {
@@ -458,9 +457,8 @@ exports.toggleSave = async (req, res) => {
         await user.save();
 
         res.status(200).json({
-            saved,
-            totalSaved: user.savedPoems.length,
-            message: saved ? "Poem saved" : "Poem removed from saved"
+        saved,
+        savedPoems: user.savedPoems
         });
 
     } catch (error) {

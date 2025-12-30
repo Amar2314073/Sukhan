@@ -14,11 +14,6 @@ const categorySchema = new Schema({
     type: String,
     maxlength: [200, 'Description cannot exceed 200 characters']
   },
-  type: {
-    type: String,
-    required: true,
-    enum: ['sher', 'ghazal', 'nazm', 'rubai', "qit'a", 'free verse', 'other']
-  },
   isActive: {
     type: Boolean,
     default: true

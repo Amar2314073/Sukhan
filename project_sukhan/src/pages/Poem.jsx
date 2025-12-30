@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
+import PoemCard from '../components/PoemCard';
 import {
   fetchPoemsByCategory,
   clearPoemsByCategory
@@ -122,69 +123,16 @@ const Poems = () => {
 
         {!loading && poemsByCategory.length === 0 && (
           <p className="text-center text-base-content/60">
-            कोई रचना उपलब्ध नहीं है
+            Sometimes Silence is also a sher.<br />No poems found in this category.
           </p>
         )}
 
         <div className="space-y-6">
-          {poemsByCategory.map(poem => {
-            const misre = poem.content?.hindi
-              ?.split('\n')
-              .filter(Boolean)
-              .slice(0, 2);
-
-            return (
-              <div
-                key={poem._id}
-                onClick={() => navigate(`/poems/${poem._id}`)}
-                className="
-                  cursor-pointer
-                  relative
-                  rounded-2xl
-                  px-7 py-6
-                  bg-base-200/90
-                  hover:bg-base-200/10
-                  transition
-                "
-              >
-                {/* shimmer shine */}
-                <div className="
-                  absolute inset-0 pointer-events-none
-                  bg-gradient-to-r
-                  from-transparent
-                  via-white/5
-                  to-transparent
-                " />
-
-                {/* lines */}
-                {misre?.map((line, i) => (
-                  <p
-                    key={i}
-                    className="font-serif text-lg leading-relaxed"
-                  >
-                    {line}
-                  </p>
-                ))}
-
-                {/* poet */}
-                {poem.poet && (
-                  <p className="mt-3 text-sm text-base-content/60">
-                    — by{' '}
-                    <span
-                      onClick={e => { 
-                        e.stopPropagation();
-                        navigate(`/poets/${poem.poet._id}`);
-                      }}
-                      className="hover:text-primary cursor-pointer underline-offset-2 hover:underline"
-                    >
-                      {poem.poet.name}
-                    </span>
-                  </p>
-                )}
-              </div>
-            );
-          })}
+          {poemsByCategory.map(poem => (
+            <PoemCard key={poem._id} poem={poem} />
+          ))}
         </div>
+
         {currentPage < totalPages && (
           <div ref={observerRef} className="h-6" />
         )}

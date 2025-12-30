@@ -1,8 +1,6 @@
 const Category = require('../models/category');
 const Poem = require('../models/poem');
 
-const validTypes = ['sher', 'ghazal', 'nazm', 'rubai', "qit'a", 'free verse', 'other'];
-
 // GET /categories - get all categories with pagination
 exports.getAllCategories = async (req, res) => {
     try {
@@ -97,14 +95,6 @@ exports.getCategoriesByType = async (req, res) => {
         const limit = parseInt(req.query.limit) || 20;
         const skip = (page - 1) * limit;
 
-        // Validate type
-        const validTypes = ['sher', 'ghazal', 'nazm', 'other'];
-        if (!validTypes.includes(type)) {
-            return res.status(400).json({ 
-                message: "Invalid type. Must be: sher, ghazal, nazm, or other" 
-            });
-        }
-
         const categories = await Category.find({ 
             type, 
             isActive: true 
@@ -198,13 +188,7 @@ exports.createCategory = async (req, res) => {
                 message: "Name and type are required" 
             });
         }
-        // Validate type
-        if (!validTypes.includes(type)) {
-            return res.status(400).json({ 
-                message: `Invalid type. Must be one of: ${validTypes.join(', ')}`
-            });
-        }
-
+       
         // Check if category already exists (case insensitive)
         const existingCategory = await Category.findOne({ 
             name: { $regex: new RegExp(`^${name}$`, 'i') } 
@@ -251,14 +235,7 @@ exports.updateCategory = async (req, res) => {
             return res.status(404).json({ message: "Category not found" });
         }
 
-        // Validate type if provided
-        if (type) {
-            if (!validTypes.includes(type)) {
-                return res.status(400).json({ 
-                    message: `Invalid type. Must be one of: ${validTypes.join(', ')}` 
-                });
-            }
-        }
+        
 
         // Check for duplicate name if name is being updated
         if (name && name !== existingCategory.name) {
