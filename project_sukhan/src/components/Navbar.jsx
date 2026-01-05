@@ -2,8 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
-import { useTranslation } from 'react-i18next';
-import i18n from '../i18n';
 import { Mic, Search, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/themeContext';
@@ -11,8 +9,6 @@ import { useTheme } from '../context/themeContext';
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [currentLang, setCurrentLang] = useState('en');
-  const [langOpen, setLangOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,13 +20,11 @@ const Navbar = () => {
   const isDark = theme === 'dark';
 
 
-  const langRef = useRef(null);
   const profileRef = useRef(null);
 
   const { user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
   const startVoiceSearch = () => {
     const SpeechRecognition =
@@ -84,18 +78,14 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false);
-      if (profileRef.current && !profileRef.current.contains(e.target)) setProfileMenuOpen(false);
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setProfileMenuOpen(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const languages = [
-    { code: 'en', label: 'EN', name: 'English' },
-    { code: 'hi', label: 'HI', name: 'हिन्दी' },
-    { code: 'ur', label: 'UR', name: 'اردو' },
-  ];
 
   const handleSearch = (e) => {
     if (e.key === 'Enter' && searchQuery.trim()) {
@@ -112,11 +102,6 @@ const Navbar = () => {
     setMobileMenuOpen(false);
   };
 
-  const changeLanguage = (lang) => {
-    setCurrentLang(lang);
-    i18n.changeLanguage(lang);
-    setLangOpen(false);
-  };
 
   const getNavLinkClass = ({ isActive }) =>
     `px-4 py-2 font-medium text-sm transition
@@ -160,11 +145,11 @@ const Navbar = () => {
 
           {/* CENTER LINKS */}
           <div className="hidden md:flex items-center">
-            <NavLink to="/" className={getNavLinkClass}>{t('home')}</NavLink>
-            <NavLink to="/poets" className={getNavLinkClass}>{t('poets')}</NavLink>
-            <NavLink to="/poems" className={getNavLinkClass}>{t('poems')}</NavLink>
-            <NavLink to="/collections" className={getNavLinkClass}>{t('collections')}</NavLink>
-            <NavLink to="/dictionary" className={getNavLinkClass}>{t('dictionary')}</NavLink>
+            <NavLink to="/" className={getNavLinkClass}>Home</NavLink>
+            <NavLink to="/poets" className={getNavLinkClass}>Poets</NavLink>
+            <NavLink to="/poems" className={getNavLinkClass}>Poems</NavLink>
+            <NavLink to="/collections" className={getNavLinkClass}>Collections</NavLink>
+            <NavLink to="/dictionary" className={getNavLinkClass}>Dictionary</NavLink>
           </div>
 
           {/* RIGHT */}
@@ -244,31 +229,6 @@ const Navbar = () => {
                 />
 
               </label>
-            </div>
-
-
-            {/* LANGUAGE */}
-            <div className="relative" ref={langRef}>
-              <button
-                onClick={() => setLangOpen(!langOpen)}
-                className="px-3 py-1.5 rounded-lg bg-base-200 hover:bg-base-300 text-sm"
-              >
-                {languages.find(l => l.code === currentLang)?.label}
-              </button>
-
-              {langOpen && (
-                <div className="absolute right-0 mt-2 w-40 bg-base-100 border border-base-300/40 rounded-lg shadow-xl">
-                  {languages.map(l => (
-                    <button
-                      key={l.code}
-                      onClick={() => changeLanguage(l.code)}
-                      className="block w-full px-4 py-2 text-left hover:bg-base-200"
-                    >
-                      {l.name}
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* PROFILE */}
