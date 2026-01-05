@@ -4,7 +4,7 @@ import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
 import { Mic, Search, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useTheme } from '../context/themeContext';
+import { useTheme } from '../context/ThemeContext'
 
 
 const Navbar = () => {

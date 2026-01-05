@@ -19,7 +19,7 @@ import AdminPoets from './pages/admin/AdminPoets';
 import AdminPoems from './pages/admin/AdminPoems';
 import { Toaster } from 'react-hot-toast';
 import Collections from './pages/Collections';
-import { ThemeProvider } from './context/themeContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function App() {
   const dispatch = useDispatch();
