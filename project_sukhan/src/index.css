@@ -133,3 +133,36 @@
   display: none;
 }
 
+/* 🌞 LIGHT */
+.light {
+  --bg-base: #fafafa;
+  --bg-card: #ffffff;
+  --text-base: #1f2937;
+  --border-base: #e5e7eb;
+}
+
+/* 🌙 DARK */
+.dark {
+  --bg-base: #020617;
+  --bg-card: #020617;
+  --text-base: #e5e7eb;
+  --border-base: #334155;
+}
+
+Smooth theme transition
+* {
+  transition:
+    background-color 1.2s ease,
+    color 1.2s ease,
+    border-color 2s ease,
+    fill 1.2s ease,
+    stroke 1.2s ease;
+}
+
+* {
+  transition:
+    background-color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    color 1.5s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+

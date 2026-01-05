@@ -4,8 +4,9 @@ import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import i18n from '../i18n';
-import { Mic, Search } from 'lucide-react';
+import { Mic, Search, Sun, Moon } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useTheme } from '../context/themeContext';
 
 
 const Navbar = () => {
@@ -18,6 +19,10 @@ const Navbar = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const zenMode = useSelector(state => state.ui.zenMode);
+
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
+
 
   const langRef = useRef(null);
   const profileRef = useRef(null);
@@ -215,6 +220,30 @@ const Navbar = () => {
               >
                 <Search size={14} />
               </button>
+            </div>
+
+            {/* THEME TOGGLE */}
+            <div className="flex items-center">
+              <label className="swap swap-rotate cursor-pointer">
+
+                {/* hidden checkbox */}
+                <input
+                  type="checkbox"
+                  checked={isDark}
+                  onChange={toggleTheme}
+                />
+
+                <Moon
+                  size={20}
+                  className="swap-off text-base-content/80"
+                />
+
+                <Sun
+                  size={20}
+                  className="swap-on text-base-content/80"
+                />
+
+              </label>
             </div>
 
 

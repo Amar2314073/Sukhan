@@ -19,6 +19,7 @@ import AdminPoets from './pages/admin/AdminPoets';
 import AdminPoems from './pages/admin/AdminPoems';
 import { Toaster } from 'react-hot-toast';
 import Collections from './pages/Collections';
+import { ThemeProvider } from './context/themeContext';
 
 function App() {
   const dispatch = useDispatch();
@@ -30,36 +31,38 @@ function App() {
 
   return (
     <Router>
-      <Toaster position="bottom-center" />
-      <div className="min-h-screen bg-base-100">
-        <Navbar />
-        <main
-          className={`
-            transition-all duration-900
-            ${zenMode ? 'pt-0' : 'pt-1'}
-          `}
-        >
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Signup />} />
-            <Route path="/poems" element={<Poems />} />
-            <Route path="/poets" element={<Poets />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/collections" element={<Collections />} />
-            <Route path='/poets/:id' element={<PoetProfile />} />
-            <Route path="/poems/:id" element={<PoemDetail />} />
-            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
-            {/* <Route path="/dictionary" element={<Dictionary />} /> */}
-            <Route path="/admin" element={<AdminRoutes />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="poets" element={<AdminPoets />} />
-            <Route path="poems" element={<AdminPoems />} />
-            </Route>
+      <ThemeProvider>
+        <Toaster position="bottom-center" />
+        <div className="min-h-screen bg-base-100">
+          <Navbar />
+          <main
+            className={`
+              transition-all duration-900
+              ${zenMode ? 'pt-0' : 'pt-1'}
+            `}
+          >
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Signup />} />
+              <Route path="/poems" element={<Poems />} />
+              <Route path="/poets" element={<Poets />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path='/poets/:id' element={<PoetProfile />} />
+              <Route path="/poems/:id" element={<PoemDetail />} />
+              <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              {/* <Route path="/dictionary" element={<Dictionary />} /> */}
+              <Route path="/admin" element={<AdminRoutes />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="poets" element={<AdminPoets />} />
+              <Route path="poems" element={<AdminPoems />} />
+              </Route>
 
-          </Routes>
-        </main>
-      </div>
+            </Routes>
+          </main>
+        </div>
+      </ThemeProvider>
     </Router>
   );
 }
