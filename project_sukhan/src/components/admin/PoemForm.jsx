@@ -18,9 +18,6 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   } = useSelector((state) => state.categories);
   const dispatch = useDispatch();
 
-  console.log('Categories in PoemForm:', categories);
-
-
   const [form, setForm] = useState({
     title: poem?.title || '',
     poet: poem?.poet?._id || '',

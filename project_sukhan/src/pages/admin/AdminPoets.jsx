@@ -3,6 +3,7 @@ import { adminService } from '../../services/admin.service';
 import PoetForm from '../../components/admin/PoetForm';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
+import toast from 'react-hot-toast';
 
 const AdminPoets = () => {
   const [poets, setPoets] = useState([]);
@@ -60,7 +61,7 @@ const AdminPoets = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [search]);
@@ -293,9 +294,18 @@ const AdminPoets = () => {
           title={`Delete "${deletePoet.name}"?`}
           onCancel={() => setDeletePoet(null)}
           onConfirm={async () => {
-            await adminService.deletePoet(deletePoet._id);
-            setDeletePoet(null);
-            loadPoets();
+            const toastId = toast.loading('Deleting poet...');
+            try {
+              await adminService.deletePoet(deletePoet._id);
+              toast.success('Poet deleted successfully', { id: toastId });
+              setDeletePoet(null);
+              setPage(1);
+              setPoets([]);
+              loadPoets(1);
+            } catch (err) {
+              toast.error('Failed to delete poet', { id: toastId });
+              console.error(err);
+            }
           }}
         />
       )}

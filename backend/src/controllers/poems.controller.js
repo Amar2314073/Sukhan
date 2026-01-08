@@ -4,52 +4,64 @@ const Category = require('../models/category');
 
 // GET /poems - get all poems with pagination and filters
 exports.getAllPoems = async (req, res) => {
-    try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+  try {
+    const page = +req.query.page || 1;
+    const limit = +req.query.limit || 12;
+    const skip = (page - 1) * limit;
 
-        // Build filter object
-        const filter = { isActive: true };
-        
-        if (req.query.poet) {
-            filter.poet = req.query.poet;
-        }
-        
-        if (req.query.category) {
-            filter.category = req.query.category;
-        }
+    const { category, q } = req.query;
 
-        // Get poems with population
-        const poems = await Poem.find(filter)
-            .populate('poet', 'name era')
-            .populate('category', 'name type')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit)
-            .select('-isActive');
+    const filter = { isActive: true };
 
-        // Get total count for pagination
-        const total = await Poem.countDocuments(filter);
-        const totalPages = Math.ceil(total / limit);
+    /* ===== CATEGORY FILTER ===== */
+    if (category) filter.category = category;
 
-        res.status(200).json({
-            poems,
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalPoems: total,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            },
-            message: "Poems fetched successfully"
-        });
+    let poetIds = [];
 
-    } catch (error) {
-        console.error("Get all poems error:", error);
-        res.status(500).json({ message: "Error fetching poems" });
+    /* ===== POET NAME SEARCH ===== */
+    if (q && q.trim()) {
+      const search = q.trim();
+
+      // 1️⃣ Find matching poets
+      const poets = await Poet.find({
+        name: { $regex: search, $options: 'i' }
+      }).select('_id');
+
+      poetIds = poets.map(p => p._id);
+
+      // 2️⃣ Apply OR condition
+      filter.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { 'content.urdu': { $regex: search, $options: 'i' } },
+        { 'content.hindi': { $regex: search, $options: 'i' } },
+        { 'content.roman': { $regex: search, $options: 'i' } },
+        ...(poetIds.length ? [{ poet: { $in: poetIds } }] : [])
+      ];
     }
-}
+
+    const poems = await Poem.find(filter)
+      .populate('poet', 'name era')
+      .populate('category', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Poem.countDocuments(filter);
+
+    res.json({
+      poems,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        hasNext: page * limit < total
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Admin poems error' });
+  }
+};
+
 
 // GET /poems/:id - get poem by id
 exports.getPoemById = async (req, res) => {
