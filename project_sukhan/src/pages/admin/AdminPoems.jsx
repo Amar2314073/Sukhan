@@ -257,7 +257,10 @@ const AdminPoems = () => {
         <PoemForm
           poem={editingPoem}
           onClose={() => setShowForm(false)}
-          onSuccess={() => loadPoems(1)}
+          onSuccess={() => {
+            setShowForm(false);
+            loadPoems(1)
+          }}
         />
       )}
 
