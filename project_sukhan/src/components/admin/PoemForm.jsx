@@ -11,6 +11,40 @@ import { useSelector } from 'react-redux';
 
 const PoemForm = ({ poem, onClose, onSuccess }) => {
   const [poets, setPoets] = useState([]);
+  const [poetQuery, setPoetQuery] = useState('');
+  const [poetResults, setPoetResults] = useState([]);
+  const [loadingPoets, setLoadingPoets] = useState(false);
+
+
+  useEffect(() => {
+    if (!poetQuery.trim()) {
+      setPoetResults([]);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        setLoadingPoets(true);
+        const res = await adminService.searchPoets(poetQuery);
+        setPoetResults(res.data.poets);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoadingPoets(false);
+      }
+    }, 200);
+
+    return () => clearTimeout(timer);
+  }, [poetQuery]);
+
+  useEffect(() => {
+    if (poem?.poet) {
+      setPoetQuery(poem.poet.name);
+    }
+  }, [poem]);
+
+
+
   const { 
     categories, 
     currentCategory,
@@ -94,17 +128,45 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
         />
 
         <div className="grid grid-cols-2 gap-4">
-          <select
-            required
-            className="select select-bordered"
-            value={form.poet}
-            onChange={e => setForm({ ...form, poet: e.target.value })}
-          >
-            <option value="">Poet</option>
-            {poets.map(p => (
-              <option key={p._id} value={p._id}>{p.name}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <input
+              placeholder="Search poet..."
+              className="input input-bordered w-full"
+              value={poetQuery}
+              onChange={(e) => setPoetQuery(e.target.value)}
+            />
+
+            {loadingPoets && (
+              <div className="absolute z-10 bg-base-200 w-full p-2 text-sm text-base-content border rounded mt-1">
+                Searching...
+              </div>
+            )}
+
+            {poetResults.length > 0 && (
+              <ul className="absolute z-10 bg-base-100 border border-base-300 w-full rounded-lg shadow mt-1 max-h-48 overflow-y-auto">
+                {poetResults.map((p) => (
+                  <li
+                    key={p._id}
+                    onClick={() => {
+                      setForm({ ...form, poet: p._id });
+                      setPoetQuery(p.name);
+                      setPoetResults([]);
+                    }}
+                    className="
+                      px-3 py-2 cursor-pointer
+                      text-base-content
+                      hover:bg-base-200
+                      transition-colors
+                    "
+                  >
+                    {p.name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+
 
           <select
             required

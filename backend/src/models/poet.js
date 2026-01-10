@@ -47,5 +47,7 @@ const poetSchema = new Schema({
   timestamps: true
 });
 
+poetSchema.index({ name: 1});
+
 const Poet = mongoose.model('poet', poetSchema);
 module.exports = Poet;

@@ -7,7 +7,7 @@ const adminController = require('../controllers/admin.controller');
 router.get('/dashboard', adminMiddleware, adminController.dashboard);
 
 /* -------- POETS -------- */
-router.get('/poets', adminMiddleware, adminController.getAllPoets);
+router.get('/poets/search', adminMiddleware, adminController.searchPoets);
 router.post('/poet', adminMiddleware, adminController.createPoet);
 router.put('/poet/:id', adminMiddleware, adminController.updatePoet);
 router.delete('/poet/:id', adminMiddleware, adminController.deletePoet);

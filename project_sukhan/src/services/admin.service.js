@@ -3,7 +3,11 @@ import axiosClient from "../utils/axiosClient";
 export const adminService = {
   dashboard: () => axiosClient.get("/admin/dashboard"),
 
-  getPoetNames : () => axiosClient.get(`admin/poets`),
+  searchPoets: (q) =>
+    axiosClient.get('/admin/poets/search', {
+      params: { q }
+  }),
+
   getPoets: (params) => axiosClient.get("/poets", { params }),
   createPoet: (d) => axiosClient.post("/admin/poet", d),
   updatePoet: (id,d) => axiosClient.put(`/admin/poet/${id}`, d),

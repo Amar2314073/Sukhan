@@ -20,16 +20,31 @@ exports.dashboard = async (req, res) => {
 
 /* -------- POETS -------- */
 
-// GET /poets - get all poets (admin only)
-exports.getAllPoets = async (req, res) => {
+
+// GET /admin/poets/search?q=mir
+exports.searchPoets = async (req, res) => {
   try {
-    const poets = await Poet.find().sort({ name: 1 }).select('name');
+    const { q = '' } = req.query;
+
+    if (!q.trim()) {
+      return res.json({ poets: [] });
+    }
+
+    const poets = await Poet.find({
+      name: { $regex: q, $options: 'i' }
+    })
+      .select('name')
+      .limit(10)
+      .sort({ name: 1 });
+
     res.status(200).json({ poets });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Error fetching poets" });
+    res.status(500).json({ message: 'Poet search failed' });
   }
 };
+
 
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
