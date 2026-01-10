@@ -15,12 +15,13 @@ const Collections = () => {
 
   const { categories } = useSelector(state => state.categories);
   const {
-    collections,
+    list,
     loading,
-    currentPage,
-    totalPages,
+    pagination,
     filters
   } = useSelector(state => state.collections);
+
+  const { currentPage, totalPages } = pagination;
 
   const [activeCategory, setActiveCategory] = useState(null);
 
@@ -105,7 +106,7 @@ const Collections = () => {
       <div className="max-w-6xl mx-auto px-4 py-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {collections.map(col => (
+          {list.map(col => (
             <div
               key={col._id}
               onClick={() => navigate(`/collections/${col._id}`)}
@@ -162,7 +163,7 @@ const Collections = () => {
         {/* Loader */}
         {loading && (
           <div className="text-center py-8 text-base-content/60">
-            Loading more collections…
+            Loading collections…
           </div>
         )}
 

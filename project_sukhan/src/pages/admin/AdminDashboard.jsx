@@ -25,6 +25,7 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
           <StatCard label="Poets" value={stats.poets} />
           <StatCard label="Poems" value={stats.poems} />
+          <StatCard label="Collections" value={stats.collections} />
           <StatCard label="Users" value={stats.users} />
         </div>
 
@@ -39,6 +40,11 @@ const AdminDashboard = () => {
             title="Manage Poems"
             desc="Create, edit or delete poems"
             onClick={() => navigate('/admin/poems')}
+          />
+          <ActionCard
+            title="Manage Collections"
+            desc="Create, edit or delete collections"
+            onClick={() => navigate('/admin/collections')}
           />
         </div>
 

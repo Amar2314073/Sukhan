@@ -17,4 +17,10 @@ export const adminService = {
   createPoem: (d) => axiosClient.post("/admin/poem", d),
   updatePoem: (id,d) => axiosClient.put(`/admin/poem/${id}`, d),
   deletePoem: (id) => axiosClient.delete(`/admin/poem/${id}`),
+
+  createCollection: (d) => axiosClient.post("/admin/collection", d),
+  updateCollection: (id,d) => axiosClient.put(`/admin/collection/${id}`, d),
+  deleteCollection: (id) => axiosClient.delete(`/admin/collection/${id}`),
+  addPoemsToCollection: (id, d) => axiosClient.put(`/admin/collection/${id}/poems`, d),
+  removePoemsFromCollection: (id, d) => axiosClient.delete(`/admin/collection/${id}/poems`, { data: d }),
 };

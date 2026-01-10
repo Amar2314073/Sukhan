@@ -20,6 +20,7 @@ import AdminPoems from './pages/admin/AdminPoems';
 import { Toaster } from 'react-hot-toast';
 import Collections from './pages/Collections';
 import { ThemeProvider } from './context/ThemeContext';
+import AdminCollections from './pages/admin/AdminCollections';
 
 function App() {
   const dispatch = useDispatch();
@@ -51,8 +52,10 @@ function App() {
               <Route path="/collections" element={<Collections />} />
               <Route path='/poets/:id' element={<PoetProfile />} />
               <Route path="/poems/:id" element={<PoemDetail />} />
+              <Route path='/admin/collections' element={<AdminCollections />}/>
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               {/* <Route path="/dictionary" element={<Dictionary />} /> */}
+
               <Route path="/admin" element={<AdminRoutes />}>
               <Route index element={<AdminDashboard />} />
               <Route path="poets" element={<AdminPoets />} />

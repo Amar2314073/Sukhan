@@ -2,24 +2,25 @@ import { useEffect, useState, useRef } from 'react';
 import { adminService } from '../../services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/slices/categorySlice';
-import PoemForm from '../../components/admin/PoemForm';
+import CollectionForm from '../../components/admin/CollectionForm';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
 
-const AdminPoems = () => {
+const AdminCollections = () => {
   const dispatch = useDispatch();
   const { categories } = useSelector(state => state.categories);
 
-  const [poems, setPoems] = useState([]);
+  const [collections, setCollections] = useState([]);
   const [activeCategoryId, setActiveCategoryId] = useState(null);
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const hasLoadedOnceRef = useRef(false);
 
   const [showForm, setShowForm] = useState(false);
-  const [editingPoem, setEditingPoem] = useState(null);
-  const [deletePoem, setDeletePoem] = useState(null);
+  const [editingCollection, setEditingCollection] = useState(null);
+  const [deleteCollection, setDeleteCollection] = useState(null);
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -44,34 +45,35 @@ const AdminPoems = () => {
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 1000);
+    }, 300);
     return () => clearTimeout(t);
   }, [search]);
 
-  /* ================= LOAD POEMS ================= */
-  const loadPoems = async (pageNo = 1) => {
+  /* ================= LOAD COLLECTIONS ================= */
+  const loadCollections = async (pageNo = 1) => {
     try {
-      if (pageNo === 1 && poems.length === 0) {
+      if (!hasLoadedOnceRef.current) {
         setInitialLoading(true);
       } else {
         setLoading(true);
       }
 
-
-      const res = await adminService.getPoems({
+      const res = await adminService.getCollections({
         page: pageNo,
         limit: 12,
         category: activeCategoryId,
         q: debouncedSearch.trim() || undefined
       });
 
-      const { poems: newPoems, pagination } = res.data;
+      const { collections: newCollections, pagination } = res.data;
 
-      setPoems(prev =>
-        pageNo === 1 ? newPoems : [...prev, ...newPoems]
+      setCollections(prev =>
+        pageNo === 1 ? newCollections : [...prev, ...newCollections]
       );
 
       setHasNext(pagination.hasNext);
+      hasLoadedOnceRef.current = true;
+
     } catch (e) {
       console.error(e);
     } finally {
@@ -83,10 +85,12 @@ const AdminPoems = () => {
   /* ================= RELOAD ON FILTER CHANGE ================= */
   useEffect(() => {
     if (!activeCategoryId) return;
+
     setPage(1);
-    setPoems([]);
+    setCollections([]);
     setHasNext(true);
-    loadPoems(1);
+    loadCollections(1);
+
   }, [activeCategoryId, debouncedSearch]);
 
   /* ================= INFINITE SCROLL ================= */
@@ -95,7 +99,7 @@ const AdminPoems = () => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !loading && !initialLoading) {
+        if (entry.isIntersecting && !loading) {
           setPage(p => p + 1);
         }
       },
@@ -105,13 +109,15 @@ const AdminPoems = () => {
     const el = observerRef.current;
     if (el) observer.observe(el);
     return () => el && observer.unobserve(el);
-  }, [hasNext, loading, initialLoading]);
+
+  }, [hasNext, loading]);
 
   useEffect(() => {
-    if (page > 1) loadPoems(page);
+    if (page > 1) loadCollections(page);
   }, [page]);
 
-  if (initialLoading && poems.length === 0) {
+  /* ================= FIRST LOAD SHIMMER ================= */
+  if (initialLoading && !hasLoadedOnceRef.current) {
     return <AdminPoemsShimmer />;
   }
 
@@ -121,48 +127,52 @@ const AdminPoems = () => {
       {/* ================= HEADER ================= */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
         <h1 className="text-3xl font-serif font-semibold text-base-content shrink-0">
-          Manage Poems
+          Manage Collections
         </h1>
 
         <div className="flex-1">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search poems, poets, content…"
+            placeholder="Search collections…"
             className="w-full px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
           />
         </div>
 
-        {loading && (
-          <div className="text-sm text-base-content/50 mt-2">
-            Searching…
-          </div>
-        )}
-
-
         <button
           onClick={() => {
-            setEditingPoem(null);
+            setEditingCollection(null);
             setShowForm(true);
           }}
           className="px-5 py-2 rounded-lg bg-primary text-primary-content"
         >
-          + Add Poem
+          + Add Collection
         </button>
       </div>
 
       {/* ================= CATEGORY TABS ================= */}
       <div className="border-b border-base-300/40 mb-6">
         <div className="flex gap-6 overflow-x-auto text-sm font-medium">
+          <button
+            onClick={() => setActiveCategoryId(null)}
+            className={`py-3 border-b-2 ${
+              !activeCategoryId
+                ? 'border-primary text-primary'
+                : 'border-transparent text-base-content/60'
+            }`}
+          >
+            All
+          </button>
+
           {categories?.categories?.map(cat => (
             <button
               key={cat._id}
               onClick={() => setActiveCategoryId(cat._id)}
-              className={`py-3 border-b-2 whitespace-nowrap transition
-                ${activeCategoryId === cat._id
+              className={`py-3 border-b-2 whitespace-nowrap ${
+                activeCategoryId === cat._id
                   ? 'border-primary text-primary'
-                  : 'border-transparent text-base-content/60'}
-              `}
+                  : 'border-transparent text-base-content/60'
+              }`}
             >
               {cat.name}
             </button>
@@ -170,36 +180,37 @@ const AdminPoems = () => {
         </div>
       </div>
 
-      {poems.length === 0 && (
+      {collections.length === 0 && !loading && (
         <div className="text-center py-10 text-base-content/60">
-          No poems found
+          No collections found
         </div>
       )}
 
-      {/* ================= DESKTOP TABLE ================= */}
+      {/* ================= TABLE ================= */}
       <div className="hidden md:block">
         <div className="bg-base-100 rounded-xl border border-base-300/40 shadow-lg overflow-hidden">
           <table className="w-full">
             <thead className="border-b border-base-300/40 bg-base-200/30">
               <tr>
-                <th className="p-4 text-left font-medium">Title</th>
-                <th className="p-4 text-left font-medium">Poet</th>
+                <th className="p-4 text-left font-medium">Name</th>
+                <th className="p-4 text-left font-medium">Category</th>
+                <th className="p-4 text-left font-medium">Poems</th>
                 <th className="p-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
-
             <tbody>
-              {poems.map(poem => (
+              {collections.map(col => (
                 <tr
-                  key={poem._id}
+                  key={col._id}
                   className="border-t border-base-300/30 hover:bg-base-200/40"
                 >
-                  <td className="p-4">{poem.title}</td>
-                  <td className="p-4">{poem.poet?.name || '—'}</td>
+                  <td className="p-4 font-medium">{col.name}</td>
+                  <td className="p-4">{col.category?.name || '—'}</td>
+                  <td className="p-4">{col.poems?.length || 0}</td>
                   <td className="p-4 text-right space-x-4">
                     <button
                       onClick={() => {
-                        setEditingPoem(poem);
+                        setEditingCollection(col);
                         setShowForm(true);
                       }}
                       className="text-primary hover:underline"
@@ -207,7 +218,7 @@ const AdminPoems = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => setDeletePoem(poem)}
+                      onClick={() => setDeleteCollection(col)}
                       className="text-error hover:underline"
                     >
                       Delete
@@ -220,95 +231,45 @@ const AdminPoems = () => {
         </div>
       </div>
 
-      {/* ================= MOBILE CARDS ================= */}
-      <div className="md:hidden space-y-4">
-        {poems.map(poem => (
-          <div
-            key={poem._id}
-            className="
-              bg-base-100
-              border border-base-300/40
-              rounded-xl
-              shadow-md
-              p-5
-              space-y-2
-            "
-          >
-            <h3 className="text-lg font-semibold text-base-content">
-              {poem.title}
-            </h3>
-
-            <p className="text-sm text-base-content/70">
-              Poet:{' '}
-              <span className="text-base-content/90">
-                {poem.poet?.name || '—'}
-              </span>
-            </p>
-
-            <div className="flex gap-6 pt-3">
-              <button
-                onClick={() => {
-                  setEditingPoem(poem);
-                  setShowForm(true);
-                }}
-                className="text-primary text-sm"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => setDeletePoem(poem)}
-                className="text-error text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {hasNext && <div ref={observerRef} className="h-4" />}
 
+      {/* ================= MODALS ================= */}
       {showForm && (
-        <PoemForm
-          poem={editingPoem}
+        <CollectionForm
+          collection={editingCollection}
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
-            loadPoems(1)
+            setPage(1);
+            setCollections([]);
+            setHasNext(true);
+            loadCollections(1);
           }}
         />
       )}
 
-      {deletePoem && (
+      {deleteCollection && (
         <ConfirmDelete
-          title={`Delete "${deletePoem.title}"?`}
-          onCancel={() => setDeletePoem(null)}
+          title={`Delete "${deleteCollection.name}"?`}
+          onCancel={() => setDeleteCollection(null)}
           onConfirm={async () => {
-            const toastId = toast.loading('Deleting poem...');
-
+            const toastId = toast.loading('Deleting collection...');
             try {
-              await adminService.deletePoem(deletePoem._id);
-
-              toast.success('Poem deleted successfully', {
-                id: toastId
-              });
-
-              setDeletePoem(null);
+              await adminService.deleteCollection(deleteCollection._id);
+              toast.success('Collection deleted', { id: toastId });
+              setDeleteCollection(null);
               setPage(1);
-              setPoems([]);
-              loadPoems(1);
+              setCollections([]);
+              setHasNext(true);
+              loadCollections(1);
             } catch (err) {
-              toast.error('Failed to delete poem', {
-                id: toastId
-              });
-              console.error(err);
+              toast.error('Failed to delete collection', { id: toastId });
             }
           }}
-
         />
       )}
     </div>
   );
 };
 
-export default AdminPoems;
+export default AdminCollections;
