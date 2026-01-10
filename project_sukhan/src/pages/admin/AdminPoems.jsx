@@ -16,6 +16,7 @@ const AdminPoems = () => {
 
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
+  const hasLoadedOnceRef = useRef(false); // ⭐ KEY FIX
 
   const [showForm, setShowForm] = useState(false);
   const [editingPoem, setEditingPoem] = useState(null);
@@ -44,14 +45,18 @@ const AdminPoems = () => {
   useEffect(() => {
     const t = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 1000);
+    }, 200);
     return () => clearTimeout(t);
   }, [search]);
 
   /* ================= LOAD POEMS ================= */
   const loadPoems = async (pageNo = 1) => {
     try {
-      pageNo === 1 ? setInitialLoading(true) : setLoading(true);
+      if (!hasLoadedOnceRef.current) {
+        setInitialLoading(true);     // only first time
+      } else {
+        setLoading(true);            // search / pagination
+      }
 
       const res = await adminService.getPoems({
         page: pageNo,
@@ -67,6 +72,8 @@ const AdminPoems = () => {
       );
 
       setHasNext(pagination.hasNext);
+      hasLoadedOnceRef.current = true;
+
     } catch (e) {
       console.error(e);
     } finally {
@@ -78,9 +85,12 @@ const AdminPoems = () => {
   /* ================= RELOAD ON FILTER CHANGE ================= */
   useEffect(() => {
     if (!activeCategoryId) return;
+
     setPage(1);
     setPoems([]);
+    setHasNext(true);
     loadPoems(1);
+
   }, [activeCategoryId, debouncedSearch]);
 
   /* ================= INFINITE SCROLL ================= */
@@ -89,7 +99,7 @@ const AdminPoems = () => {
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !loading && !initialLoading) {
+        if (entry.isIntersecting && !loading) {
           setPage(p => p + 1);
         }
       },
@@ -99,13 +109,17 @@ const AdminPoems = () => {
     const el = observerRef.current;
     if (el) observer.observe(el);
     return () => el && observer.unobserve(el);
-  }, [hasNext, loading, initialLoading]);
+
+  }, [hasNext, loading]);
 
   useEffect(() => {
     if (page > 1) loadPoems(page);
   }, [page]);
 
-  if (initialLoading) return <AdminPoemsShimmer />;
+  /* ================= FIRST LOAD SHIMMER ================= */
+  if (initialLoading && !hasLoadedOnceRef.current) {
+    return <AdminPoemsShimmer />;
+  }
 
   return (
     <div className="min-h-screen bg-base-100 px-4 md:px-6 py-6">
@@ -136,6 +150,12 @@ const AdminPoems = () => {
         </button>
       </div>
 
+      {loading && (
+        <div className="text-sm text-base-content/50 mb-4">
+          Searching…
+        </div>
+      )}
+
       {/* ================= CATEGORY TABS ================= */}
       <div className="border-b border-base-300/40 mb-6">
         <div className="flex gap-6 overflow-x-auto text-sm font-medium">
@@ -155,7 +175,7 @@ const AdminPoems = () => {
         </div>
       </div>
 
-      {poems.length === 0 && (
+      {poems.length === 0 && !loading && (
         <div className="text-center py-10 text-base-content/60">
           No poems found
         </div>
@@ -172,7 +192,6 @@ const AdminPoems = () => {
                 <th className="p-4 text-right font-medium">Actions</th>
               </tr>
             </thead>
-
             <tbody>
               {poems.map(poem => (
                 <tr
@@ -205,52 +224,6 @@ const AdminPoems = () => {
         </div>
       </div>
 
-      {/* ================= MOBILE CARDS ================= */}
-      <div className="md:hidden space-y-4">
-        {poems.map(poem => (
-          <div
-            key={poem._id}
-            className="
-              bg-base-100
-              border border-base-300/40
-              rounded-xl
-              shadow-md
-              p-5
-              space-y-2
-            "
-          >
-            <h3 className="text-lg font-semibold text-base-content">
-              {poem.title}
-            </h3>
-
-            <p className="text-sm text-base-content/70">
-              Poet:{' '}
-              <span className="text-base-content/90">
-                {poem.poet?.name || '—'}
-              </span>
-            </p>
-
-            <div className="flex gap-6 pt-3">
-              <button
-                onClick={() => {
-                  setEditingPoem(poem);
-                  setShowForm(true);
-                }}
-                className="text-primary text-sm"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => setDeletePoem(poem)}
-                className="text-error text-sm"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {hasNext && <div ref={observerRef} className="h-4" />}
 
       {showForm && (
@@ -259,7 +232,10 @@ const AdminPoems = () => {
           onClose={() => setShowForm(false)}
           onSuccess={() => {
             setShowForm(false);
-            loadPoems(1)
+            setPage(1);
+            setPoems([]);
+            setHasNext(true);
+            loadPoems(1);
           }}
         />
       )}
@@ -270,26 +246,18 @@ const AdminPoems = () => {
           onCancel={() => setDeletePoem(null)}
           onConfirm={async () => {
             const toastId = toast.loading('Deleting poem...');
-
             try {
               await adminService.deletePoem(deletePoem._id);
-
-              toast.success('Poem deleted successfully', {
-                id: toastId
-              });
-
+              toast.success('Poem deleted', { id: toastId });
               setDeletePoem(null);
               setPage(1);
               setPoems([]);
+              setHasNext(true);
               loadPoems(1);
             } catch (err) {
-              toast.error('Failed to delete poem', {
-                id: toastId
-              });
-              console.error(err);
+              toast.error('Failed to delete poem', { id: toastId });
             }
           }}
-
         />
       )}
     </div>
