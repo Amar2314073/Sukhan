@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
 import { updateProfile, deleteProfile, logoutUser, getProfile } from '../redux/slices/authSlice';
+import ProfileShimmer from '../shimmer/ProfileShimmer';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -28,7 +29,7 @@ const Profile = () => {
     }
   }, [dispatch, navigate, user]);
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <ProfileShimmer/>;
 
   /* ---------------- HANDLERS ---------------- */
   const handleLogout = () => {
