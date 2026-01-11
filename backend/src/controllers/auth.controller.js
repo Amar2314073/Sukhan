@@ -4,6 +4,7 @@ const redisClient = require('../config/redis');
 const ms = require('ms');
 const User = require('../models/user');
 const userValidator = require('../utils/userValidator');
+const Poem = require('../models/poem')
 
 const tokenValidity = '100d';
 
@@ -39,8 +40,11 @@ exports.register = async (req,res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
-        }
+            role: user.role,
+            likedPoems: user.likedPoems || [],
+            savedPoems: user.savedPoems || []
+        };
+
 
         res.status(200).json({
             user: response,
@@ -84,8 +88,11 @@ exports.login = async (req,res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
-            role: user.role
-        }
+            role: user.role,
+            likedPoems: user.likedPoems || [],
+            savedPoems: user.savedPoems || []
+        };
+
 
         res.status(200).json({
             user: response,
@@ -178,27 +185,6 @@ exports.adminRegister = async (req,res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
-
-// Check
-exports.check = async(req,res)=>{
-    try{
-        const reply = {
-        name:req.user.name,
-        email:req.user.email,
-        _id:req.user._id,
-        role:req.user.role,
-        profileImage: req.user.avatar
-    }
-    res.status(200).json({
-        user:reply,
-        message:"Valid User!"
-    })
-    }catch(error){
-        console.error("Check error:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
-
 
 // getProfile
 exports.getProfile = async (req, res) => {
@@ -398,20 +384,21 @@ exports.toggleLike = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const index = user.likedPoems.findIndex(
+        let liked;
+
+        const alreadyLiked = user.likedPoems.some(
             id => id.toString() === poemId
         );
 
-        let liked;
-
-        if (index === -1) {
-            // like
+        if (alreadyLiked) {
+            // unlike
+            user.likedPoems = user.likedPoems.filter(
+                id => id.toString() !== poemId
+            );
+            liked = false;
+        } else {
             user.likedPoems.push(poemId);
             liked = true;
-        } else {
-            // unlike
-            user.likedPoems.splice(index, 1);
-            liked = false;
         }
 
         await user.save();
@@ -427,6 +414,7 @@ exports.toggleLike = async (req, res) => {
     }
 };
 
+
 // Toggle Save Poem
 exports.toggleSave = async (req, res) => {
     try {
@@ -438,27 +426,28 @@ exports.toggleSave = async (req, res) => {
             return res.status(404).json({ message: "User not found" });
         }
 
-        const index = user.savedPoems.findIndex(
+        let saved;
+
+        const alreadySaved = user.savedPoems.some(
             id => id.toString() === poemId
         );
 
-        let saved;
-
-        if (index === -1) {
-            // save
+        if (alreadySaved) {
+            // unsave
+            user.savedPoems = user.savedPoems.filter(
+                id => id.toString() !== poemId
+            );
+            saved = false;
+        } else {
             user.savedPoems.push(poemId);
             saved = true;
-        } else {
-            // unsave
-            user.savedPoems.splice(index, 1);
-            saved = false;
         }
 
         await user.save();
 
         res.status(200).json({
-        saved,
-        savedPoems: user.savedPoems
+            saved,
+            savedPoems: user.savedPoems
         });
 
     } catch (error) {
@@ -467,6 +456,28 @@ exports.toggleSave = async (req, res) => {
     }
 };
 
+// Load User
+exports.loadUser = async (req, res) => {
+    try {
+        const user = req.user;
 
+        const response = {
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            avatar: user.avatar,
+            likedPoems: user.likedPoems,
+            savedPoems: user.savedPoems,
+            preferredLanguage: user.preferredLanguage
+        };
 
+        res.status(200).json({
+            user: response
+        });
 
+    } catch (error) {
+        console.error("Load user error:", error);
+        res.status(500).json({ message: "Failed to load user" });
+    }
+};

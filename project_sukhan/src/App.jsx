@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router';
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { checkAuth } from './redux/slices/authSlice';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Login from './pages/Login'
@@ -21,14 +20,17 @@ import { Toaster } from 'react-hot-toast';
 import Collections from './pages/Collections';
 import { ThemeProvider } from './context/ThemeContext';
 import AdminCollections from './pages/admin/AdminCollections';
+import { loadUser } from './redux/slices/authSlice';
 
 function App() {
   const dispatch = useDispatch();
   const zenMode = useSelector(state => state.ui.zenMode);
 
+
   useEffect(() => {
-    dispatch(checkAuth());
+    dispatch(loadUser());
   }, [dispatch]);
+
 
   return (
     <Router>
