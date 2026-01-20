@@ -11,10 +11,11 @@ const cors = require('cors')
 
 app.use(cors({
     origin:['http://localhost:5173', 'https://sukhan-pi.vercel.app'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     // allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
 }))
+
 
 app.use(express.json());   // to convert json into js object
 app.use(cookieParser());   // to parse cookie
