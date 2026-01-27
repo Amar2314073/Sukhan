@@ -1,263 +1,126 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
-import { updateProfile, deleteProfile, logoutUser, getProfile } from '../redux/slices/authSlice';
+import {
+  logoutUser,
+  deleteProfile,
+  getProfile,
+  updateProfile
+} from '../redux/slices/authSlice';
 import ProfileShimmer from '../shimmer/ProfileShimmer';
+import UserForm from '../components/UserForm';
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { user, isAuthenticated, isLoading } = useSelector(state => state.auth);
+  const { user, isAuthenticated, isLoading } = useSelector(s => s.auth);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  /* ---------------- AUTH CHECK ---------------- */
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) {
-      navigate('/login');
-    }
-    if (!user) {
-      dispatch(getProfile());
-    }
+    if (!isAuthenticated && !isLoading) navigate('/login');
+    if (!user) dispatch(getProfile());
   }, [dispatch, navigate, user]);
 
-  if (isLoading) return <ProfileShimmer/>;
+  if (isLoading || !user) return <ProfileShimmer />;
 
-  /* ---------------- HANDLERS ---------------- */
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate('/');
-  };
-
-  const handleDeleteAccount = async () => {
-    try {
-      await dispatch(deleteProfile()).unwrap();
-      navigate('/');
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  /* ---------------- UI ---------------- */
   return (
-    <div className="min-h-screen bg-base-100 py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <div className="min-h-screen bg-gray-950 text-gray-100 py-10">
+      <div className="max-w-6xl mx-auto px-4">
 
-        {/* ---------- HEADER ---------- */}
-        <div className="bg-base-200 rounded-2xl p-8 mb-10">
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-600 to-amber-700
-            text-white flex items-center justify-center text-4xl font-bold">
-              {user.name?.charAt(0).toUpperCase()}
-            </div>
-
-            <div className="flex-1 text-center md:text-left">
-              <h1 className="text-4xl font-serif font-bold text-amber-900">
-                {user.name}
-              </h1>
-              <p className="text-gray-600 mt-1">{user.email}</p>
-              <p className="mt-3 text-gray-700 max-w-xl">
-                {user.bio || 'Poetry lover exploring words and meanings.'}
-              </p>
-            </div>
+        {/* ===== HEADER ===== */}
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 mb-10 flex items-center gap-6">
+          <div className="w-12 h-12 md:w-24 md:h-24 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold">
+            {user.name.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h1 className="text-3xl font-serif">{user.name}</h1>
+            <p className="text-gray-400">{user.email}</p>
+            {user.bio && (
+              <p className="mt-2 text-gray-300 max-w-xl">{user.bio}</p>
+            )}
           </div>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
 
-          {/* ---------- SIDEBAR ---------- */}
+          {/* ===== SIDEBAR ===== */}
           <aside className="lg:w-1/4">
-            <div className="bg-base-200 rounded-2xl p-6 sticky top-8">
-              <ul className="menu space-y-1">
+            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+              {['overview', 'favorites', 'collections'].map(tab => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`w-full text-left px-4 py-2 rounded-lg mb-1 transition
+                    ${activeTab === tab
+                      ? 'bg-gray-800 text-white'
+                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'}
+                  `}
+                >
+                  {tab === 'overview' && '📖 Overview'}
+                  {tab === 'favorites' && '❤️ Favorites'}
+                  {tab === 'collections' && '📚 Collections'}
+                </button>
+              ))}
 
-                <li>
-                  <button onClick={() => setActiveTab('overview')}
-                    className={activeTab === 'overview' ? 'active font-semibold' : ''}>
-                    📖 Overview
-                  </button>
-                </li>
+              <div className="border-t border-gray-800 my-4" />
 
-                <li>
-                  <button onClick={() => setActiveTab('favorites')}
-                    className={activeTab === 'favorites' ? 'active font-semibold' : ''}>
-                    ❤️ Favorites
-                  </button>
-                </li>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="w-full px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-800"
+              >
+                ✏️ Edit Profile
+              </button>
 
-                <li>
-                  <button onClick={() => setActiveTab('collections')}
-                    className={activeTab === 'collections' ? 'active font-semibold' : ''}>
-                    📚 Collections
-                  </button>
-                </li>
+              <button
+                onClick={() => dispatch(logoutUser())}
+                className="w-full px-4 py-2 rounded-lg text-red-400 hover:bg-gray-800"
+              >
+                🚪 Logout
+              </button>
 
-                <li>
-                  <button onClick={() => setActiveTab('edit')}
-                    className={activeTab === 'edit' ? 'active font-semibold' : ''}>
-                    ✏️ Edit Profile
-                  </button>
-                </li>
-
-                <li className="divider" />
-
-                <li>
-                  <button onClick={handleLogout} className="text-red-600">
-                    🚪 Logout
-                  </button>
-                </li>
-
-                <li>
-                  <button
-                    onClick={() => setShowDeleteModal(true)}
-                    className="text-red-600">
-                    🗑 Delete Account
-                  </button>
-                </li>
-
-              </ul>
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="w-full px-4 py-2 rounded-lg text-red-500 hover:bg-gray-800"
+              >
+                🗑 Delete Account
+              </button>
             </div>
           </aside>
 
-          {/* ---------- MAIN CONTENT ---------- */}
+          {/* ===== MAIN ===== */}
           <main className="lg:w-3/4">
 
-            {/* ===== OVERVIEW ===== */}
             {activeTab === 'overview' && (
-              <div className="bg-base-200 rounded-2xl p-8">
-                <h2 className="text-2xl font-serif mb-6">
-                  My Poetry Space
-                </h2>
-
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-
-                  <div
-                    className="cursor-pointer bg-base-100 rounded-xl p-6 text-center
-                    hover:bg-amber-50"
-                    onClick={() => setActiveTab('favorites')}
-                  >
-                    <div className="text-3xl font-bold text-amber-700">
-                      {user.stats?.favoritesCount || 0}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      Liked Poems
-                    </div>
-                  </div>
-
-                  <div
-                    className="cursor-pointer bg-base-100 rounded-xl p-6 text-center
-                    hover:bg-amber-50"
-                    onClick={() => setActiveTab('collections')}
-                  >
-                    <div className="text-3xl font-bold text-amber-700">
-                      {user.stats?.collectionsCreated || 0}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      Collections
-                    </div>
-                  </div>
-
-                  <div className="bg-base-100 rounded-xl p-6 text-center">
-                    <div className="text-3xl font-bold text-amber-700">
-                      {user.savedPoems?.length || 0}
-                    </div>
-                    <div className="text-sm text-gray-600 mt-1">
-                      Saved Poems
-                    </div>
-                  </div>
-
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                  <Stat title="Liked Poems" value={user.likedPoems?.length || 0} />
+                  <Stat title="Saved Poems" value={user.savedPoems?.length || 0} />
+                  <Stat title="Collections" value={user.collections?.length || 0} />
                 </div>
-
-                <button
-                  onClick={() => setActiveTab('edit')}
-                  className="btn btn-outline btn-primary"
-                >
-                  Edit Profile
-                </button>
               </div>
             )}
 
-            {/* ===== FAVORITES ===== */}
             {activeTab === 'favorites' && (
-              <div className="bg-base-200 rounded-2xl p-8">
-                <h2 className="text-2xl font-serif mb-6">
-                  My Favorites
-                </h2>
-
-                {(!user.likedPoems || user.likedPoems.length === 0) ? (
-                  <p className="text-gray-600">No favorite poems yet.</p>
-                ) : (
-                  <div className="space-y-4">
-                    {user.likedPoems.map(poem => (
+              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+                {user.likedPoems.length === 0
+                  ? <p className="text-gray-400">No liked poems yet.</p>
+                  : user.likedPoems.map(p => (
                       <Link
-                        key={poem._id}
-                        to={`/poems/${poem._id}`}
-                        className="block border-b pb-3 hover:text-amber-700"
+                        key={p._id}
+                        to={`/poems/${p._id}`}
+                        className="block border-b border-gray-800 py-3 hover:text-white"
                       >
                         <p className="italic line-clamp-2">
-                          {poem.content?.hindi || poem.content?.roman}
+                          {p.content?.hindi || p.content?.roman}
                         </p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          — {poem.poet?.name}
-                        </p>
+                        <p className="text-sm text-gray-500">— {p.poet?.name}</p>
                       </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ===== COLLECTIONS ===== */}
-            {activeTab === 'collections' && (
-              <div className="bg-base-200 rounded-2xl p-8">
-                <h2 className="text-2xl font-serif mb-6">
-                  My Collections
-                </h2>
-                <p className="text-gray-600">
-                  Collections feature coming soon.
-                </p>
-              </div>
-            )}
-
-            {/* ===== EDIT PROFILE ===== */}
-            {activeTab === 'edit' && (
-              <div className="bg-base-200 rounded-2xl p-8">
-                <h2 className="text-2xl font-serif mb-6">
-                  Edit Profile
-                </h2>
-
-                <form
-                  onSubmit={e => {
-                    e.preventDefault();
-                    dispatch(updateProfile({
-                      name: e.target.name.value,
-                      bio: e.target.bio.value
-                    }));
-                  }}
-                  className="space-y-6"
-                >
-                  <input
-                    name="name"
-                    defaultValue={user.name}
-                    className="input input-bordered w-full"
-                    placeholder="Your name"
-                  />
-
-                  <textarea
-                    name="bio"
-                    defaultValue={user.bio}
-                    className="textarea textarea-bordered w-full"
-                    placeholder="About you"
-                  />
-
-                  <button
-                    className="btn btn-primary"
-                    disabled={isLoading}
-                  >
-                    Save Changes
-                  </button>
-                </form>
+                    ))
+                }
               </div>
             )}
 
@@ -265,35 +128,56 @@ const Profile = () => {
         </div>
       </div>
 
-      {/* ---------- DELETE MODAL ---------- */}
+      {/* ===== EDIT MODAL ===== */}
+      {showEditModal && (
+        <UserForm
+          user={user}
+          onClose={() => setShowEditModal(false)}
+          onSave={(data) => {
+            dispatch(updateProfile(data));
+            setShowEditModal(false);
+          }}
+        />
+      )}
+
+      {/* ===== DELETE MODAL ===== */}
       {showDeleteModal && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg text-red-600">
-              Delete Account
-            </h3>
-            <p className="py-4">
-              This action is permanent. Are you sure?
-            </p>
-            <div className="modal-action">
-              <button
-                className="btn"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-error"
-                onClick={handleDeleteAccount}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          onCancel={() => setShowDeleteModal(false)}
+          onConfirm={() => {
+            dispatch(deleteProfile());
+            navigate('/');
+          }}
+        />
       )}
     </div>
   );
 };
+
+const Stat = ({ title, value }) => (
+  <div className="bg-gray-800 rounded-xl p-6 text-center">
+    <div className="text-3xl font-semibold">{value}</div>
+    <div className="text-gray-400 mt-1">{title}</div>
+  </div>
+);
+
+const ConfirmModal = ({ onCancel, onConfirm }) => (
+  <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-sm">
+      <h3 className="text-lg text-red-400 font-semibold mb-3">Delete Account</h3>
+      <p className="text-gray-400 mb-4">
+        This action is permanent.
+      </p>
+      <div className="flex justify-end gap-3">
+        <button onClick={onCancel} className="px-4 py-2 bg-gray-800 rounded-lg">
+          Cancel
+        </button>
+        <button onClick={onConfirm} className="px-4 py-2 bg-red-600 rounded-lg">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+);
 
 export default Profile;

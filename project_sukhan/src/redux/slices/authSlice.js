@@ -274,16 +274,73 @@ const authSlice = createSlice({
         state.error = action.payload;
       })
       // Toggle Like
+      
+      .addCase(toggleLikePoem.pending, (state, action) => {
+        const poemId = action.meta.arg;
+
+        if (!state.user) return;
+
+        const index = state.user.likedPoems.findIndex(
+          id => id.toString() === poemId
+        );
+
+        if (index === -1) {
+          state.user.likedPoems.push(poemId);
+        } else {
+          state.user.likedPoems.splice(index, 1);
+        }
+      })
+
       .addCase(toggleLikePoem.fulfilled, (state, action) => {
         if (state.user) {
           state.user.likedPoems = action.payload.likedPoems;
         }
       })
+      .addCase(toggleLikePoem.rejected, (state, action) => {
+        const poemId = action.meta.arg;
+        if (!state.user) return;
+
+        const index = state.user.likedPoems.findIndex(
+          id => id.toString() === poemId
+        );
+
+        if (index === -1) {
+          state.user.likedPoems.push(poemId);
+        } else {
+          state.user.likedPoems.splice(index, 1);
+        }
+      })
 
       // Toggle Save
-      .addCase(toggleSavePoem.fulfilled, (state, action) => {
-        if (state.user) {
-          state.user.savedPoems = action.payload.savedPoems;
+      .addCase(toggleSavePoem.pending, (state, action) => {
+        const poemId = action.meta.arg;
+
+        if (!state.user) return;
+
+        const index = state.user.savedPoems.findIndex(
+          id => id.toString() === poemId
+        );
+
+        if (index === -1) {
+          state.user.savedPoems.push(poemId);
+        } else {
+          state.user.savedPoems.splice(index, 1);
+        }
+      })
+      .addCase(toggleSavePoem.fulfilled, () => {})
+
+      .addCase(toggleSavePoem.rejected, (state, action) => {
+        const poemId = action.meta.arg;
+        if (!state.user) return;
+
+        const index = state.user.savedPoems.findIndex(
+          id => id.toString() === poemId
+        );
+
+        if (index === -1) {
+          state.user.savedPoems.push(poemId);
+        } else {
+          state.user.savedPoems.splice(index, 1);
         }
       })
 

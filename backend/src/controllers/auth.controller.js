@@ -380,8 +380,9 @@ exports.toggleLike = async (req, res) => {
         const { poemId } = req.params;
 
         const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        const poem = await Poem.findById(poemId);
+        if (!user || !poem) {
+            return res.status(404).json({ message: 'User or Poem not found' });
         }
 
         let liked;
@@ -391,20 +392,23 @@ exports.toggleLike = async (req, res) => {
         );
 
         if (alreadyLiked) {
-            // unlike
-            user.likedPoems = user.likedPoems.filter(
-                id => id.toString() !== poemId
-            );
+            // UNLIKE
+            user.likedPoems.pull(poemId);
+            poem.likes = Math.max(0, poem.likes - 1);
             liked = false;
         } else {
+            // LIKE
             user.likedPoems.push(poemId);
+            poem.likes += 1;
             liked = true;
         }
 
         await user.save();
+        await poem.save();
 
         res.status(200).json({
             liked,
+            likes: poem.likes,
             likedPoems: user.likedPoems
         });
 

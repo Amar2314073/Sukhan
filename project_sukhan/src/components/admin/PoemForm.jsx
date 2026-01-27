@@ -50,8 +50,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
       urdu: poem?.content?.urdu || '',
       hindi: poem?.content?.hindi || '',
       roman: poem?.content?.roman || ''
-    },
-    tags: poem?.tags?.join(', ') || ''
+    }
   });
 
   useEffect(() => {
@@ -62,24 +61,16 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   const submit = async (e) => {
     e.preventDefault();
 
-    const payload = {
-      ...form,
-      tags: form.tags
-        .split(',')
-        .map(t => t.trim())
-        .filter(Boolean)
-    };
-
     const toastId = toast.loading(
       poem ? 'Updating poem...' : 'Creating poem...'
     );
 
     try {
       if (poem) {
-        await adminService.updatePoem(poem._id, payload);
+        await adminService.updatePoem(poem._id, form);
         toast.success('Poem updated successfully', { id: toastId });
       } else {
-        await adminService.createPoem(payload);
+        await adminService.createPoem(form);
         toast.success('Poem created successfully', { id: toastId });
       }
 
@@ -223,16 +214,6 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
               />
             </div>
 
-            {/* Tags */}
-            <div>
-              <label className="text-sm text-base-content/70">Tags</label>
-              <input
-                value={form.tags}
-                onChange={e => setForm({ ...form, tags: e.target.value })}
-                className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
-                placeholder="comma separated tags"
-              />
-            </div>
 
             {/* Featured */}
             <div className="flex items-center gap-3">

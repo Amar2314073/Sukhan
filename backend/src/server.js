@@ -20,13 +20,16 @@ app.use(cors({
 app.use(express.json());   // to convert json into js object
 app.use(cookieParser());   // to parse cookie
 
-app.get('/',()=>{
+app.get('/', (req, res) => {
     console.log("Checking backend!");
-})
+    res.status(200).send("Backend is running 🚀");
+});
+
 
 app.use('/api', routes);
 
 
+const PORT = process.env.PORT || 8080
 
 
 const InitializeConnection = async()=>{
@@ -34,8 +37,8 @@ const InitializeConnection = async()=>{
         await Promise.all([main(),redisClient.connect()]);
         console.log("Connected to Database");
 
-        app.listen(process.env.PORT, ()=>{
-            console.log(`Server listening at port number : ${process.env.PORT}`);
+        app.listen(PORT, ()=>{
+            console.log(`Server listening at port number : ${PORT}`);
         })
     }
     catch(err){

@@ -36,10 +36,6 @@ const poemSchema = new Schema({
     type: Boolean,
     default: false
   },
-  tags: [{
-    type: String,
-    trim: true
-  }],
   likes: {
     type: Number,
     default: 0

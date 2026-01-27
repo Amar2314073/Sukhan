@@ -21,7 +21,7 @@ import {
 const BG_IMAGE =
   'https://rekhta.pc.cdn.bitgravity.com/Images/poet-profile-banner.png';
 
-const PoemDetail = () => {
+const Poemtest = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -142,9 +142,9 @@ const PoemDetail = () => {
             {/* LEFT */}
             <div className="flex gap-3">
               <img
-                src={currentPoem?.poet?.image || 'https://www.gravatar.com/avatar/?d=mp&s=80'}
+                src={currentPoem.poet?.avatar || 'https://www.gravatar.com/avatar/?d=mp&s=80'}
                 alt=""
-                className="w-12 h-12 rounded-full object-cover"
+                className="w-10 h-10 rounded-full object-cover"
               />
 
               <div>
@@ -163,7 +163,7 @@ const PoemDetail = () => {
                 onClick={() => setShowLang(v => !v)}
                 className="flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-full text-sm"
               >
-                {lang.charAt(0).toUpperCase() + lang.slice(1)}
+                {lang.toUpperCase()}
                 <ChevronDown size={14} />
               </button>
 
@@ -178,7 +178,7 @@ const PoemDetail = () => {
                       }}
                       className="block px-4 py-2 text-sm hover:bg-gray-800 w-full text-left"
                     >
-                      {l.charAt(0).toUpperCase() + l.slice(1)}
+                      {l.toUpperCase()}
                     </button>
                   ))}
                 </div>
@@ -264,4 +264,4 @@ const PoemDetail = () => {
   );
 };
 
-export default PoemDetail;
+export default Poemtest;
