@@ -1,10 +1,16 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router';
+import { useEffect, useRef } from 'react';
+import { useNavigate, Link } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 
 const Home = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const sherRef = useRef(null);
+  const freeVerseRef = useRef(null);
+  const ghazalRef = useRef(null);
+  const poemsRef = useRef(null);
+  
   const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   useEffect(() => {
     dispatch(fetchStats());
@@ -61,12 +67,14 @@ const Home = () => {
               Sher of the Moment
             </h2>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
               {randomSher.map((s) => (
                 <div
                   key={s._id}
+                  onClick={()=>navigate(`/poems/${s._id}`)}
                   className="min-w-[320px] max-w-[320px]
-                            bg-gradient-to-br from-[#121212] to-[#1b1b1b]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
                             border border-white/10
                             rounded-2xl p-6
                             hover:scale-[1.03] hover:border-primary/40
@@ -85,6 +93,23 @@ const Home = () => {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => {
+                if (!sherRef.current) return;
+
+                const cardWidth = sherRef.current.firstChild?.offsetWidth || 320;
+                const gap = 24;
+
+                sherRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Explore more →
+            </button>
+
           </div>
 
           {/* ===== RANDOM FREE VERSE ===== */}
@@ -93,12 +118,14 @@ const Home = () => {
               Verses to Wander With
             </h2>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
               {randomFreeVerse.map((p) => (
                 <div
                   key={p._id}
+                  onClick={()=>navigate(`/poems/${p._id}`)}
                   className="min-w-[340px] max-w-[340px]
-                            bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
                             border border-white/10
                             rounded-2xl p-6
                             hover:scale-[1.03] hover:border-primary/40
@@ -122,6 +149,23 @@ const Home = () => {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => {
+                if (!freeVerseRef.current) return;
+
+                const cardWidth = freeVerseRef.current.firstChild?.offsetWidth || 340;
+                const gap = 24;
+
+                freeVerseRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Continue reading →
+            </button>
+
           </div>
 
           {/* ===== RANDOM GHAZAL ===== */}
@@ -130,12 +174,13 @@ const Home = () => {
               A Ghazal for the Soul
             </h2>
 
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
               {randomGhazal.map((g) => (
                 <div
                   key={g._id}
-                  className="min-w-[340px] max-w-[340px]
-                            bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                  onClick={()=>navigate(`/poems/${g._id}`)}
+                  className="min-w-[340px] max-w-[340px] snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
                             border border-white/10
                             rounded-2xl p-6
                             hover:scale-[1.03] hover:border-primary/40
@@ -159,6 +204,20 @@ const Home = () => {
                 </div>
               ))}
             </div>
+            <button
+              onClick={() => {
+                if (!ghazalRef.current) return;
+                const cardWidth = ghazalRef.current.firstChild?.offsetWidth || 340;
+                const gap = 24;
+                ghazalRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Dive deeper →
+            </button>
           </div>
 
         </section>
@@ -172,7 +231,10 @@ const Home = () => {
 
           <div className="bg-base-200 rounded-2xl p-8 space-y-8">
             {todaysFeaturedPoetry.map(s => (
-              <div key={s._id} className="border-b border-base-300/30 pb-6 last:border-0">
+              <div
+                key={s._id}
+                onClick={()=>navigate(`/poems/${s._id}`)}
+                className="border-b border-base-300/30 pb-6 last:border-0">
                 <p className="font-serif text-lg mb-2">{(s.content?.hindi)
                   ?.split('\n')
                   .filter(line => line.trim() !== '')
@@ -244,12 +306,13 @@ const Home = () => {
             Featured Poems
           </h2>
 
-          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={poemsRef}>
             {featuredPoems.map((p) => (
               <div
                 key={p._id}
-                className="min-w-[320px] max-w-[320px]
-                          bg-gradient-to-br from-[#121212] to-[#1b1b1b]
+                onClick={()=>navigate(`/poems/${p._id}`)}
+                className="min-w-[320px] max-w-[320px] snap-center
+                          bg-gradient-to-br from-base-300/80 to-base-100
                           border border-white/10
                           rounded-2xl p-6
                           hover:scale-[1.03] hover:border-primary/40
@@ -276,6 +339,20 @@ const Home = () => {
               </div>
             ))}
           </div>
+          <button
+            onClick={() => {
+              if (!poemsRef.current) return;
+              const cardWidth = poemsRef.current.firstChild?.offsetWidth || 320;
+              const gap = 24;
+              poemsRef.current.scrollBy({
+                left: cardWidth + gap,
+                behavior: 'smooth'
+              });
+            }}
+            className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+          >
+            Drift further →
+          </button>
         </section>
 
 
@@ -295,7 +372,7 @@ const Home = () => {
               <div
                 key={p._id}
                 className="min-w-[240px]
-                          bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                          bg-gradient-to-br from-base-300/80 to-base-100
                           border border-white/10
                           rounded-2xl p-6 text-center
                           hover:scale-[1.04] hover:border-primary/40
