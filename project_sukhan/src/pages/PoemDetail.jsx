@@ -37,6 +37,7 @@ const PoemDetail = () => {
   /* ================= FETCH ================= */
   useEffect(() => {
     dispatch(fetchPoemById(id));
+    window.scrollTo({ top: 0, behavior: 'instant' });
     return () => dispatch(clearCurrentPoem());
   }, [id, dispatch]);
 

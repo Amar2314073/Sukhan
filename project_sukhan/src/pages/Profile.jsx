@@ -97,9 +97,16 @@ const Profile = () => {
             {activeTab === 'overview' && (
               <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <Stat title="Liked Poems" value={user.likedPoems?.length || 0} />
-                  <Stat title="Saved Poems" value={user.savedPoems?.length || 0} />
-                  <Stat title="Collections" value={user.collections?.length || 0} />
+                  <Stat 
+                    onClick = {()=>navigate('/profile/likedPoems')} 
+                    title="Liked Poems" 
+                    value={user.likedPoems?.length || 0} 
+                  />
+                  <Stat
+                    onClick = {()=>navigate('/profile/savedPoems')} 
+                    title="Saved Poems" 
+                    value={user.savedPoems?.length || 0} />
+                  <Stat title="Collections" value={user.collections?.length || 0} />                  
                 </div>
               </div>
             )}
@@ -154,8 +161,19 @@ const Profile = () => {
   );
 };
 
-const Stat = ({ title, value }) => (
-  <div className="bg-gray-800 rounded-xl p-6 text-center">
+const Stat = ({ title, value, onClick }) => (
+  <div
+    onClick={onClick}
+    className="
+      bg-gray-800
+      rounded-xl
+      p-6
+      text-center
+      cursor-pointer
+      hover:bg-gray-700
+      transition
+    "
+  >
     <div className="text-3xl font-semibold">{value}</div>
     <div className="text-gray-400 mt-1">{title}</div>
   </div>

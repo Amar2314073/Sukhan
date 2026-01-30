@@ -21,6 +21,8 @@ import Collections from './pages/Collections';
 import { ThemeProvider } from './context/ThemeContext';
 import AdminCollections from './pages/admin/AdminCollections';
 import { loadUser } from './redux/slices/authSlice';
+import LikedPoems from './pages/LikedPoems';
+import SavedPoems from './pages/SavedPoems';
 
 function App() {
   const dispatch = useDispatch();
@@ -56,6 +58,8 @@ function App() {
               <Route path="/poems/:id" element={<PoemDetail />} />
               <Route path='/admin/collections' element={<AdminCollections />}/>
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+              <Route path="/profile/likedPoems" element={<PrivateRoute><LikedPoems /></PrivateRoute>} />
+              <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
               {/* <Route path="/dictionary" element={<Dictionary />} /> */}
 
               <Route path="/admin" element={<AdminRoutes />}>

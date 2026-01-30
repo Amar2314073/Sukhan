@@ -485,3 +485,43 @@ exports.loadUser = async (req, res) => {
         res.status(500).json({ message: "Failed to load user" });
     }
 };
+
+// Get Liked Poems
+exports.getLikedPoems = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId).populate({
+            path: 'likedPoems',
+            populate: {
+                path: 'poet',
+                select: 'name _id'
+            }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({
+            likedPoems: user.likedPoems
+        });
+    } catch (error) {
+        console.error("Get liked poems error:", error);
+        res.status(500).json({ message: "Error fetching liked poems" });
+    }
+};
+
+// Get Saved Poems
+exports.getSavedPoems = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        const user = await User.findById(userId).populate('savedPoems');
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({
+            savedPoems: user.savedPoems
+        });
+    } catch (error) {
+        console.error("Get saved poems error:", error);
+        res.status(500).json({ message: "Error fetching saved poems" });
+    }
+};

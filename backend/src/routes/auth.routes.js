@@ -18,6 +18,8 @@ router.put('/change-password', userMiddleware, authController.changePassword);
 router.post('/like/:poemId', userMiddleware, authController.toggleLike);
 router.post('/save/:poemId', userMiddleware, authController.toggleSave);
 router.get('/loadUser', userMiddleware, authController.loadUser);
+router.get('/likedPoems', userMiddleware, authController.getLikedPoems);
+router.get('/savedPoems', userMiddleware, authController.getSavedPoems);
 
 
 module.exports = router;

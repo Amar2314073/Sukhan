@@ -1,19 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchStats } from '../redux/slices/homeSlice';
+import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const [featuredPoems, setFeaturedPoems] = useState([]);
-  const [popularPoets, setPopularPoets] = useState([]);
-  const [trendingCollections, setTrendingCollections] = useState([]);
   const [todaysShayari, setTodaysShayari] = useState([]);
   const [literaryFacts, setLiteraryFacts] = useState([]);
-  const { poemCount, poetCount, loading, error } = useSelector((state) => state.home);
-
+  const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   useEffect(() => {
     dispatch(fetchStats());
+    dispatch(fetchHomePageData());
   }, [dispatch]);
 
   useEffect(() => {
@@ -62,60 +59,27 @@ const Home = () => {
             "The Urdu word 'Mallah' comes from Arabic 'Milh' (salt)."
         }
       ]);
-
-      setFeaturedPoems([
-        {
-          id: 1,
-          title: "The Essence of Love",
-          poet: "Mirza Ghalib",
-          excerpt: "Hazaaron khwahishen aisi ke har khwahish pe dam nikle...",
-          language: "Urdu"
-        },
-        {
-          id: 2,
-          title: "Madhushala",
-          poet: "Harivansh Rai Bachchan",
-          excerpt: "Madira pilaye jaa, madhushala mein aaye...",
-          language: "Hindi"
-        },
-        {
-          id: 3,
-          title: "Where the Mind is Without Fear",
-          poet: "Rabindranath Tagore",
-          excerpt: "Where the mind is without fear and the head is held high...",
-          language: "English"
-        }
-      ]);
-
-      setPopularPoets([
-        { id: 1, name: "Mirza Ghalib", era: "1797–1869", poemsCount: 234 },
-        { id: 2, name: "Faiz Ahmed Faiz", era: "1911–1984", poemsCount: 189 },
-        { id: 3, name: "Amrita Pritam", era: "1919–2005", poemsCount: 156 },
-        { id: 4, name: "Gulzar", era: "1934–Present", poemsCount: 278 }
-      ]);
-
-      setTrendingCollections([
-        {
-          id: 1,
-          title: "Romantic Ghazals",
-          description: "Timeless romantic poetry",
-          poemsCount: 45
-        },
-        {
-          id: 2,
-          title: "Freedom Verses",
-          description: "Poems of resistance & revolution",
-          poemsCount: 32
-        },
-        {
-          id: 3,
-          title: "Nature's Melody",
-          description: "Poetry inspired by nature",
-          poemsCount: 28
-        }
-      ]);
     }, 800);
   }, []);
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Error loading data: {error}</p>
+      </div>
+    );
+  }
+
+  const featuredPoems = homePageData?.featuredPoems || [];
+  const popularPoets = homePageData?.popularPoets || [];
+  // const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
+  //   id: index + 1,
+  //   title
+  // })) || [];
+
+  // console.log(featuredPoems, popularPoets);
+
+
 
   return (
     <div className="min-h-screen bg-base-100 text-base-content">
@@ -221,57 +185,100 @@ const Home = () => {
         </section>
 
         {/* FEATURED POEMS */}
-        <section className="mb-14">
+        <section className="mb-16">
           <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
             Featured Poems
           </h2>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {featuredPoems.map(p => (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {featuredPoems.map((p) => (
               <div
-                key={p.id}
-                className="bg-base-200 rounded-2xl p-6 hover:bg-base-300/20 transition"
+                key={p._id}
+                className="min-w-[320px] max-w-[320px]
+                          bg-gradient-to-br from-[#121212] to-[#1b1b1b]
+                          border border-white/10
+                          rounded-2xl p-6
+                          hover:scale-[1.03] hover:border-primary/40
+                          transition-all duration-300"
               >
-                <div className="flex justify-between mb-3">
-                  <h3 className="font-serif text-lg">{p.title}</h3>
-                  <span className="text-xs text-primary">{p.language}</span>
-                </div>
-                <p className="italic text-base-content/70 mb-4">
-                  "{p.excerpt}"
+                {/* Title */}
+                <h3 className="font-serif text-lg text-[#f5f3ef] mb-3 line-clamp-1">
+                  {p.title}
+                </h3>
+
+                {/* Content preview */}
+                <p className="text-sm text-[#bdb7aa] italic mb-4 whitespace-pre-line">
+                  {(p.content?.hindi || p.content?.english)
+                    ?.split('\n')
+                    .filter(line => line.trim() !== '')
+                    .slice(0, 2)
+                    .join('\n')}
                 </p>
-                <p className="text-sm text-primary">— {p.poet}</p>
+
+                {/* Poet */}
+                <p className="text-sm text-[#d4af37] font-medium">
+                  — {p.poet?.name}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* POETS */}
-        <section className="mb-14">
+
+       {/* POPULAR POETS */}
+        <section className="mb-16">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
-              Master Poets
+              Popular Poets
             </h2>
             <Link to="/poets" className="text-primary hover:underline">
               View all
             </Link>
           </div>
 
-          <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {popularPoets.map(p => (
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {popularPoets.map((p) => (
               <div
-                key={p.id}
-                className="bg-base-200 rounded-2xl p-6 text-center hover:bg-base-300/20 transition"
+                key={p._id}
+                className="min-w-[240px]
+                          bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                          border border-white/10
+                          rounded-2xl p-6 text-center
+                          hover:scale-[1.04] hover:border-primary/40
+                          transition-all duration-300"
               >
-                <h3 className="font-serif text-lg mb-1">{p.name}</h3>
-                <p className="text-sm text-base-content/60">{p.era}</p>
-                <p className="mt-3 text-primary">{p.poemsCount} poems</p>
+                {/* Poet Image */}
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-20 h-20 mx-auto rounded-full object-cover mb-4
+                              border border-white/20"
+                  />
+                )}
+
+                {/* Name */}
+                <h3 className="font-serif text-lg text-[#f5f3ef]">
+                  {p.name}
+                </h3>
+
+                {/* Era */}
+                <p className="text-sm text-[#a8a29e] mt-1">
+                  {p.era}
+                </p>
+
+                {/* Country */}
+                <p className="text-xs text-[#7c766a] mt-2">
+                  {p.country}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
+
         {/* COLLECTIONS */}
-        <section className="mb-14">
+        {/* <section className="mb-14">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
               Poetry Collections
@@ -293,7 +300,7 @@ const Home = () => {
               </div>
             ))}
           </div>
-        </section>
+        </section> */}
 
       </div>
 

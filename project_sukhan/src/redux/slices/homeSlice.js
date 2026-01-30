@@ -17,6 +17,22 @@ export const fetchStats = createAsyncThunk(
   }
 );
 
+/* ================= FETCH HOME PAGE DATA ================= */
+
+export const fetchHomePageData = createAsyncThunk(
+  'home/fetchHomePageData',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await axiosClient.get('/home');
+      return res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch home page data'
+      );
+    }
+  }
+);
+
 /* ================= SLICE ================= */
 
 const homeSlice = createSlice({
@@ -25,7 +41,8 @@ const homeSlice = createSlice({
     poetCount: 0,
     poemCount: 0,
     loading: false,
-    error: null
+    error: null,
+    homePageData: null
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -40,6 +57,18 @@ const homeSlice = createSlice({
         state.poemCount = action.payload.poemCount;
       })
       .addCase(fetchStats.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchHomePageData.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchHomePageData.fulfilled, (state, action) => {
+        state.loading = false;
+        state.homePageData = action.payload;
+      })
+      .addCase(fetchHomePageData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
