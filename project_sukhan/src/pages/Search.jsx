@@ -35,7 +35,7 @@ const Search = () => {
 
       {/* ================= HEADING ================= */}
       <h1 className="text-2xl font-serif mb-6">
-        Search results for “{q}”
+        Search results for “{q.trim()}”
       </h1>
 
       {loading && (
