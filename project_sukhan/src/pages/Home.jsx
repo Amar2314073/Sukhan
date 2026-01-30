@@ -72,6 +72,8 @@ const Home = () => {
 
   const featuredPoems = homePageData?.featuredPoems || [];
   const popularPoets = homePageData?.popularPoets || [];
+  const todaysFeaturedPoetry = homePageData?.todaysPoetry || [];
+  console.log(todaysFeaturedPoetry)
   // const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
   //   id: index + 1,
   //   title
@@ -105,12 +107,22 @@ const Home = () => {
           </h2>
 
           <div className="bg-base-200 rounded-2xl p-8 space-y-8">
-            {todaysShayari.map(s => (
-              <div key={s.id} className="border-b border-base-300/30 pb-6 last:border-0">
-                <p className="font-serif text-2xl mb-2">{s.verse}</p>
-                <p className="text-base-content/60 italic">"{s.translation}"</p>
+            {todaysFeaturedPoetry.map(s => (
+              <div key={s._id} className="border-b border-base-300/30 pb-6 last:border-0">
+                <p className="font-serif text-lg mb-2">{(s.content?.hindi)
+                  ?.split('\n')
+                  .filter(line => line.trim() !== '')
+                  .slice(0, 1)
+                  .join('\n')}
+                </p>
+                <p className="font-serif text-lg mb-2">{(s.content?.hindi)
+                  ?.split('\n')
+                  .filter(line => line.trim() !== '')
+                  .slice(1, 2)
+                  .join('\n')}
+                </p>
                 <p className="text-sm text-primary mt-2">
-                  {s.poet} · <span className="text-base-content/50">{s.roman}</span>
+                  {s.poet.name} · <span className="text-base-content/50">{s.content.roman}</span>
                 </p>
               </div>
             ))}

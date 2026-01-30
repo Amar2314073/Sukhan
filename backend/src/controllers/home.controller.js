@@ -24,22 +24,39 @@ exports.getHomePage = async (req, res) => {
     const today = new Date().toISOString().split("T")[0];
     const seed = parseInt(today.split("-").join(""));
 
-    const ghazalCategory = await Category.findOne({ type: "ghazal" });
+    const ghazalCategory = await Category.findOne({ name: "Ghazal" });
 
     if (!ghazalCategory) {
       return res.status(404).json({ message: "Ghazal category not found" });
     }
 
+    const sherCategory = await Category.findOne({ name: "Sher" });
+
+    if (!sherCategory) {
+      return res.status(404).json({ message: "Sher category not found" });
+    }
+
+
     // total counts
     const totalGhazals = await Poem.countDocuments({
       category: ghazalCategory._id
+    });
+    const totalShers = await Poem.countDocuments({
+      category: sherCategory._id
     });
     const totalPoets = await Poet.countDocuments();
 
     // deterministic "random" start index
     const poemSkip = seed % Math.max(totalGhazals - 10, 1);
+    const sherSkip = seed % Math.max(totalShers - 5, 1);
     const poetSkip = seed % Math.max(totalPoets - 5, 1);
 
+
+    // todays poetry
+    const todaysPoetry = await Poem.find({category: sherCategory._id})
+      .skip(sherSkip)
+      .limit(4)
+      .populate("poet", "name");
 
     // featured poems
     const featuredPoems = await Poem.find({category: ghazalCategory._id})
@@ -57,6 +74,7 @@ exports.getHomePage = async (req, res) => {
 
     res.status(200).json({
       date: today,
+      todaysPoetry,
       featuredPoems,
       popularPoets,
       poetryCollections
