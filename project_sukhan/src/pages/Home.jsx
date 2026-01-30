@@ -112,7 +112,7 @@ const Home = () => {
                     {(p.content?.hindi || p.content?.roman)
                       ?.split('\n')
                       .filter(l => l.trim())
-                      .slice(0, 3)
+                      .slice(0, 4)
                       .join('\n')}
                   </p>
 
