@@ -5,62 +5,11 @@ import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const [todaysShayari, setTodaysShayari] = useState([]);
-  const [literaryFacts, setLiteraryFacts] = useState([]);
   const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   useEffect(() => {
     dispatch(fetchStats());
     dispatch(fetchHomePageData());
   }, [dispatch]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setTodaysShayari([
-        {
-          id: 1,
-          verse: "kaliyoñ ko khul ke hañsne kā andāz aa gayā",
-          translation: "The flowers have learned to bloom and laugh",
-          poet: "Mayal Khairabadi",
-          roman: "kaliyon ko khul ke hansne ka andaz aa gaya"
-        },
-        {
-          id: 2,
-          verse: "tumhārī fā.iloñ meñ gaañv kā mausam gulābī hai",
-          translation: "In your files, the village weather is rosy",
-          poet: "Adam Gondvi",
-          roman: "tumhaari failon mein ganv ka mausam gulabi hai"
-        },
-        {
-          id: 3,
-          verse: "chupke-chupke 'ishq karne kā koī hāsil nahīñ",
-          translation: "There's no gain in loving secretly",
-          poet: "Hina Rizvi",
-          roman: "chupke-chupke ishq karne ka koi hasil nahin"
-        }
-      ]);
-
-      setLiteraryFacts([
-        {
-          id: 1,
-          title: "About Nastaleeq Script",
-          content:
-            "Nastaleeq is the beautiful script for Urdu, designed in Iran by merging Arabic Naskh and Persian Taleeq."
-        },
-        {
-          id: 2,
-          title: "First Literary Urdu",
-          content:
-            "The first notable literary Urdu appears in works of Amir Khusrau (1253–1325)."
-        },
-        {
-          id: 3,
-          title: "Word Origins",
-          content:
-            "The Urdu word 'Mallah' comes from Arabic 'Milh' (salt)."
-        }
-      ]);
-    }, 800);
-  }, []);
 
   if (error) {
     return (
@@ -73,7 +22,9 @@ const Home = () => {
   const featuredPoems = homePageData?.featuredPoems || [];
   const popularPoets = homePageData?.popularPoets || [];
   const todaysFeaturedPoetry = homePageData?.todaysPoetry || [];
-  console.log(todaysFeaturedPoetry)
+  const randomSher = homePageData?.randomSher || [];
+  const randomFreeVerse = homePageData?.randomFreeVerse || [];
+  const randomGhazal = homePageData?.randomGhazal || [];
   // const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
   //   id: index + 1,
   //   title
@@ -99,6 +50,119 @@ const Home = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
+
+
+        {/* ================= RANDOM PICKS ================= */}
+        <section className="mb-16 space-y-16">
+
+          {/* ===== RANDOM SHER ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Sher of the Moment
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {randomSher.map((s) => (
+                <div
+                  key={s._id}
+                  className="min-w-[320px] max-w-[320px]
+                            bg-gradient-to-br from-[#121212] to-[#1b1b1b]
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <p className="font-serif text-lg text-[#f5f3ef] italic mb-4 whitespace-pre-line">
+                    {(s.content?.hindi || s.content?.urdu)
+                      ?.split('\n')
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-[#d4af37] font-medium">
+                    — {s.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ===== RANDOM FREE VERSE ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Verses to Wander With
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {randomFreeVerse.map((p) => (
+                <div
+                  key={p._id}
+                  className="min-w-[340px] max-w-[340px]
+                            bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-[#f5f3ef] mb-3 line-clamp-1">
+                    {p.title}
+                  </h3>
+
+                  <p className="text-sm text-[#bdb7aa] italic mb-4 whitespace-pre-line">
+                    {(p.content?.hindi || p.content?.roman)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 3)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-[#d4af37] font-medium">
+                    — {p.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ===== RANDOM GHAZAL ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              A Ghazal for the Soul
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+              {randomGhazal.map((g) => (
+                <div
+                  key={g._id}
+                  className="min-w-[340px] max-w-[340px]
+                            bg-gradient-to-br from-[#121212] to-[#1c1c1c]
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-[#f5f3ef] mb-3 line-clamp-1">
+                    {g.title}
+                  </h3>
+
+                  <p className="text-sm text-[#bdb7aa] italic mb-4 whitespace-pre-line">
+                    {(g.content?.hindi || g.content?.urdu)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-[#d4af37] font-medium">
+                    — {g.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+        </section>
+
 
         {/* TODAY'S SHAYARI */}
         <section className="mb-14">
@@ -171,28 +235,6 @@ const Home = () => {
                 Languages
               </p>
             </div>
-          </div>
-        </section>
-
-
-        {/* DID YOU KNOW */}
-        <section className="mb-14">
-          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-            Did You Know?
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {literaryFacts.map(f => (
-              <div
-                key={f.id}
-                className="bg-base-200 rounded-2xl p-6 hover:bg-base-300/20 transition"
-              >
-                <h3 className="font-serif text-lg font-semibold mb-3">
-                  {f.title}
-                </h3>
-                <p className="text-base-content/70">{f.content}</p>
-              </div>
-            ))}
           </div>
         </section>
 

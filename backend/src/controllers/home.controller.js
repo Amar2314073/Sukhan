@@ -36,6 +36,119 @@ exports.getHomePage = async (req, res) => {
       return res.status(404).json({ message: "Sher category not found" });
     }
 
+    const freeVerseCategory = await Category.findOne({ name: "Free Verse" });
+
+    if (!freeVerseCategory) {
+      return res.status(404).json({ message: "Free Verse category not found" });
+    }
+
+    const randomFreeVerse = await Poem.aggregate([
+      {
+        $match: {
+          category: freeVerseCategory._id,
+          isActive: true
+        }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
+
+    const randomSher = await Poem.aggregate([
+      {
+        $match: { category: sherCategory._id, isActive: true }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
+
+    const randomGhazal = await Poem.aggregate([
+      {
+        $match: { category: ghazalCategory._id, isActive: true }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
 
     // total counts
     const totalGhazals = await Poem.countDocuments({
@@ -51,6 +164,7 @@ exports.getHomePage = async (req, res) => {
     const sherSkip = seed % Math.max(totalShers - 5, 1);
     const poetSkip = seed % Math.max(totalPoets - 5, 1);
 
+    
 
     // todays poetry
     const todaysPoetry = await Poem.find({category: sherCategory._id})
@@ -74,6 +188,9 @@ exports.getHomePage = async (req, res) => {
 
     res.status(200).json({
       date: today,
+      randomFreeVerse,
+      randomSher,
+      randomGhazal,
       todaysPoetry,
       featuredPoems,
       popularPoets,
