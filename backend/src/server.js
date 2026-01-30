@@ -20,9 +20,8 @@ app.use(cors({
 app.use(express.json());   // to convert json into js object
 app.use(cookieParser());   // to parse cookie
 
-app.get('/', (req, res) => {
-    console.log("Checking backend!");
-    res.status(200).send("Backend is running 🚀");
+app.get("/health", (req, res) => {
+  res.status(200).send("Server is awake 🚀");
 });
 
 
