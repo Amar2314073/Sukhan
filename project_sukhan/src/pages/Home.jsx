@@ -5,6 +5,7 @@ import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 import PoemCardShimmer from '../shimmer/PoemCardShimmer';
 import PoetCardShimmer from '../shimmer/PoetCardShimmer';
 import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
+import InstallSukhanButton from '../components/InstallSukhanButton';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -544,32 +545,40 @@ const Home = () => {
             <p className="text-base-content/60 max-w-xl mx-auto mb-8">
               Discover, read, and feel poetry across languages and eras.
             </p>
-
-            <div className="flex justify-center gap-4">
-              <Link to="/register" className="btn btn-primary">
-                Create Account
-              </Link>
-              <Link to="/explore" className="btn btn-outline">
-                Explore as Guest
-              </Link>
+            <div className='flex flex-col items-center'>
+              <div className="flex justify-center gap-4">
+                <Link to="/register" className="btn btn-primary">
+                  Create Account
+                </Link>
+                <Link to="/explore" className="btn btn-outline">
+                  Explore as Guest
+                </Link>
+              </div>
+              <div className="mt-8 cursor-pointer flex justify-center">
+                <InstallSukhanButton/>
+              </div>
             </div>
           </>
         ) : (
           <>
             <h2 className="text-2xl font-serif font-semibold mb-3">
-              Welcome back {user.name.split(' ')[0]}, words are waiting for you.
+              Explore more poetry!
             </h2>
             <p className="text-base-content/60 max-w-xl mx-auto mb-8">
               Your words, your silences, your Sukhan.
             </p>
-
-            <div className="flex justify-center gap-4">
-              <Link to="/poems" className="btn btn-primary">
-                Explore Poems
-              </Link>
-              <Link to="/profile" className="btn btn-outline">
-                My Profile
-              </Link>
+            <div className='flex flex-col items-center'>
+              <div className="flex justify-center gap-4">
+                <Link to="/poems" className="btn btn-primary">
+                  Explore Poems
+                </Link>
+                <Link to="/profile" className="btn btn-outline">
+                  My Profile
+                </Link>
+              </div>
+              <button className="mt-8 cursor-pointer flex justify-center btn-outline">
+                <InstallSukhanButton/>
+              </button>
             </div>
           </>
         )}
