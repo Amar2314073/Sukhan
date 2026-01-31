@@ -156,3 +156,42 @@
     border-color 1.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+
+/* ================= SOLID SHIMMER FIX ================= */
+
+.shimmer-line,
+.shimmer-avatar {
+  position: relative;
+  overflow: hidden;
+  background-color: #9ca3af; /* gray-400 */
+  opacity: 0.35;
+}
+
+.shimmer-avatar {
+  background-color: #6b7280; /* gray-500 */
+  opacity: 0.45;
+}
+
+/* Shine overlay */
+.shimmer-line::after,
+.shimmer-avatar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.45) 45%,
+    transparent 60%
+  );
+
+  transform: translateX(-100%);
+  animation: shimmerMove 1.4s linear infinite;
+}
+
+@keyframes shimmerMove {
+  to {
+    transform: translateX(100%);
+  }
+}
