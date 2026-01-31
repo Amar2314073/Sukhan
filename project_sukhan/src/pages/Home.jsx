@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 import PoemCardShimmer from '../shimmer/PoemCardShimmer';
 import PoetCardShimmer from '../shimmer/PoetCardShimmer';
+import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -12,6 +13,7 @@ const Home = () => {
   const freeVerseRef = useRef(null);
   const ghazalRef = useRef(null);
   const poemsRef = useRef(null);
+  const collectionsRef = useRef(null);
   
   const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
@@ -34,12 +36,7 @@ const Home = () => {
   const randomSher = homePageData?.randomSher || [];
   const randomFreeVerse = homePageData?.randomFreeVerse || [];
   const randomGhazal = homePageData?.randomGhazal || [];
-  
-  const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
-    id: index + 1,
-    title
-  })) || [];
-  console.log(trendingCollections)
+  const trendingCollections = homePageData?.poetryCollections || [];
 
 
 
@@ -454,59 +451,84 @@ const Home = () => {
             </Link>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {trendingCollections.map(col => (
-            <div
-              key={col._id}
-              onClick={() => navigate(`/collections/${col._id}`)}
-              className="
-                cursor-pointer
-                rounded-2xl
-                bg-base-200/60
-                hover:bg-base-200
-                transition
-                overflow-hidden
-              "
-            >
-              {/* Image */}
-              <div className="h-44 bg-base-300 relative">
-                {col.title.image ? (
-                  <img
-                    src={col.title.image}
-                    alt={col.title.name}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full flex items-center justify-center text-4xl opacity-30">
-                    📚
+          <div className="flex overflow-x-auto pb-4 gap-6 snap-x snap-mandatory">
+            {!trendingCollections.length
+              ? Array.from({ length: 5 }).map((_, i) => (
+                  <CollectionCardShimmer key={i} />
+                ))
+              : trendingCollections.map(col => (
+                  <div
+                    key={col._id}
+                    onClick={() => navigate(`/collections/${col._id}`)}
+                    className="
+                      min-w-[320px] max-w-[320px]
+                      cursor-pointer snap-center
+                      rounded-2xl
+                      bg-base-200/60
+                      hover:bg-base-200
+                      transition
+                      overflow-hidden
+                    "
+                  >
+                    {/* Image */}
+                    <div className="h-44 bg-base-300 relative">
+                      {col.image ? (
+                        <img
+                          src={col.image}
+                          alt={col.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-4xl opacity-30">
+                          📚
+                        </div>
+                      )}
+
+                      {col.featured && (
+                        <span className="absolute top-3 left-3 bg-primary text-primary-content text-xs px-3 py-1 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 space-y-2">
+                      <h3 className="font-serif text-lg line-clamp-1">
+                        {col.name}
+                      </h3>
+
+                      <p className="text-sm text-base-content/60 line-clamp-2">
+                        {col.description}
+                      </p>
+
+                      <div className="flex justify-between text-xs text-base-content/50 pt-3">
+                        <span>{col.category?.name || '—'}</span>
+                        <span>{col.poems?.length || 0} poems</span>
+                      </div>
+                    </div>
                   </div>
-                )}
-
-                {col.title.featured && (
-                  <span className="absolute top-3 left-3 bg-primary text-primary-content text-xs px-3 py-1 rounded-full">
-                    Featured
-                  </span>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="p-5 space-y-2">
-                <h3 className="font-serif text-lg line-clamp-1">
-                  {col.title.name}
-                </h3>
-
-                <p className="text-sm text-base-content/60 line-clamp-2">
-                  {col.title.description}
-                </p>
-
-                <div className="flex justify-between text-xs text-base-content/50 pt-3">
-                  <span>{col.title.category?.name || '—'}</span>
-                  <span>{col.title.poems?.length || 0} poems</span>
-                </div>
-              </div>
-            </div>
-          ))}
+                ))}
           </div>
+
+          <button
+            onClick={() => {
+              if (!collectionsRef.current) return;
+
+              const cardWidth =
+                collectionsRef.current.firstChild?.offsetWidth || 320;
+              const gap = 24;
+
+              collectionsRef.current.scrollBy({
+                left: cardWidth + gap,
+                behavior: 'smooth'
+              });
+            }}
+            className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+          >
+            Delve into Collections →
+          </button>
+
+
         </section>
 
       </div>
