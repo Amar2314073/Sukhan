@@ -15,7 +15,6 @@ const Home = () => {
   
   const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
-  console.log(user, isAuthenticated);
   useEffect(() => {
     dispatch(fetchStats());
     dispatch(fetchHomePageData());
