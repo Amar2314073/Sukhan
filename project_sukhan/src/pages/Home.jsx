@@ -302,10 +302,14 @@ const Home = () => {
 
         {/* FEATURED POEMS */}
         <section className="mb-16">
-          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-            Featured Poems
-          </h2>
-
+          <div className='flex justify-between items-center mb-2'>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Featured Poems
+            </h2>
+            <Link to="/poems" className="text-primary hover:underline">
+              All Poems
+            </Link>
+          </div>
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={poemsRef}>
             {featuredPoems.map((p) => (
               <div
@@ -363,7 +367,7 @@ const Home = () => {
               Popular Poets
             </h2>
             <Link to="/poets" className="text-primary hover:underline">
-              View all
+              All Poets
             </Link>
           </div>
 
@@ -371,6 +375,7 @@ const Home = () => {
             {popularPoets.map((p) => (
               <div
                 key={p._id}
+                onClick={()=>navigate(`/poets/${p._id}`)}
                 className="min-w-[240px]
                           bg-gradient-to-br from-base-300/80 to-base-100
                           border border-white/10
