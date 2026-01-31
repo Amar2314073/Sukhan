@@ -1,6 +1,7 @@
 const Poem = require('../models/poem');
 const Poet = require('../models/poet');
 const Category = require('../models/category');
+const Collection = require('../models/collection');
 
 // Stats controller
 exports.getStats = async (req, res) => {
@@ -184,7 +185,9 @@ exports.getHomePage = async (req, res) => {
       .limit(5);
 
     // collections
-    const poetryCollections = await Poem.distinct("collection");
+    const poetryCollections = await Collection.find({ isActive: true })
+    .populate('category', 'name')
+    .limit(5)
 
     res.status(200).json({
       date: today,

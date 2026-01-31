@@ -35,10 +35,11 @@ const Home = () => {
   const randomFreeVerse = homePageData?.randomFreeVerse || [];
   const randomGhazal = homePageData?.randomGhazal || [];
   
-  // const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
-  //   id: index + 1,
-  //   title
-  // })) || [];
+  const trendingCollections = homePageData?.poetryCollections.map((title, index) => ({
+    id: index + 1,
+    title
+  })) || [];
+  console.log(trendingCollections)
 
 
 
@@ -443,7 +444,7 @@ const Home = () => {
 
 
         {/* COLLECTIONS */}
-        {/* <section className="mb-14">
+        <section className="mb-14">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
               Poetry Collections
@@ -454,18 +455,59 @@ const Home = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {trendingCollections.map(c => (
-              <div
-                key={c.id}
-                className="bg-base-200 rounded-2xl p-6 hover:bg-base-300/20 transition"
-              >
-                <h3 className="font-serif text-xl mb-2">{c.title}</h3>
-                <p className="text-base-content/70 mb-4">{c.description}</p>
-                <p className="text-sm text-primary">{c.poemsCount} poems</p>
+            {trendingCollections.map(col => (
+            <div
+              key={col._id}
+              onClick={() => navigate(`/collections/${col._id}`)}
+              className="
+                cursor-pointer
+                rounded-2xl
+                bg-base-200/60
+                hover:bg-base-200
+                transition
+                overflow-hidden
+              "
+            >
+              {/* Image */}
+              <div className="h-44 bg-base-300 relative">
+                {col.title.image ? (
+                  <img
+                    src={col.title.image}
+                    alt={col.title.name}
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="h-full w-full flex items-center justify-center text-4xl opacity-30">
+                    📚
+                  </div>
+                )}
+
+                {col.title.featured && (
+                  <span className="absolute top-3 left-3 bg-primary text-primary-content text-xs px-3 py-1 rounded-full">
+                    Featured
+                  </span>
+                )}
               </div>
-            ))}
+
+              {/* Content */}
+              <div className="p-5 space-y-2">
+                <h3 className="font-serif text-lg line-clamp-1">
+                  {col.title.name}
+                </h3>
+
+                <p className="text-sm text-base-content/60 line-clamp-2">
+                  {col.title.description}
+                </p>
+
+                <div className="flex justify-between text-xs text-base-content/50 pt-3">
+                  <span>{col.title.category?.name || '—'}</span>
+                  <span>{col.title.poems?.length || 0} poems</span>
+                </div>
+              </div>
+            </div>
+          ))}
           </div>
-        </section> */}
+        </section>
 
       </div>
 
