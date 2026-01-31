@@ -15,7 +15,6 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const { user, isAuthenticated, isLoading } = useSelector(s => s.auth);
-  console.log('User Profile:', user);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteModal, setShowDeleteModal] = useState(false);

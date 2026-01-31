@@ -14,11 +14,11 @@ const collectionSchema = new Schema({
   },
   poems: [{
     type: Schema.Types.ObjectId,
-    ref: 'Poem'
+    ref: 'poem'
   }],
   category: {
     type: Schema.Types.ObjectId,
-    ref: 'Category'
+    ref: 'category'
   },
   featured: {
     type: Boolean,

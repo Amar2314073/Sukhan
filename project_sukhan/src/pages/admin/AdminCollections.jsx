@@ -5,6 +5,7 @@ import { getAllCategories } from '../../redux/slices/categorySlice';
 import CollectionForm from '../../components/admin/CollectionForm';
 import ConfirmDelete from '../../components/admin/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
+import CollectionPoemsModal from '../../components/admin/CollectionPoemsModal';
 import toast from 'react-hot-toast';
 
 const AdminCollections = () => {
@@ -21,6 +22,8 @@ const AdminCollections = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingCollection, setEditingCollection] = useState(null);
   const [deleteCollection, setDeleteCollection] = useState(null);
+  const [showPoemsManager, setShowPoemsManager] = useState(false);
+
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -58,11 +61,11 @@ const AdminCollections = () => {
         setLoading(true);
       }
 
-      const res = await adminService.getCollections({
+      const res = await adminService.getAllCollections({
         page: pageNo,
         limit: 12,
         category: activeCategoryId,
-        q: debouncedSearch.trim() || undefined
+        search: debouncedSearch.trim() || undefined
       });
 
       const { collections: newCollections, pagination } = res.data;
@@ -153,16 +156,6 @@ const AdminCollections = () => {
       {/* ================= CATEGORY TABS ================= */}
       <div className="border-b border-base-300/40 mb-6">
         <div className="flex gap-6 overflow-x-auto text-sm font-medium">
-          <button
-            onClick={() => setActiveCategoryId(null)}
-            className={`py-3 border-b-2 ${
-              !activeCategoryId
-                ? 'border-primary text-primary'
-                : 'border-transparent text-base-content/60'
-            }`}
-          >
-            All
-          </button>
 
           {categories?.categories?.map(cat => (
             <button
@@ -209,6 +202,13 @@ const AdminCollections = () => {
                   <td className="p-4">{col.poems?.length || 0}</td>
                   <td className="p-4 text-right space-x-4">
                     <button
+                      onClick={() => setShowPoemsManager(col)}
+                      className="text-secondary hover:underline"
+                    >
+                      Manage Poems
+                    </button>
+
+                    <button
                       onClick={() => {
                         setEditingCollection(col);
                         setShowForm(true);
@@ -217,6 +217,7 @@ const AdminCollections = () => {
                     >
                       Edit
                     </button>
+
                     <button
                       onClick={() => setDeleteCollection(col)}
                       className="text-error hover:underline"
@@ -224,6 +225,7 @@ const AdminCollections = () => {
                       Delete
                     </button>
                   </td>
+
                 </tr>
               ))}
             </tbody>
@@ -268,6 +270,21 @@ const AdminCollections = () => {
           }}
         />
       )}
+
+      {showPoemsManager && (
+        <CollectionPoemsModal
+          collection={showPoemsManager}
+          onClose={() => setShowPoemsManager(null)}
+          onUpdated={() => {
+            // agar chaaho to collections reload kar sakte ho
+            setPage(1);
+            setCollections([]);
+            setHasNext(true);
+            loadCollections(1);
+          }}
+        />
+      )}
+
     </div>
   );
 };

@@ -18,6 +18,7 @@ router.put('/poem/:id', adminMiddleware, adminController.updatePoem);
 router.delete('/poem/:id', adminMiddleware, adminController.deletePoem);
 
 /* -------- Collections -------- */
+router.get('/collections', adminMiddleware, adminController.getAllCollections);
 router.post('/collection', adminMiddleware, adminController.createCollection);
 router.put('/collection/:id', adminMiddleware, adminController.updateCollection);
 router.delete('/collection/:id', adminMiddleware, adminController.deleteCollection);

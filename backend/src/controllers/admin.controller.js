@@ -49,6 +49,7 @@ exports.searchPoets = async (req, res) => {
 };
 
 
+
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
   try {
@@ -382,6 +383,51 @@ exports.deletePoem = async (req, res) => {
 
 // Collection
 
+// GET /collections - get all collections (admin only)
+exports.getAllCollections = async (req, res) => {
+    try {
+        const { page = 1, limit = 20, search = '', category } = req.query;
+        const query = { isActive: true };
+
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
+        if (category) {
+            query.category = category;
+        }
+
+        const skip = (page - 1) * limit;
+        const collections = await Collection.find(query)
+            .populate('category', 'name type')
+            .populate('createdBy', 'name')
+            .populate({
+                path: 'poems',
+                select: 'title content poet category',
+                populate: { path: 'poet', select: 'name' }
+            })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(parseInt(limit));
+
+        const total = await Collection.countDocuments(query);
+
+        res.status(200).json({
+            collections,
+            pagination: {
+                page: parseInt(page),
+                limit: parseInt(limit),
+                total,
+                hasNext: skip + collections.length < total
+            }
+        });
+
+    } catch (error) {
+        console.error("Get all collections error:", error);
+        res.status(500).json({ message: "Error fetching collections" });
+    }
+}
+
 // POST /collections - create collection (admin only)
 exports.createCollection = async (req, res) => {
     try {
@@ -610,7 +656,11 @@ exports.addPoemToCollection = async (req, res) => {
 exports.removePoemFromCollection = async (req, res) => {
     try {
         const collectionId = req.params.id;
-        const poemId = req.params.poemId;
+        const { poemId } = req.body;
+
+        if (!poemId) {
+            return res.status(400).json({ message: "Poem ID is required" });
+        }
 
         // Check if collection exists
         const collection = await Collection.findById(collectionId);
