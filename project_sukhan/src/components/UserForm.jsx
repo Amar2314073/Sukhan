@@ -5,6 +5,7 @@ const UserForm = ({ user, onClose, onSave }) => {
     name: user.name || '',
     bio: user.bio || '',
     location: user.location || '',
+    avatar: user.avatar || '',
     preferredLanguage: user.preferredLanguage || 'hindi',
     notificationSettings: user.notificationSettings || {
       emailNotifications: true,
@@ -56,6 +57,31 @@ const UserForm = ({ user, onClose, onSave }) => {
             <option value="hindi">Hindi</option>
             <option value="roman">Roman</option>
           </select>
+
+          <input type="text"  
+            className="w-full bg-base-100 px-4 py-2 rounded-lg text-base-content"
+            placeholder="Image URL"
+            value={form.avatar}
+            onChange={e => setForm({ ...form, avatar: e.target.value })}
+          />
+
+          {/* Avatar Preview */}
+          {form.avatar && (
+            <div className="flex items-center gap-4 mt-2">
+              <img
+                src={form.avatar}
+                alt="Avatar Preview"
+                className="w-16 h-16 rounded-full object-cover border border-base-300"
+                onError={(e) => {
+                  e.target.src = '';
+                }}
+              />
+              <p className="text-sm text-base-content/60">
+                Preview
+              </p>
+            </div>
+          )}
+
 
           <label className="flex items-center gap-3 text-sm">
             <input

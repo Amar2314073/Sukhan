@@ -15,32 +15,44 @@ const Profile = () => {
   const navigate = useNavigate();
 
   const { user, isAuthenticated, isLoading } = useSelector(s => s.auth);
+  console.log('User Profile:', user);
 
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated && !isLoading) navigate('/login');
-    if (!user) dispatch(getProfile());
-  }, [dispatch, navigate, user]);
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    if (isAuthenticated && !user) {
+      dispatch(getProfile());
+    }
+  }, [dispatch, navigate, isAuthenticated, isLoading, user]);
+
 
   if (isLoading || !user) return <ProfileShimmer />;
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 py-10">
+    <div className="min-h-screen bg-base-100 text-base-content py-10">
       <div className="max-w-6xl mx-auto px-4">
 
         {/* ===== HEADER ===== */}
-        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8 mb-10 flex items-center gap-6">
-          <div className="w-12 h-12 md:w-24 md:h-24 rounded-full bg-gray-800 flex items-center justify-center text-3xl font-bold">
-            {user.name.charAt(0).toUpperCase()}
+        <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8 mb-10 flex items-center gap-6">
+          <div className="w-12 h-12 md:w-24 md:h-24 rounded-full bg-base-300/40 flex items-center justify-center text-3xl font-bold">
+            {user.avatar ? (
+              <img src={user.avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
+            ) : (
+              user.name.charAt(0).toUpperCase()
+            )}
           </div>
           <div>
             <h1 className="text-3xl font-serif">{user.name}</h1>
-            <p className="text-gray-400">{user.email}</p>
+            <p className="text-base-content/60">{user.email}</p>
             {user.bio && (
-              <p className="mt-2 text-gray-300 max-w-xl">{user.bio}</p>
+              <p className="mt-2 text-base-content/80 max-w-xl">{user.bio}</p>
             )}
           </div>
         </div>
@@ -49,15 +61,15 @@ const Profile = () => {
 
           {/* ===== SIDEBAR ===== */}
           <aside className="lg:w-1/4">
-            <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+            <div className="bg-base-200 border border-base-300/40 rounded-2xl p-6">
               {['overview', 'favorites', 'collections'].map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`w-full text-left px-4 py-2 rounded-lg mb-1 transition
                     ${activeTab === tab
-                      ? 'bg-gray-800 text-white'
-                      : 'text-gray-400 hover:bg-gray-800 hover:text-white'}
+                      ? 'bg-base-300/40 text-base-content/90'
+                      : 'text-base-content/60 hover:bg-base-300 hover:text-base-content/80'}
                   `}
                 >
                   {tab === 'overview' && '📖 Overview'}
@@ -66,25 +78,25 @@ const Profile = () => {
                 </button>
               ))}
 
-              <div className="border-t border-gray-800 my-4" />
+              <div className="border-t border-base-300/40 my-4" />
 
               <button
                 onClick={() => setShowEditModal(true)}
-                className="w-full px-4 py-2 rounded-lg text-gray-300 hover:bg-gray-800"
+                className="w-full px-4 py-2 rounded-lg text-base-content/80 hover:bg-base-300"
               >
                 ✏️ Edit Profile
               </button>
 
               <button
                 onClick={() => dispatch(logoutUser())}
-                className="w-full px-4 py-2 rounded-lg text-red-400 hover:bg-gray-800"
+                className="w-full px-4 py-2 rounded-lg text-red-400 hover:bg-base-300"
               >
                 🚪 Logout
               </button>
 
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="w-full px-4 py-2 rounded-lg text-red-500 hover:bg-gray-800"
+                className="w-full px-4 py-2 rounded-lg text-red-500 hover:bg-base-300"
               >
                 🗑 Delete Account
               </button>
@@ -95,7 +107,7 @@ const Profile = () => {
           <main className="lg:w-3/4">
 
             {activeTab === 'overview' && (
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                   <Stat 
                     onClick = {()=>navigate('/profile/likedPoems')} 
@@ -112,19 +124,19 @@ const Profile = () => {
             )}
 
             {activeTab === 'favorites' && (
-              <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
+              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
                 {user.likedPoems.length === 0
-                  ? <p className="text-gray-400">No liked poems yet.</p>
+                  ? <p className="text-base-content/60">No liked poems yet.</p>
                   : user.likedPoems.map(p => (
                       <Link
                         key={p._id}
                         to={`/poems/${p._id}`}
-                        className="block border-b border-gray-800 py-3 hover:text-white"
+                        className="block border-b border-base-300/40 py-3 hover:text-white"
                       >
                         <p className="italic line-clamp-2">
                           {p.content?.hindi || p.content?.roman}
                         </p>
-                        <p className="text-sm text-gray-500">— {p.poet?.name}</p>
+                        <p className="text-sm text-base-content/50">— {p.poet?.name}</p>
                       </Link>
                     ))
                 }
@@ -165,29 +177,29 @@ const Stat = ({ title, value, onClick }) => (
   <div
     onClick={onClick}
     className="
-      bg-gray-800
+      bg-base-300/40
       rounded-xl
       p-6
       text-center
       cursor-pointer
-      hover:bg-gray-700
+      hover:bg-base-300
       transition
     "
   >
     <div className="text-3xl font-semibold">{value}</div>
-    <div className="text-gray-400 mt-1">{title}</div>
+    <div className="text-base-content/60 mt-1">{title}</div>
   </div>
 );
 
 const ConfirmModal = ({ onCancel, onConfirm }) => (
-  <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
-    <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 w-full max-w-sm">
+  <div className="fixed inset-0 bg-base-900/70 z-50 flex items-center justify-center">
+    <div className="bg-base-200 border border-base-300/40 rounded-xl p-6 w-full max-w-sm">
       <h3 className="text-lg text-red-400 font-semibold mb-3">Delete Account</h3>
-      <p className="text-gray-400 mb-4">
+      <p className="text-base-content/60 mb-4">
         This action is permanent.
       </p>
       <div className="flex justify-end gap-3">
-        <button onClick={onCancel} className="px-4 py-2 bg-gray-800 rounded-lg">
+        <button onClick={onCancel} className="px-4 py-2 bg-base-300/40 rounded-lg">
           Cancel
         </button>
         <button onClick={onConfirm} className="px-4 py-2 bg-red-600 rounded-lg">

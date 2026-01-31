@@ -252,7 +252,16 @@ const authSlice = createSlice({
       .addCase(updateProfile.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload.user;
+
+        localStorage.setItem(
+          'auth',
+          JSON.stringify({
+            user: action.payload.user,
+            isAuthenticated: true
+          })
+        );
       })
+
       .addCase(updateProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload;
