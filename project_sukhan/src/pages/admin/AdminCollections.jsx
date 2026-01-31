@@ -233,6 +233,58 @@ const AdminCollections = () => {
         </div>
       </div>
 
+      {/* ================= MOBILE VIEW ================= */}
+      <div className="md:hidden space-y-4">
+        {collections.map(col => (
+          <div
+            key={col._id}
+            className="bg-base-100 border border-base-300/40 rounded-xl p-4 shadow"
+          >
+            <div className="mb-2">
+              <h3 className="font-semibold text-lg">
+                {col.name}
+              </h3>
+              <p className="text-sm text-base-content/60">
+                {col.category?.name || '—'}
+              </p>
+            </div>
+
+            <div className="flex justify-between items-center text-sm mb-3">
+              <span className="text-base-content/70">
+                Poems: {col.poems?.length || 0}
+              </span>
+            </div>
+
+            <div className="flex gap-4 text-sm">
+              <button
+                onClick={() => setShowPoemsManager(col)}
+                className="text-secondary hover:underline"
+              >
+                Manage Poems
+              </button>
+
+              <button
+                onClick={() => {
+                  setEditingCollection(col);
+                  setShowForm(true);
+                }}
+                className="text-primary hover:underline"
+              >
+                Edit
+              </button>
+
+              <button
+                onClick={() => setDeleteCollection(col)}
+                className="text-error hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+
       {hasNext && <div ref={observerRef} className="h-4" />}
 
       {/* ================= MODALS ================= */}

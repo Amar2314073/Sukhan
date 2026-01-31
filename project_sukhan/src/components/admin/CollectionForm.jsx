@@ -143,6 +143,23 @@ const CollectionForm = ({ collection, onClose, onSuccess }) => {
             />
           </div>
 
+          {/* Image Preview */}
+          {image && (
+            <div className="flex items-center gap-4 mt-2">
+              <img
+                src={image}
+                alt="Image Preview"
+                className="w-16 h-16 rounded-lg object-cover border border-base-300"
+                onError={(e) => {
+                  e.target.src = '';
+                }}
+              />
+              <p className="text-sm text-base-content/60">
+                Preview
+              </p>
+            </div>
+          )}
+
           {/* Featured */}
           <div className="flex items-center gap-3">
             <input
