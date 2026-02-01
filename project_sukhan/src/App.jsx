@@ -24,6 +24,7 @@ import { loadUser } from './redux/slices/authSlice';
 import LikedPoems from './pages/LikedPoems';
 import SavedPoems from './pages/SavedPoems';
 import CollectionForm from './components/admin/CollectionForm';
+import CollectionDetail from './pages/CollectionDetail';
 
 function App() {
   const dispatch = useDispatch();
@@ -55,6 +56,7 @@ function App() {
               <Route path="/poets" element={<Poets />} />
               <Route path="/search" element={<Search />} />
               <Route path="/collections" element={<Collections />} />
+              <Route path='collections/:id' element={<CollectionDetail />} />
               <Route path='/poets/:id' element={<PoetProfile />} />
               <Route path="/poems/:id" element={<PoemDetail />} />
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
