@@ -93,7 +93,7 @@ const Home = () => {
                             transition-all duration-300"
                 >
                   <p className="font-serif text-lg text-base-content italic mb-4 whitespace-pre-line">
-                    {(s.content?.hindi || s.content?.urdu)
+                    {(s.content?.hindi || s.content?.english)
                       ?.split('\n')
                       .slice(0, 2)
                       .join('\n')}
@@ -211,7 +211,7 @@ const Home = () => {
                   </h3>
 
                   <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
-                    {(g.content?.hindi || g.content?.urdu)
+                    {(g.content?.hindi || g.content?.english)
                       ?.split('\n')
                       .filter(l => l.trim())
                       .slice(0, 2)

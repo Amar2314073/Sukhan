@@ -42,7 +42,7 @@ const userSchema = new Schema({
   // Preferences
   preferredLanguage: {
     type: String,
-    enum: ['urdu', 'hindi', 'roman'],
+    enum: ['hindi', 'roman'],
     default: 'hindi'
   },
   notificationSettings: {

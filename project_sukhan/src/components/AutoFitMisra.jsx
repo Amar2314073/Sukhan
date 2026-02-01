@@ -22,7 +22,7 @@ const AutoFitMisra = ({ text, lang, onWordClick }) => {
       ref={ref}
       className={`
         w-full overflow-hidden whitespace-nowrap
-        ${lang === 'urdu' ? 'text-right font-rekhta' : 'text-center'}
+        text-center
       `}
       style={{ fontSize }}
     >

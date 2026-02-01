@@ -2,12 +2,6 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const dictionarySchema = new Schema({
-  wordUrdu: {           // Original Urdu word
-    type: String,
-    required: true,
-    trim: true,
-    unique: true
-  },
   wordHindi: {          // Devanagari version
     type: String,
     trim: true
@@ -28,7 +22,7 @@ const dictionarySchema = new Schema({
 });
 
 // Index for fast search by word in any script
-dictionarySchema.index({ wordUrdu: 'text', wordHindi: 'text', wordEnglish: 'text' });
+dictionarySchema.index({ wordHindi: 'text', wordEnglish: 'text' });
 
 const Dictionary = mongoose.model('dictionary', dictionarySchema);
 module.exports = Dictionary;

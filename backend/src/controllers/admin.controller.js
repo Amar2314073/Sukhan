@@ -215,7 +215,6 @@ exports.createPoem = async (req, res) => {
         if (
             !content ||
             (
-                !content.urdu?.trim() &&
                 !content.hindi?.trim() &&
                 !content.roman?.trim()
             )
@@ -248,7 +247,6 @@ exports.createPoem = async (req, res) => {
         const poem = await Poem.create({
             title,
             content: {
-                urdu: content.urdu || '',
                 hindi: content.hindi || '',
                 roman: content.roman || ''
             },
@@ -316,7 +314,6 @@ exports.updatePoem = async (req, res) => {
         // Handle content updates
         if (content) {
             updateData.content = {
-                urdu: content.urdu || existingPoem.content.urdu,
                 hindi: content.hindi || existingPoem.content.hindi,
                 roman: content.roman || existingPoem.content.roman
             };

@@ -32,7 +32,6 @@ exports.getAllPoems = async (req, res) => {
       // 2️⃣ Apply OR condition
       filter.$or = [
         { title: { $regex: search, $options: 'i' } },
-        { 'content.urdu': { $regex: search, $options: 'i' } },
         { 'content.hindi': { $regex: search, $options: 'i' } },
         { 'content.roman': { $regex: search, $options: 'i' } },
         ...(poetIds.length ? [{ poet: { $in: poetIds } }] : [])
@@ -124,7 +123,6 @@ exports.createPoem = async (req, res) => {
         const poem = await Poem.create({
             title,
             content: {
-                urdu: content.urdu || '',
                 hindi: content.hindi || '',
                 roman: content.roman || ''
             },
@@ -192,7 +190,6 @@ exports.updatePoem = async (req, res) => {
         // Handle content updates
         if (content) {
             updateData.content = {
-                urdu: content.urdu || existingPoem.content.urdu,
                 hindi: content.hindi || existingPoem.content.hindi,
                 roman: content.roman || existingPoem.content.roman
             };

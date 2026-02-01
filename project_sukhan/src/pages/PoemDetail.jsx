@@ -170,7 +170,7 @@ const PoemDetail = () => {
 
               {showLang && (
                 <div className="absolute right-0 mt-2 bg-gray-900 rounded-lg shadow-lg overflow-hidden">
-                  {['urdu', 'hindi', 'roman'].map(l => (
+                  {['hindi', 'roman'].map(l => (
                     <button
                       key={l}
                       onClick={() => {

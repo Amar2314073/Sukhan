@@ -9,10 +9,6 @@ const poemSchema = new Schema({
     maxlength: [100, 'Title cannot exceed 100 characters']
   },
   content: {
-    urdu: {
-      type: String,
-      required: [true, 'Urdu content is required']
-    },
     hindi: {
       type: String,
       required: [true, 'Hindi content is required']
@@ -53,7 +49,7 @@ const poemSchema = new Schema({
 });
 
 // Index for better search performance
-poemSchema.index({ title: 'text', 'content.urdu': 'text', 'content.hindi': 'text', 'content.roman': 'text' });
+poemSchema.index({ title: 'text', 'content.hindi': 'text', 'content.roman': 'text' });
 
 const Poem = mongoose.model('poem', poemSchema);
 module.exports = Poem;

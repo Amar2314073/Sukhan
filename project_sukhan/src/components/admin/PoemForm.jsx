@@ -47,7 +47,6 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
     category: poem?.category?._id || '',
     featured: poem?.featured || false,
     content: {
-      urdu: poem?.content?.urdu || '',
       hindi: poem?.content?.hindi || '',
       roman: poem?.content?.roman || ''
     }
@@ -175,18 +174,6 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
             </div>
 
             {/* CONTENT */}
-            <div>
-              <label className="text-sm text-base-content/70">Urdu *</label>
-              <textarea
-                required
-                rows={3}
-                className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40 font-urdu text-right"
-                value={form.content.urdu}
-                onChange={e =>
-                  setForm({ ...form, content: { ...form.content, urdu: e.target.value } })
-                }
-              />
-            </div>
 
             <div>
               <label className="text-sm text-base-content/70">Hindi *</label>

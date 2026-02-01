@@ -46,9 +46,6 @@ POEM CONTEXT:
 Title: ${poem.title}
 Poet: ${poem.poet?.name || "Unknown"}
 
-Urdu:
-${poem.content?.urdu || ""}
-
 Hindi:
 ${poem.content?.hindi || ""}
 

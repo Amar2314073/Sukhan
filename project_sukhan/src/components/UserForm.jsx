@@ -53,7 +53,6 @@ const UserForm = ({ user, onClose, onSave }) => {
             value={form.preferredLanguage}
             onChange={e => setForm({ ...form, preferredLanguage: e.target.value })}
           >
-            <option value="urdu">Urdu</option>
             <option value="hindi">Hindi</option>
             <option value="roman">Roman</option>
           </select>
