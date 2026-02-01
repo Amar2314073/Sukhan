@@ -260,7 +260,7 @@ const PoemDetail = () => {
         </div>
       </div>
 
-      {!zenMode && <ChatAI poem={currentPoem} />}
+      {/* {!zenMode && <ChatAI poem={currentPoem} />} */}
     </div>
   );
 };
