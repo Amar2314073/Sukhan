@@ -5,7 +5,7 @@ import { fetchPoemById, clearCurrentPoem } from '../redux/slices/poemSlice';
 import { toggleLikePoem, toggleSavePoem } from '../redux/slices/authSlice';
 import { toggleZenMode } from '../redux/slices/uiSlice';
 import AutoFitMisra from '../components/AutoFitMisra';
-// import ChatAI from '../components/ChatAI';
+import ChatAI from '../components/ChatAI';
 import {
   Heart,
   ThumbsUp,
@@ -260,7 +260,7 @@ const PoemDetail = () => {
         </div>
       </div>
 
-      {/* {!zenMode && <ChatAI poem={currentPoem} />} */}
+      {!zenMode && <ChatAI poem={currentPoem} />}
     </div>
   );
 };
