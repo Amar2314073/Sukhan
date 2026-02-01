@@ -28,6 +28,7 @@
     "sanscript": "^0.0.2",
     "tailwind-scrollbar-hide": "^4.0.0",
     "tailwindcss": "^4.1.16",
+    "vite-plugin-pwa": "^1.2.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

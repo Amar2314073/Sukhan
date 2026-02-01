@@ -5,6 +5,7 @@ import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
 import PoemCardShimmer from '../shimmer/PoemCardShimmer';
 import PoetCardShimmer from '../shimmer/PoetCardShimmer';
 import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
+import InstallSukhanButton from '../components/InstallSukhanButton';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const Home = () => {
               Where words find their meaning
             </p>
           )}
-          
+          <InstallSukhanButton/>
         </div>
       </div>
 

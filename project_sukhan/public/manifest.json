@@ -1,11 +1,19 @@
 {
   "name": "Sukhan",
   "short_name": "Sukhan",
+  "description": "A poetry sharing platform to express yourself through words.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#0f172a",
+  "scope": "/",
+  "background_color": "#04070d",
+  "theme_color": "#04070d",
   "icons": [
+    {
+      "src": "/icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
     {
       "src": "/icons/icon-192.png",
       "sizes": "192x192",
