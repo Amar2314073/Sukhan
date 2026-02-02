@@ -11,6 +11,7 @@ router.use('/userCollections', require('./userCollections.routes'));
 router.use('/admin', require('./admin.routes'));
 router.use('/ai', require('./ai.routes'));
 router.use('/home', require('./home.routes'));
+router.use('/comments', require('./comment.routes'));
 
 
 

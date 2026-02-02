@@ -6,6 +6,7 @@ import { toggleLikePoem, toggleSavePoem } from '../redux/slices/authSlice';
 import { toggleZenMode } from '../redux/slices/uiSlice';
 import AutoFitMisra from '../components/AutoFitMisra';
 import ChatAI from '../components/ChatAI';
+import CommentSheet from '../components/CommentSheet';
 import {
   Heart,
   ThumbsUp,
@@ -15,7 +16,8 @@ import {
   BookOpen,
   X,
   ChevronDown,
-  Star
+  Star,
+  MessageCircle
 } from 'lucide-react';
 
 const BG_IMAGE =
@@ -33,6 +35,8 @@ const PoemDetail = () => {
   const [lang, setLang] = useState('hindi');
   const [showLang, setShowLang] = useState(false);
   const [speaking, setSpeaking] = useState(false);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+
 
   /* ================= FETCH ================= */
   useEffect(() => {
@@ -257,10 +261,25 @@ const PoemDetail = () => {
           <button onClick={() => dispatch(toggleZenMode())}>
             {zenMode ? <X size={26} /> : <BookOpen size={26} />}
           </button>
+          
+          <button onClick={() => setCommentsOpen(true)}>
+            <MessageCircle
+              size={26}
+              className="text-gray-400 hover:text-primary transition"
+            />
+          </button>
+
         </div>
       </div>
 
-      {!zenMode && <ChatAI poem={currentPoem} />}
+      <CommentSheet
+        open={commentsOpen}
+        onClose={() => setCommentsOpen(false)}
+        poemId={currentPoem._id}
+      />
+
+
+      {/* {!zenMode && <ChatAI poem={currentPoem} />} */}
     </div>
   );
 };
