@@ -369,19 +369,9 @@ const Home = () => {
 
           {/* ===== RANDOM SHER ===== */}
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
-                Sher of the Moment
-              </h2>
-
-              <button
-                onClick={refreshRandomSher}
-                className="btn btn-sm btn-outline"
-              >
-                Refresh Sher
-              </button>
-            </div>
-
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Sher of the Moment
+            </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
@@ -434,19 +424,9 @@ const Home = () => {
 
           {/* ===== RANDOM FREE VERSE ===== */}
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
-                Verses to Wander With
-              </h2>
-
-              <button
-                onClick={refreshRandomFreeVerse}
-                className="btn btn-sm btn-outline"
-              >
-                New Verses
-              </button>
-            </div>
-
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Verses to Wander With
+            </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
@@ -504,19 +484,9 @@ const Home = () => {
 
           {/* ===== RANDOM GHAZAL ===== */}
           <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
-                A Ghazal for the Soul
-              </h2>
-
-              <button
-                onClick={refreshRandomGhazal}
-                className="btn btn-sm btn-outline"
-              >
-                Fresh Ghazal
-              </button>
-            </div>
-
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              A Ghazal for the Soul
+            </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
