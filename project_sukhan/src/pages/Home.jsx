@@ -28,6 +28,54 @@ const Home = () => {
   const [randomLoading, setRandomLoading] = useState(true);
 
 
+  const refreshRandomSher = async () => {
+    setRandomLoading(true);
+    try {
+      const res = await axiosClient.get('/home/random/sher');
+      setRandomSher(res.data.randomSher);
+      localStorage.setItem(
+        'RANDOM_SHER',
+        JSON.stringify({ data: res.data.randomSher, time: Date.now() })
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setRandomLoading(false);
+    }
+  };
+
+  const refreshRandomFreeVerse = async () => {
+    setRandomLoading(true);
+    try {
+      const res = await axiosClient.get('/home/random/freeverse');
+      setRandomFreeVerse(res.data.randomFreeVerse);
+      localStorage.setItem(
+        'RANDOM_FREEVERSE',
+        JSON.stringify({ data: res.data.randomFreeVerse, time: Date.now() })
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setRandomLoading(false);
+    }
+  };
+
+  const refreshRandomGhazal = async () => {
+    setRandomLoading(true);
+    try {
+      const res = await axiosClient.get('/home/random/ghazal');
+      setRandomGhazal(res.data.randomGhazal);
+      localStorage.setItem(
+        'RANDOM_GHAZAL',
+        JSON.stringify({ data: res.data.randomGhazal, time: Date.now() })
+      );
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setRandomLoading(false);
+    }
+  };
+
   
   useEffect(() => {
     dispatch(fetchStats());
@@ -321,9 +369,19 @@ const Home = () => {
 
           {/* ===== RANDOM SHER ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              Sher of the Moment
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
+                Sher of the Moment
+              </h2>
+
+              <button
+                onClick={refreshRandomSher}
+                className="btn btn-sm btn-outline"
+              >
+                Refresh Sher
+              </button>
+            </div>
+
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
@@ -376,9 +434,19 @@ const Home = () => {
 
           {/* ===== RANDOM FREE VERSE ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              Verses to Wander With
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
+                Verses to Wander With
+              </h2>
+
+              <button
+                onClick={refreshRandomFreeVerse}
+                className="btn btn-sm btn-outline"
+              >
+                New Verses
+              </button>
+            </div>
+
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
@@ -436,9 +504,19 @@ const Home = () => {
 
           {/* ===== RANDOM GHAZAL ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              A Ghazal for the Soul
-            </h2>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
+                A Ghazal for the Soul
+              </h2>
+
+              <button
+                onClick={refreshRandomGhazal}
+                className="btn btn-sm btn-outline"
+              >
+                Fresh Ghazal
+              </button>
+            </div>
+
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
               {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
