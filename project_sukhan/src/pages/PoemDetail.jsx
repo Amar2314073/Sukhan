@@ -154,9 +154,11 @@ const PoemDetail = () => {
 
               <div>
                 <p className="text-xs opacity-80">
-                  {currentPoem.type || 'Ghazal'} by
+                  {currentPoem.type || 'Poem'} by
                 </p>
-                <p className="font-medium">
+                <p
+                onClick={()=>navigate(`/poets/${currentPoem.poet._id}`)}
+                className="font-medium cursor-pointer">
                   {currentPoem.poet?.name}
                 </p>
               </div>
