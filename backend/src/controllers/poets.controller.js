@@ -100,9 +100,9 @@ exports.getPoetById = async (req, res) => {
 exports.getPoemsByPoet = async (req, res) => {
     try {
         const poetId = req.params.id;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+        // const page = parseInt(req.query.page) || 1;
+        // const limit = parseInt(req.query.limit) || 10;
+        // const skip = (page - 1) * limit;
 
         // Check if poet exists
         const poet = await Poet.findById(poetId);
@@ -113,11 +113,11 @@ exports.getPoemsByPoet = async (req, res) => {
         const poems = await Poem.find({ poet: poetId, isActive: true })
             .populate('category', 'name type')
             .sort({ popularity: -1, createdAt: -1 })
-            .skip(skip)
-            .limit(limit);
+            // .skip(skip)
+            // .limit(limit);
 
-        const total = await Poem.countDocuments({ poet: poetId, isActive: true });
-        const totalPages = Math.ceil(total / limit);
+        // const total = await Poem.countDocuments({ poet: poetId, isActive: true });
+        // const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
             poet: {
@@ -126,13 +126,13 @@ exports.getPoemsByPoet = async (req, res) => {
                 era: poet.era
             },
             poems,
-            pagination: {
+            /*pagination: {
                 currentPage: page,
                 totalPages,
                 totalPoems: total,
                 hasNext: page < totalPages,
                 hasPrev: page > 1
-            },
+            },*/
             message: "Poems fetched successfully"
         });
 
