@@ -9,6 +9,6 @@ router.get('/random', homeController.getRandomPoems);
 router.get('/random/sher', homeController.getRandomSher);
 router.get('/random/freeverse', homeController.getRandomFreeVerse);
 router.get('/random/ghazal', homeController.getRandomGhazal);
-router.get('/random/collection')
+router.get('/random/collection', homeController.getRandomCollection);
 
 module.exports = router;

@@ -22,44 +22,107 @@ const Home = () => {
   const [homePageData, setHomePageData] = useState(null);
   const [homeLoading, setHomeLoading] = useState(true);
 
+  const [randomSher, setRandomSher] = useState([]);
+  const [randomFreeVerse, setRandomFreeVerse] = useState([]);
+  const [randomGhazal, setRandomGhazal] = useState([]);
+  const [randomLoading, setRandomLoading] = useState(true);
+
+
   
   useEffect(() => {
     dispatch(fetchStats());
 
-    const cache = localStorage.getItem('Home_Page_Cache');
     const today = new Date().toDateString();
 
-    if (cache) {
-      const parsed = JSON.parse(cache);
+    /* ---------------- HOME PAGE (24 HOURS) ---------------- */
+    const homeCache = localStorage.getItem('Home_Page_Cache');
+    if (homeCache) {
+      const parsed = JSON.parse(homeCache);
       if (parsed.date === today) {
         setHomePageData(parsed.data);
         setHomeLoading(false);
-        return;
+      } else {
+        fetchHome();
       }
+    } else {
+      fetchHome();
     }
 
-    const fetchHome = async () => {
+    async function fetchHome() {
       try {
         setHomeLoading(true);
         const res = await axiosClient.get('/home');
         setHomePageData(res.data);
-
         localStorage.setItem(
           'Home_Page_Cache',
-          JSON.stringify({
-            data: res.data,
-            date: today
-          })
+          JSON.stringify({ data: res.data, date: today })
         );
-      } catch (err) {
-        console.error(err);
+      } catch (e) {
+        console.error(e);
       } finally {
         setHomeLoading(false);
       }
+    }
+
+    /* ---------------- RANDOM SECTIONS (1 HOUR) ---------------- */
+    const initRandom = async () => {
+      setRandomLoading(true);
+
+      const ONE_HOUR = 60 * 60 * 1000;
+
+      const cachedSher = JSON.parse(localStorage.getItem('RANDOM_SHER'));
+      const cachedFV = JSON.parse(localStorage.getItem('RANDOM_FREEVERSE'));
+      const cachedG = JSON.parse(localStorage.getItem('RANDOM_GHAZAL'));
+
+      const isSherValid = cachedSher && Date.now() - cachedSher.time < ONE_HOUR;
+      const isFVValid = cachedFV && Date.now() - cachedFV.time < ONE_HOUR;
+      const isGValid = cachedG && Date.now() - cachedG.time < ONE_HOUR;
+
+      if (isSherValid) setRandomSher(cachedSher.data);
+      if (isFVValid) setRandomFreeVerse(cachedFV.data);
+      if (isGValid) setRandomGhazal(cachedG.data);
+
+      const requests = [];
+      if (!isSherValid) requests.push(axiosClient.get('/home/random/sher'));
+      if (!isFVValid) requests.push(axiosClient.get('/home/random/freeverse'));
+      if (!isGValid) requests.push(axiosClient.get('/home/random/ghazal'));
+
+      try {
+        const responses = await Promise.all(requests);
+
+        responses.forEach(res => {
+          if (res.data.randomSher) {
+            setRandomSher(res.data.randomSher);
+            localStorage.setItem(
+              'RANDOM_SHER',
+              JSON.stringify({ data: res.data.randomSher, time: Date.now() })
+            );
+          }
+          if (res.data.randomFreeVerse) {
+            setRandomFreeVerse(res.data.randomFreeVerse);
+            localStorage.setItem(
+              'RANDOM_FREEVERSE',
+              JSON.stringify({ data: res.data.randomFreeVerse, time: Date.now() })
+            );
+          }
+          if (res.data.randomGhazal) {
+            setRandomGhazal(res.data.randomGhazal);
+            localStorage.setItem(
+              'RANDOM_GHAZAL',
+              JSON.stringify({ data: res.data.randomGhazal, time: Date.now() })
+            );
+          }
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setRandomLoading(false);
+      }
     };
 
-    fetchHome();
+    initRandom();
   }, [dispatch]);
+
 
 
   if (error) {
@@ -73,9 +136,6 @@ const Home = () => {
   const featuredPoems = homePageData?.featuredPoems || [];
   const popularPoets = homePageData?.popularPoets || [];
   const todaysFeaturedPoetry = homePageData?.todaysPoetry || [];
-  const randomSher = homePageData?.randomSher || [];
-  const randomFreeVerse = homePageData?.randomFreeVerse || [];
-  const randomGhazal = homePageData?.randomGhazal || [];
   const trendingCollections = homePageData?.poetryCollections || [];
 
 
@@ -116,13 +176,13 @@ const Home = () => {
                 key={s._id}
                 onClick={()=>navigate(`/poems/${s._id}`)}
                 className="border-b border-base-300/30 pb-6 last:border-0">
-                <p className="font-serif text-lg mb-2">{(s.content?.hindi)
+                <p className="font-serif text-md mb-2">{(s.content?.hindi)
                   ?.split('\n')
                   .filter(line => line.trim() !== '')
                   .slice(0, 1)
                   .join('\n')}
                 </p>
-                <p className="font-serif text-lg mb-2">{(s.content?.hindi)
+                <p className="font-serif text-md mb-2">{(s.content?.hindi)
                   ?.split('\n')
                   .filter(line => line.trim() !== '')
                   .slice(1, 2)
@@ -266,7 +326,7 @@ const Home = () => {
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
-              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
@@ -321,7 +381,7 @@ const Home = () => {
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
-              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
@@ -381,7 +441,7 @@ const Home = () => {
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
-              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
