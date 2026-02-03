@@ -45,33 +45,42 @@ exports.postComment = async (req, res) => {
 
     const poem = await Poem.findById(poemId);
     if (!poem) {
-      return res.status(404).json({
-        message: "Poem not found"
-      });
+      return res.status(404).json({ message: "Poem not found" });
+    }
+
+    let finalParent = null;
+
+    if (parentComment) {
+      const parent = await Comment.findById(parentComment).select("parentComment");
+
+      if (!parent) {
+        return res.status(404).json({ message: "Parent comment not found" });
+      }
+      finalParent = parent.parentComment || parent._id;
     }
 
     const comment = await Comment.create({
       poem: poemId,
       user: userId,
       content: content.trim(),
-      parentComment: parentComment || null
+      parentComment: finalParent
     });
 
-    if (!parentComment) {
+    if (!finalParent) {
       await Poem.findByIdAndUpdate(
         poemId,
         { $inc: { commentCount: 1 } }
       );
     }
 
-    const populatedComment = await Comment.findById(comment._id)
+    const populated = await Comment.findById(comment._id)
       .populate("user", "name avatar");
 
     res.status(201).json({
-      comment: populatedComment,
-      message: parentComment
-        ? "Reply added successfully"
-        : "Comment posted successfully"
+      comment: populated,
+      message: finalParent
+        ? "Reply added"
+        : "Comment posted"
     });
 
   } catch (error) {
@@ -81,6 +90,7 @@ exports.postComment = async (req, res) => {
     });
   }
 };
+
 
 exports.deleteComment = async (req, res) => {
   try {

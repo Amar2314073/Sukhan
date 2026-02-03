@@ -276,6 +276,7 @@ const PoemDetail = () => {
         open={commentsOpen}
         onClose={() => setCommentsOpen(false)}
         poemId={currentPoem._id}
+        commentCount={currentPoem.commentCount}
       />
 
 
