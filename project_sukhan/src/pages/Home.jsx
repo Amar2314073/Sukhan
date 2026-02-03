@@ -18,8 +18,23 @@ const Home = () => {
   
   const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+
+  
   useEffect(() => {
     dispatch(fetchStats());
+
+    const cache = localStorage.getItem('Home_Page_Cache');
+    const today = new Date().toDateString();
+    if(cache){
+      const parsed = JSON.parse(cache);
+      if(parsed.date === today){
+        dispatch({
+          type: 'home/setHomePageData',
+          payload: parsed.data
+        });
+        return;
+      }
+    }
     dispatch(fetchHomePageData());
   }, [dispatch]);
 
