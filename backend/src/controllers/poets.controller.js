@@ -151,9 +151,9 @@ exports.getPoemsByPoet = async (req, res) => {
 exports.getPoetsByEra = async (req, res) => {
     try {
         const { era } = req.params;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 12;
-        const skip = (page - 1) * limit;
+        // const page = parseInt(req.query.page) || 1;
+        // const limit = parseInt(req.query.limit) || 12;
+        // const skip = (page - 1) * limit;
 
         // Validate era
         const validEras = ['Classical', 'Modern', 'Contemporary'];
@@ -165,22 +165,22 @@ exports.getPoetsByEra = async (req, res) => {
 
         const poets = await Poet.find({ era, isActive: true })
             .sort({ popularity: -1, name: 1, _id: 1 })
-            .skip(skip)
-            .limit(limit);
+            // .skip(skip)
+            // .limit(limit);
 
-        const total = await Poet.countDocuments({ era, isActive: true });
-        const totalPages = Math.ceil(total / limit);
+        // const total = await Poet.countDocuments({ era, isActive: true });
+        // const totalPages = Math.ceil(total / limit);
 
         res.status(200).json({
             era,
             poets,
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalPoets: total,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            },
+            // pagination: {
+            //     currentPage: page,
+            //     totalPages,
+            //     totalPoets: total,
+            //     hasNext: page < totalPages,
+            //     hasPrev: page > 1
+            // },
             message: "Poets fetched successfully"
         });
 
