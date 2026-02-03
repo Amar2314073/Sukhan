@@ -84,7 +84,7 @@ const Home = () => {
     <div className="min-h-screen bg-base-200 text-base-content">
 
       {/* HEADER */}
-      <div className="border-b border-base-300/40 bg-base-100">
+      <div className="border-b border-base-300/40 bg-base-200">
         <div className="max-w-6xl mx-auto px-4 py-6 text-center">
           <h1 className="text-4xl font-serif font-bold">
             Sukhan <span className="text-primary">سخن</span>

@@ -207,7 +207,7 @@ exports.getHomePage = async (req, res) => {
 };
 
 // Random poems for home page
-exports.getRandomPoems = async (req, res) =>{
+exports.getRandomPoems = async (req, res) => {
   try{
     const sherCategory = await Category.findOne({ name: "Sher" });
     const freeVerseCategory = await Category.findOne({ name: "Free Verse" });
@@ -325,10 +325,186 @@ exports.getRandomPoems = async (req, res) =>{
     ]);
 
     res.status(200).json({
-      date: today,
       randomSher,
       randomFreeVerse,
       randomGhazal
+    });
+
+  } catch(error){
+    console.error("Error fetching random poems:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
+// Random sher
+exports.getRandomSher = async (req, res) => {
+   try{
+    const sherCategory = await Category.findOne({ name: "Sher" });
+    
+    if (!sherCategory) 
+      return res.status(404).json({ message: "Sher category not found" });
+
+    const randomSher = await Poem.aggregate([
+      {
+        $match: { category: sherCategory._id, isActive: true }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      randomSher
+    });
+
+  } catch(error){
+    console.error("Error fetching random sher:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+// Random free verse
+exports.getRandomFreeVerse = async (req, res) => {
+   try{
+    const freeVerseCategory = await Category.findOne({ name: "Free Verse" });
+    
+    if (!freeVerseCategory) 
+      return res.status(404).json({ message: "Free verse category not found" });
+    
+    const randomFreeVerse = await Poem.aggregate([
+      {
+        $match: {
+          category: freeVerseCategory._id,
+          isActive: true
+        }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      randomFreeVerse
+    });
+
+  } catch(error){
+    console.error("Error fetching random free verse:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+// Random ghazal
+exports.getRandomGhazal = async (req, res) => {
+   try{
+    const ghazalCategory = await Category.findOne({ name: "Ghazal" });
+    
+    if (!ghazalCategory) 
+      return res.status(404).json({ message: "Sher category not found" });
+
+    const randomGhazal = await Poem.aggregate([
+      {
+        $match: { category: ghazalCategory._id, isActive: true }
+      },
+      {
+        $sample: { size: 5 }
+      },
+      {
+        $lookup: {
+          from: "poets",
+          localField: "poet",
+          foreignField: "_id",
+          as: "poet"
+        }
+      },
+      {
+        $unwind: "$poet"
+      },
+      {
+        $project: {
+          _id: 1,
+          title: 1,
+          content: 1,
+          likes: 1,
+          views: 1,
+          createdAt: 1,
+          poet: {
+            _id: 1,
+            name: 1,
+            image: 1
+          }
+        }
+      }
+    ]);
+
+    res.status(200).json({
+      randomGhazal
+    });
+
+  } catch(error){
+    console.error("Error fetching random poems:", error);
+    res.status(500).json({ message: "Server Error" });
+  }
+}
+
+// Random Collection
+exports.getRandomCollection = async (req, res) => {
+   try{
+    const poetryCollections = await Collection.find({ isActive: true })
+    .populate('category', 'name')
+    .limit(5)
+
+    res.status(200).json({
+      poetryCollections
     });
 
   } catch(error){
