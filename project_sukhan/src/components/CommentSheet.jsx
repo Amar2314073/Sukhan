@@ -6,46 +6,64 @@ import { commentService } from '../services/comment.service';
 
 const CommentSheet = ({ open, onClose, poemId }) => {
   const sheetRef = useRef(null);
-  const startY = useRef(0);
-  const currentY = useRef(0);
+  const startYRef = useRef(0);
+  const draggingRef = useRef(false);
 
   const [comments, setComments] = useState([]);
   const [replyTo, setReplyTo] = useState(null);
-  const [expanded, setExpanded] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [translateY, setTranslateY] = useState(100); // %
 
+  /* ================= LOAD COMMENTS ================= */
   const loadComments = async () => {
     const res = await commentService.getPoemComments(poemId);
     setComments(res.data.comments || []);
   };
 
+  /* ================= OPEN / CLOSE ANIMATION ================= */
   useEffect(() => {
-    if (open) loadComments();
+    if (open) {
+      setMounted(true);
+      requestAnimationFrame(() => {
+        setTranslateY(0); // slide up
+      });
+      loadComments();
+    } else {
+      setTranslateY(100); // slide down
+      setTimeout(() => setMounted(false), 300);
+    }
   }, [open]);
 
-  if (!open) return null;
+  if (!mounted) return null;
 
   /* ================= DRAG HANDLERS ================= */
-
   const onTouchStart = (e) => {
-    startY.current = e.touches[0].clientY;
+    draggingRef.current = true;
+    startYRef.current = e.touches[0].clientY;
+    sheetRef.current.style.transition = 'none';
   };
 
   const onTouchMove = (e) => {
-    currentY.current = e.touches[0].clientY;
-    const diff = currentY.current - startY.current;
+    if (!draggingRef.current) return;
 
-    if (diff > 0 && sheetRef.current) {
-      sheetRef.current.style.transform = `translateY(${diff}px)`;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startYRef.current;
+
+    if (diff > 0) {
+      const percent = (diff / window.innerHeight) * 100;
+      setTranslateY(Math.min(percent, 100));
     }
   };
 
   const onTouchEnd = () => {
-    const diff = currentY.current - startY.current;
+    draggingRef.current = false;
+    sheetRef.current.style.transition = 'transform 0.3s ease';
 
-    if (diff > 120) {
-      onClose();
+    if (translateY > 30) {
+      setTranslateY(100);
+      setTimeout(onClose, 300);
     } else {
-      sheetRef.current.style.transform = 'translateY(0)';
+      setTranslateY(0);
     }
   };
 
@@ -64,14 +82,18 @@ const CommentSheet = ({ open, onClose, poemId }) => {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className={`
+        className="
           absolute bottom-0 inset-x-0
+          h-[70vh]
           bg-gray-900
           rounded-t-2xl
           flex flex-col
-          transition-transform duration-300
-          ${expanded ? 'h-full' : 'h-[70vh]'}
-        `}
+          touch-none
+        "
+        style={{
+          transform: `translateY(${translateY}%)`,
+          transition: 'transform 0.3s ease'
+        }}
       >
 
         {/* DRAG HANDLE */}
@@ -80,7 +102,7 @@ const CommentSheet = ({ open, onClose, poemId }) => {
         </div>
 
         {/* HEADER */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-800">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
           <h3 className="font-medium">
             Comments ({comments.length})
           </h3>
@@ -89,11 +111,8 @@ const CommentSheet = ({ open, onClose, poemId }) => {
           </button>
         </div>
 
-        {/* COMMENTS */}
-        <div
-          className="flex-1 overflow-y-auto px-4 py-4 space-y-6"
-          onScroll={() => setExpanded(true)}
-        >
+        {/* COMMENTS LIST */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-6">
           {comments.map(comment => (
             <CommentItem
               key={comment._id}
@@ -104,7 +123,7 @@ const CommentSheet = ({ open, onClose, poemId }) => {
           ))}
         </div>
 
-        {/* INPUT */}
+        {/* INPUT (FIXED BOTTOM) */}
         <CommentInput
           poemId={poemId}
           replyTo={replyTo}
