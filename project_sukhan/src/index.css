@@ -189,3 +189,26 @@
   }
 }
 
+
+/* ===== Page Flip Illusion (Mobile Friendly) ===== */
+
+.flip-wrapper {
+  perspective: 1200px;
+}
+
+.flip-card {
+  transform-origin: left center;
+  transform: rotateY(0deg);
+  transition: transform 0.6s ease, box-shadow 0.6s ease;
+}
+
+.flip-card.enter {
+  transform: rotateY(-18deg);
+  box-shadow: -12px 0 25px rgba(0,0,0,0.15);
+}
+
+.flip-card.active {
+  transform: rotateY(0deg);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+}
+

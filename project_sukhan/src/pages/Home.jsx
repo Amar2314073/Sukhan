@@ -25,56 +25,67 @@ const Home = () => {
   const [randomSher, setRandomSher] = useState([]);
   const [randomFreeVerse, setRandomFreeVerse] = useState([]);
   const [randomGhazal, setRandomGhazal] = useState([]);
-  const [randomLoading, setRandomLoading] = useState(true);
+  const [sherLoading, setSherLoading] = useState(true);
+  const [freeVerseLoading, setFreeVerseLoading] = useState(true);
+  const [ghazalLoading, setGhazalLoading] = useState(true);
 
+  const getCachedData = (key, ttl) => {
+    const cached = JSON.parse(localStorage.getItem(key));
+    if (!cached) return null;
+    if (Date.now() - cached.time > ttl) return null;
+    return cached.data;
+  };
 
-  const refreshRandomSher = async () => {
-    setRandomLoading(true);
+  const RANDOM_CONFIG = {
+    sher: {
+      endpoint: '/home/random/sher',
+      setData: setRandomSher,
+      setLoading: setSherLoading,
+      storageKey: 'RANDOM_SHER',
+      responseKey: 'randomSher',
+    },
+    freeverse: {
+      endpoint: '/home/random/freeverse',
+      setData: setRandomFreeVerse,
+      setLoading: setFreeVerseLoading,
+      storageKey: 'RANDOM_FREEVERSE',
+      responseKey: 'randomFreeVerse',
+    },
+    ghazal: {
+      endpoint: '/home/random/ghazal',
+      setData: setRandomGhazal,
+      setLoading: setGhazalLoading,
+      storageKey: 'RANDOM_GHAZAL',
+      responseKey: 'randomGhazal',
+    },
+  };
+
+  const fetchRandom = async (type) => {
+    const config = RANDOM_CONFIG[type];
+    if (!config) return;
+
+    const { endpoint, setData, setLoading, storageKey, responseKey } = config;
+
+    setLoading(true);
     try {
-      const res = await axiosClient.get('/home/random/sher');
-      setRandomSher(res.data.randomSher);
+      const res = await axiosClient.get(endpoint);
+      const data = res.data[responseKey];
+
+      setData(data);
       localStorage.setItem(
-        'RANDOM_SHER',
-        JSON.stringify({ data: res.data.randomSher, time: Date.now() })
+        storageKey,
+        JSON.stringify({ data, time: Date.now() })
       );
     } catch (e) {
       console.error(e);
     } finally {
-      setRandomLoading(false);
+      setLoading(false);
     }
   };
 
-  const refreshRandomFreeVerse = async () => {
-    setRandomLoading(true);
-    try {
-      const res = await axiosClient.get('/home/random/freeverse');
-      setRandomFreeVerse(res.data.randomFreeVerse);
-      localStorage.setItem(
-        'RANDOM_FREEVERSE',
-        JSON.stringify({ data: res.data.randomFreeVerse, time: Date.now() })
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setRandomLoading(false);
-    }
-  };
-
-  const refreshRandomGhazal = async () => {
-    setRandomLoading(true);
-    try {
-      const res = await axiosClient.get('/home/random/ghazal');
-      setRandomGhazal(res.data.randomGhazal);
-      localStorage.setItem(
-        'RANDOM_GHAZAL',
-        JSON.stringify({ data: res.data.randomGhazal, time: Date.now() })
-      );
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setRandomLoading(false);
-    }
-  };
+  const refreshRandomSher = () => fetchRandom('sher');
+  const refreshRandomFreeVerse = () => fetchRandom('freeverse');
+  const refreshRandomGhazal = () => fetchRandom('ghazal');
 
   
   useEffect(() => {
@@ -113,63 +124,47 @@ const Home = () => {
     }
 
     /* ---------------- RANDOM SECTIONS (1 HOUR) ---------------- */
-    const initRandom = async () => {
-      setRandomLoading(true);
-
+   const initRandom = () => {
       const ONE_HOUR = 60 * 60 * 1000;
 
-      const cachedSher = JSON.parse(localStorage.getItem('RANDOM_SHER'));
-      const cachedFV = JSON.parse(localStorage.getItem('RANDOM_FREEVERSE'));
-      const cachedG = JSON.parse(localStorage.getItem('RANDOM_GHAZAL'));
+      const sherData = getCachedData(RANDOM_CONFIG.sher.storageKey, ONE_HOUR);
+      const fvData = getCachedData(RANDOM_CONFIG.freeverse.storageKey, ONE_HOUR);
+      const ghazalData = getCachedData(RANDOM_CONFIG.ghazal.storageKey, ONE_HOUR);
 
-      const isSherValid = cachedSher && Date.now() - cachedSher.time < ONE_HOUR;
-      const isFVValid = cachedFV && Date.now() - cachedFV.time < ONE_HOUR;
-      const isGValid = cachedG && Date.now() - cachedG.time < ONE_HOUR;
+      if (sherData) {
+        setRandomSher(sherData);
+        setSherLoading(false);
+      } else {
+        fetchRandom('sher');
+      }
 
-      if (isSherValid) setRandomSher(cachedSher.data);
-      if (isFVValid) setRandomFreeVerse(cachedFV.data);
-      if (isGValid) setRandomGhazal(cachedG.data);
+      if (fvData) {
+        setRandomFreeVerse(fvData);
+        setFreeVerseLoading(false);
+      } else {
+        fetchRandom('freeverse');
+      }
 
-      const requests = [];
-      if (!isSherValid) requests.push(axiosClient.get('/home/random/sher'));
-      if (!isFVValid) requests.push(axiosClient.get('/home/random/freeverse'));
-      if (!isGValid) requests.push(axiosClient.get('/home/random/ghazal'));
-
-      try {
-        const responses = await Promise.all(requests);
-
-        responses.forEach(res => {
-          if (res.data.randomSher) {
-            setRandomSher(res.data.randomSher);
-            localStorage.setItem(
-              'RANDOM_SHER',
-              JSON.stringify({ data: res.data.randomSher, time: Date.now() })
-            );
-          }
-          if (res.data.randomFreeVerse) {
-            setRandomFreeVerse(res.data.randomFreeVerse);
-            localStorage.setItem(
-              'RANDOM_FREEVERSE',
-              JSON.stringify({ data: res.data.randomFreeVerse, time: Date.now() })
-            );
-          }
-          if (res.data.randomGhazal) {
-            setRandomGhazal(res.data.randomGhazal);
-            localStorage.setItem(
-              'RANDOM_GHAZAL',
-              JSON.stringify({ data: res.data.randomGhazal, time: Date.now() })
-            );
-          }
-        });
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setRandomLoading(false);
+      if (ghazalData) {
+        setRandomGhazal(ghazalData);
+        setGhazalLoading(false);
+      } else {
+        fetchRandom('ghazal');
       }
     };
 
     initRandom();
   }, [dispatch]);
+
+  const scrollNext = (ref, fallback = 320) => {
+    if (!ref.current) return;
+    const cardWidth = ref.current.firstChild?.offsetWidth || fallback;
+    ref.current.scrollBy({
+      left: cardWidth + 24,
+      behavior: 'smooth'
+    });
+  };
+
 
 
 
@@ -292,15 +287,7 @@ const Home = () => {
             ))}
           </div>
           <button
-            onClick={() => {
-              if (!poemsRef.current) return;
-              const cardWidth = poemsRef.current.firstChild?.offsetWidth || 320;
-              const gap = 24;
-              poemsRef.current.scrollBy({
-                left: cardWidth + gap,
-                behavior: 'smooth'
-              });
-            }}
+            onClick={() => scrollNext(poemsRef, 320)}
             className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
           >
             Drift further →
@@ -369,12 +356,12 @@ const Home = () => {
 
           {/* ===== RANDOM SHER ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+            <h2 onClick={refreshRandomSher} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
               Sher of the Moment
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
-              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {sherLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
@@ -404,17 +391,7 @@ const Home = () => {
               ))}
             </div>
             <button
-              onClick={() => {
-                if (!sherRef.current) return;
-
-                const cardWidth = sherRef.current.firstChild?.offsetWidth || 320;
-                const gap = 24;
-
-                sherRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
+              onClick={() => scrollNext(sherRef, 320)}
               className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
             >
               Explore more →
@@ -424,12 +401,12 @@ const Home = () => {
 
           {/* ===== RANDOM FREE VERSE ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+            <h2 onClick={refreshRandomFreeVerse} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
               Verses to Wander With
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
-              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {freeVerseLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
@@ -464,17 +441,7 @@ const Home = () => {
               ))}
             </div>
             <button
-              onClick={() => {
-                if (!freeVerseRef.current) return;
-
-                const cardWidth = freeVerseRef.current.firstChild?.offsetWidth || 340;
-                const gap = 24;
-
-                freeVerseRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
+              onClick={() => scrollNext(freeVerseRef, 340)}
               className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
             >
               Continue reading →
@@ -484,12 +451,12 @@ const Home = () => {
 
           {/* ===== RANDOM GHAZAL ===== */}
           <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+            <h2 onClick={refreshRandomGhazal} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
               A Ghazal for the Soul
             </h2>
 
             <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
-              {randomLoading ? Array.from({ length: 5 }).map((_, i) => (
+              {ghazalLoading ? Array.from({ length: 5 }).map((_, i) => (
                 <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                   <PoemCardShimmer />
                 </div>
@@ -523,15 +490,7 @@ const Home = () => {
               ))}
             </div>
             <button
-              onClick={() => {
-                if (!ghazalRef.current) return;
-                const cardWidth = ghazalRef.current.firstChild?.offsetWidth || 340;
-                const gap = 24;
-                ghazalRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
+              onClick={() => scrollNext(ghazalRef, 340)}
               className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
             >
               Dive deeper →
@@ -611,18 +570,7 @@ const Home = () => {
           </div>
 
           <button
-            onClick={() => {
-              if (!collectionsRef.current) return;
-
-              const cardWidth =
-                collectionsRef.current.firstChild?.offsetWidth || 320;
-              const gap = 24;
-
-              collectionsRef.current.scrollBy({
-                left: cardWidth + gap,
-                behavior: 'smooth'
-              });
-            }}
+            onClick={() => scrollNext(collectionsRef, 320)}
             className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
           >
             Delve into Collections →
