@@ -1,11 +1,12 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchStats, fetchHomePageData } from '../redux/slices/homeSlice';
+import { fetchStats } from '../redux/slices/homeSlice';
 import PoemCardShimmer from '../shimmer/PoemCardShimmer';
 import PoetCardShimmer from '../shimmer/PoetCardShimmer';
 import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
 import InstallSukhanButton from '../components/InstallSukhanButton';
+import axiosClient from '../utils/axiosClient';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -16,8 +17,10 @@ const Home = () => {
   const poemsRef = useRef(null);
   const collectionsRef = useRef(null);
   
-  const { poemCount, poetCount, loading, error, homePageData } = useSelector((state) => state.home);
+  const { poemCount, poetCount, loading, error } = useSelector((state) => state.home);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const [homePageData, setHomePageData] = useState(null);
+  const [homeLoading, setHomeLoading] = useState(true);
 
   
   useEffect(() => {
@@ -25,18 +28,39 @@ const Home = () => {
 
     const cache = localStorage.getItem('Home_Page_Cache');
     const today = new Date().toDateString();
-    if(cache){
+
+    if (cache) {
       const parsed = JSON.parse(cache);
-      if(parsed.date === today){
-        dispatch({
-          type: 'home/setHomePageData',
-          payload: parsed.data
-        });
+      if (parsed.date === today) {
+        setHomePageData(parsed.data);
+        setHomeLoading(false);
         return;
       }
     }
-    dispatch(fetchHomePageData());
+
+    const fetchHome = async () => {
+      try {
+        setHomeLoading(true);
+        const res = await axiosClient.get('/home');
+        setHomePageData(res.data);
+
+        localStorage.setItem(
+          'Home_Page_Cache',
+          JSON.stringify({
+            data: res.data,
+            date: today
+          })
+        );
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setHomeLoading(false);
+      }
+    };
+
+    fetchHome();
   }, [dispatch]);
+
 
   if (error) {
     return (
@@ -57,7 +81,7 @@ const Home = () => {
 
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content">
+    <div className="min-h-screen bg-base-200 text-base-content">
 
       {/* HEADER */}
       <div className="border-b border-base-300/40 bg-base-100">
@@ -79,184 +103,6 @@ const Home = () => {
       </div>
 
       <div className="max-w-6xl mx-auto px-4 py-10">
-
-
-        {/* ================= RANDOM PICKS ================= */}
-        <section className="mb-16 space-y-16">
-
-          {/* ===== RANDOM SHER ===== */}
-          <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              Sher of the Moment
-            </h2>
-
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
-              {!randomSher.length ? Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
-                  <PoemCardShimmer />
-                </div>
-              )) : randomSher.map((s) => (
-                <div
-                  key={s._id}
-                  onClick={()=>navigate(`/poems/${s._id}`)}
-                  className="min-w-[320px] max-w-[320px]
-                            snap-center
-                            bg-gradient-to-br from-base-300/80 to-base-100
-                            border border-white/10
-                            rounded-2xl p-6
-                            hover:scale-[1.03] hover:border-primary/40
-                            transition-all duration-300"
-                >
-                  <p className="font-serif text-lg text-base-content italic mb-4 whitespace-pre-line">
-                    {(s.content?.hindi || s.content?.english)
-                      ?.split('\n')
-                      .slice(0, 2)
-                      .join('\n')}
-                  </p>
-
-                  <p className="text-sm text-base-content font-medium">
-                    — {s.poet?.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => {
-                if (!sherRef.current) return;
-
-                const cardWidth = sherRef.current.firstChild?.offsetWidth || 320;
-                const gap = 24;
-
-                sherRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
-              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
-            >
-              Explore more →
-            </button>
-
-          </div>
-
-          {/* ===== RANDOM FREE VERSE ===== */}
-          <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              Verses to Wander With
-            </h2>
-
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
-              {!randomFreeVerse.length ? Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
-                  <PoemCardShimmer />
-                </div>
-              )) : randomFreeVerse.map((p) => (
-                <div
-                  key={p._id}
-                  onClick={()=>navigate(`/poems/${p._id}`)}
-                  className="min-w-[340px] max-w-[340px]
-                            snap-center
-                            bg-gradient-to-br from-base-300/80 to-base-100
-                            border border-white/10
-                            rounded-2xl p-6
-                            hover:scale-[1.03] hover:border-primary/40
-                            transition-all duration-300"
-                >
-                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
-                    {p.title}
-                  </h3>
-
-                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
-                    {(p.content?.hindi || p.content?.roman)
-                      ?.split('\n')
-                      .filter(l => l.trim())
-                      .slice(0, 4)
-                      .join('\n')}
-                  </p>
-
-                  <p className="text-sm text-base-content font-medium">
-                    — {p.poet?.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => {
-                if (!freeVerseRef.current) return;
-
-                const cardWidth = freeVerseRef.current.firstChild?.offsetWidth || 340;
-                const gap = 24;
-
-                freeVerseRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
-              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
-            >
-              Continue reading →
-            </button>
-
-          </div>
-
-          {/* ===== RANDOM GHAZAL ===== */}
-          <div>
-            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
-              A Ghazal for the Soul
-            </h2>
-
-            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
-              {!randomGhazal.length ? Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
-                  <PoemCardShimmer />
-                </div>
-              )) : randomGhazal.map((g) => (
-                <div
-                  key={g._id}
-                  onClick={()=>navigate(`/poems/${g._id}`)}
-                  className="min-w-[340px] max-w-[340px] snap-center
-                            bg-gradient-to-br from-base-300/80 to-base-100
-                            border border-white/10
-                            rounded-2xl p-6
-                            hover:scale-[1.03] hover:border-primary/40
-                            transition-all duration-300"
-                >
-                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
-                    {g.title}
-                  </h3>
-
-                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
-                    {(g.content?.hindi || g.content?.english)
-                      ?.split('\n')
-                      .filter(l => l.trim())
-                      .slice(0, 2)
-                      .join('\n')}
-                  </p>
-
-                  <p className="text-sm text-base-content font-medium">
-                    — {g.poet?.name}
-                  </p>
-                </div>
-              ))}
-            </div>
-            <button
-              onClick={() => {
-                if (!ghazalRef.current) return;
-                const cardWidth = ghazalRef.current.firstChild?.offsetWidth || 340;
-                const gap = 24;
-                ghazalRef.current.scrollBy({
-                  left: cardWidth + gap,
-                  behavior: 'smooth'
-                });
-              }}
-              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
-            >
-              Dive deeper →
-            </button>
-          </div>
-
-        </section>
-
 
         {/* TODAY'S SHAYARI */}
         <section className="mb-14">
@@ -290,51 +136,6 @@ const Home = () => {
           </div>
         </section>
 
-        {/* ================= STATS ================= */}
-        <section className="mb-14">
-          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-8">
-            Sukhan in Numbers
-          </h2>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-4xl font-serif font-bold text-primary">
-                {loading ? '—' : `${poemCount-1}+`}
-              </p>
-              <p className="mt-2 text-base-content/60">
-                Poems
-              </p>
-            </div>
-
-            <div>
-              <p className="text-4xl font-serif font-bold text-primary">
-                {loading ? '—' : `${poetCount-1}+`}
-              </p>
-              <p className="mt-2 text-base-content/60">
-                Poets
-              </p>
-            </div>
-
-            <div>
-              <p className="text-4xl font-serif font-bold text-primary">
-                3
-              </p>
-              <p className="mt-2 text-base-content/60">
-                Literary Eras
-              </p>
-            </div>
-
-            <div>
-              <p className="text-4xl font-serif font-bold text-primary">
-                3
-              </p>
-              <p className="mt-2 text-base-content/60">
-                Languages
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* FEATURED POEMS */}
         <section className="mb-16">
           <div className='flex justify-between items-center mb-2'>
@@ -346,7 +147,7 @@ const Home = () => {
             </Link>
           </div>
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={poemsRef}>
-            {!featuredPoems.length ? Array.from({ length: 5 }).map((_, i) => (
+            {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
                 <PoemCardShimmer />
               </div>
@@ -411,7 +212,7 @@ const Home = () => {
           </div>
 
           <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-            {!popularPoets.length ? Array.from({ length: 5 }).map((_, i) => (
+            {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="min-w-[240px]">
                 <PoetCardShimmer />
               </div>
@@ -455,6 +256,181 @@ const Home = () => {
           </div>
         </section>
 
+        {/* ================= RANDOM PICKS ================= */}
+        <section className="mb-16 space-y-16">
+
+          {/* ===== RANDOM SHER ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Sher of the Moment
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
+              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomSher.map((s) => (
+                <div
+                  key={s._id}
+                  onClick={()=>navigate(`/poems/${s._id}`)}
+                  className="min-w-[320px] max-w-[320px]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <p className="font-serif text-lg text-base-content italic mb-4 whitespace-pre-line">
+                    {(s.content?.hindi || s.content?.english)
+                      ?.split('\n')
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {s.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                if (!sherRef.current) return;
+
+                const cardWidth = sherRef.current.firstChild?.offsetWidth || 320;
+                const gap = 24;
+
+                sherRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Explore more →
+            </button>
+
+          </div>
+
+          {/* ===== RANDOM FREE VERSE ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Verses to Wander With
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
+              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomFreeVerse.map((p) => (
+                <div
+                  key={p._id}
+                  onClick={()=>navigate(`/poems/${p._id}`)}
+                  className="min-w-[340px] max-w-[340px]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
+                    {p.title}
+                  </h3>
+
+                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
+                    {(p.content?.hindi || p.content?.roman)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 4)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {p.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                if (!freeVerseRef.current) return;
+
+                const cardWidth = freeVerseRef.current.firstChild?.offsetWidth || 340;
+                const gap = 24;
+
+                freeVerseRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Continue reading →
+            </button>
+
+          </div>
+
+          {/* ===== RANDOM GHAZAL ===== */}
+          <div>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              A Ghazal for the Soul
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
+              {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomGhazal.map((g) => (
+                <div
+                  key={g._id}
+                  onClick={()=>navigate(`/poems/${g._id}`)}
+                  className="min-w-[340px] max-w-[340px] snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
+                    {g.title}
+                  </h3>
+
+                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
+                    {(g.content?.hindi || g.content?.english)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {g.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                if (!ghazalRef.current) return;
+                const cardWidth = ghazalRef.current.firstChild?.offsetWidth || 340;
+                const gap = 24;
+                ghazalRef.current.scrollBy({
+                  left: cardWidth + gap,
+                  behavior: 'smooth'
+                });
+              }}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Dive deeper →
+            </button>
+          </div>
+
+        </section>
 
         {/* COLLECTIONS */}
         <section className="mb-14">
@@ -468,7 +444,7 @@ const Home = () => {
           </div>
 
           <div className="flex overflow-x-auto pb-4 gap-6 snap-x snap-mandatory">
-            {!trendingCollections.length
+            {homeLoading
               ? Array.from({ length: 5 }).map((_, i) => (
                   <CollectionCardShimmer key={i} />
                 ))
@@ -545,6 +521,51 @@ const Home = () => {
           </button>
 
 
+        </section>
+
+        {/* ================= STATS ================= */}
+        <section className="mb-14">
+          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-8">
+            Sukhan in Numbers
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${poemCount-1}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poems
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${poetCount-1}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poets
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                3
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Literary Eras
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                3
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Languages
+              </p>
+            </div>
+          </div>
         </section>
 
       </div>
