@@ -585,7 +585,7 @@ const Home = () => {
             Sukhan in Numbers
           </h2>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div onClick={navigate('/poems')} className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
                 {loading ? '—' : `${poemCount-1}+`}
@@ -596,7 +596,7 @@ const Home = () => {
             </div>
 
             <div>
-              <p className="text-4xl font-serif font-bold text-primary">
+              <p onClick={navigate('/poets')} className="text-4xl font-serif font-bold text-primary">
                 {loading ? '—' : `${poetCount-1}+`}
               </p>
               <p className="mt-2 text-base-content/60">
