@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { trim } = require('validator');
 const { Schema } = mongoose;
 
 const poetSchema = new Schema({

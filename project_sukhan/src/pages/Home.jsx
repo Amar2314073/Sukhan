@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchStats } from '../redux/slices/homeSlice';
+import { fetchStats, setStatsFromCache } from '../redux/slices/statSlice';
 import PoemCardShimmer from '../shimmer/PoemCardShimmer';
 import PoetCardShimmer from '../shimmer/PoetCardShimmer';
 import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
@@ -17,7 +17,7 @@ const Home = () => {
   const poemsRef = useRef(null);
   const collectionsRef = useRef(null);
   
-  const { poemCount, poetCount, loading, error } = useSelector((state) => state.home);
+  const { statsData, loading, error } = useSelector((state) => state.stats);
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const [homePageData, setHomePageData] = useState(null);
   const [homeLoading, setHomeLoading] = useState(true);
@@ -87,11 +87,51 @@ const Home = () => {
   const refreshRandomFreeVerse = () => fetchRandom('freeverse');
   const refreshRandomGhazal = () => fetchRandom('ghazal');
 
+  const STATS_CACHE_KEY = 'SUKHAN_STATS';
+  const today = new Date().toDateString();
+
+  const getCachedStats = () => {
+    try {
+      const cached = localStorage.getItem(STATS_CACHE_KEY);
+      if (!cached) return null;
+
+      const parsed = JSON.parse(cached);
+      if (parsed.date !== today) {
+        localStorage.removeItem(STATS_CACHE_KEY);
+        return null;
+      }
+      return parsed.data;
+    } catch {
+      localStorage.removeItem(STATS_CACHE_KEY);
+      return null;
+    }
+  };
+
+
+  const setCachedStats = (statsData) => {
+    localStorage.setItem(
+      STATS_CACHE_KEY,
+      JSON.stringify({
+        data: statsData,
+        date: new Date().toDateString()
+      })
+    );
+  };
+
   
   useEffect(() => {
-    dispatch(fetchStats());
+    const cachedStats = getCachedStats();
 
-    const today = new Date().toDateString();
+    if (cachedStats) {
+      dispatch(setStatsFromCache(cachedStats));
+    } else {
+      dispatch(fetchStats()).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          setCachedStats(res.payload);
+        }
+      });
+    }
+
 
     /* ---------------- HOME PAGE (24 HOURS) ---------------- */
     const homeCache = localStorage.getItem('Home_Page_Cache');
@@ -588,7 +628,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
-                {loading ? '—' : `${poemCount-1}+`}
+                {loading ? '—' : `${statsData.poems-1}+`}
               </p>
               <p className="mt-2 text-base-content/60">
                 Poems
@@ -597,7 +637,7 @@ const Home = () => {
 
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
-                {loading ? '—' : `${poetCount-1}+`}
+                {loading ? '—' : `${statsData.poets-1}+`}
               </p>
               <p className="mt-2 text-base-content/60">
                 Poets
@@ -606,7 +646,7 @@ const Home = () => {
 
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
-                3
+                {loading ? '—' : `${statsData.literaryEras}`}
               </p>
               <p className="mt-2 text-base-content/60">
                 Literary Eras
@@ -615,7 +655,7 @@ const Home = () => {
 
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
-                3
+                {loading ? '—' : `${statsData.languages}`}
               </p>
               <p className="mt-2 text-base-content/60">
                 Languages

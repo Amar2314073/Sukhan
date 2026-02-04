@@ -1,6 +1,7 @@
 const Collection = require('../models/collection');
 const Poem = require('../models/poem');
 const User = require('../models/user');
+const Stat = require('../models/stat');
 
 // GET /collections - get all collections with pagination
 exports.getAllCollections = async (req, res) => {
@@ -217,6 +218,12 @@ exports.createCollection = async (req, res) => {
             poems: [] // Start with empty poems array
         });
 
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { collections: 1 } },
+            { upsert: true }
+        );
+
         // Populate the created collection
         const populatedCollection = await Collection.findById(collection._id)
             .populate('category', 'name type')
@@ -311,33 +318,37 @@ exports.updateCollection = async (req, res) => {
 
 // DELETE /collections/:id - delete collection (admin only)
 exports.deleteCollection = async (req, res) => {
-    try {
-        const collectionId = req.params.id;
+  try {
+    const collectionId = req.params.id;
 
-        // Find collection
-        const collection = await Collection.findById(collectionId);
-        if (!collection) {
-            return res.status(404).json({ message: "Collection not found" });
-        }
-
-        // Soft delete (set isActive to false)
-        collection.isActive = false;
-        await collection.save();
-
-        res.status(200).json({
-            message: "Collection deleted successfully"
-        });
-
-    } catch (error) {
-        console.error("Delete collection error:", error);
-        
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: "Invalid collection ID" });
-        }
-        
-        res.status(500).json({ message: "Error deleting collection" });
+    // ✅ Hard delete (atomic)
+    const deletedCollection = await Collection.findByIdAndDelete(collectionId);
+    if (!deletedCollection) {
+      return res.status(404).json({ message: "Collection not found" });
     }
-}
+
+    // ✅ Update stats
+    await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      { $inc: { collections: -1 } },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      message: "Collection deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete collection error:", error);
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid collection ID" });
+    }
+
+    res.status(500).json({ message: "Error deleting collection" });
+  }
+};
+
 
 // POST /collections/:id/poems - add poem to collection (admin only)
 exports.addPoemToCollection = async (req, res) => {

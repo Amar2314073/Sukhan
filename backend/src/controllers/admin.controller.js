@@ -3,23 +3,34 @@ const Poem = require('../models/poem');
 const User = require('../models/user');
 const Category = require('../models/category');
 const Collection = require('../models/collection');
+const Stat = require('../models/stat');
 
 /* -------- DASHBOARD -------- */
 exports.dashboard = async (req, res) => {
-  const [poets, poems, collections, users] = await Promise.all([
-    Poet.countDocuments(),
-    Poem.countDocuments(),
-    Collection.countDocuments(),
-    User.countDocuments()
-  ]);
+  try {
+    const stats = await Stat.findById('GLOBAL_STATS');
 
-  res.json({
-    poets,
-    poems,
-    collections,
-    users
-  });
+    if (!stats) {
+      return res.status(404).json({
+        message: 'Stats not found. Please sync stats.'
+      });
+    }
+
+    res.json({
+      poets: stats.poets,
+      poems: stats.poems,
+      collections: stats.collections,
+      users: stats.users || 0,
+      languages: stats.languages,
+      era: stats.era
+    });
+
+  } catch (error) {
+    console.error('Dashboard error:', error);
+    res.status(500).json({ message: 'Error loading dashboard data' });
+  }
 };
+
 
 /* -------- POETS -------- */
 
@@ -48,49 +59,68 @@ exports.searchPoets = async (req, res) => {
   }
 };
 
-
-
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
-  try {
-    const { name, bio, era, birthYear, deathYear, image, country } = req.body;
+    try {
+        const { name, bio, era, birthYear, deathYear, image } = req.body;
 
-    if (!name || !bio || !era || !country) {
-      return res.status(400).json({
-        message: "Name, bio, era, and country are required"
-      });
+        // Validate required fields
+        if (!name || !bio || !era) {
+            return res.status(400).json({ 
+                message: "Name, bio, and era are required" 
+            });
+        }
+
+        // Validate era
+        const validEras = ['Classical', 'Modern', 'Contemporary'];
+        if (!validEras.includes(era)) {
+            return res.status(400).json({ 
+                message: "Invalid era. Must be: Classical, Modern, or Contemporary" 
+            });
+        }
+
+        // Check if poet already exists (case insensitive)
+        const existingPoet = await Poet.findOne({ 
+            name: { $regex: new RegExp(`^${name}$`, 'i') } 
+        });
+
+        if (existingPoet) {
+            return res.status(409).json({ 
+                message: "Poet with this name already exists" 
+            });
+        }
+
+        // Create poet
+        const poet = await Poet.create({
+            name: name.trim(),
+            bio: bio.trim(),
+            era,
+            birthYear: birthYear || null,
+            deathYear: deathYear || null,
+            image: image || ''
+        });
+
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poets: 1 } },
+            { upsert: true }
+        );
+
+        res.status(201).json({
+            poet,
+            message: "Poet created successfully"
+        });
+
+    } catch (error) {
+        console.error("Create poet error:", error);
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+        
+        res.status(500).json({ message: "Error creating poet" });
     }
-
-    const validEras = ['Classical', 'Modern', 'Contemporary', 'Other'];
-    if (!validEras.includes(era)) {
-      return res.status(400).json({ message: "Invalid era" });
-    }
-
-    const existingPoet = await Poet.findOne({
-      name: { $regex: new RegExp(`^${name}$`, 'i') }
-    });
-
-    if (existingPoet) {
-      return res.status(409).json({ message: "Poet already exists" });
-    }
-
-    const poet = await Poet.create({
-      name: name.trim(),
-      bio: bio.trim(),
-      era,
-      birthYear: birthYear || null,
-      deathYear: deathYear || null,
-      country: country.trim(),
-      image: image || ''
-    });
-
-    res.status(201).json({ poet });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error creating poet" });
-  }
-};
+}
 
 
 // PUT /poets/:id - update poet (admin only)
@@ -168,43 +198,45 @@ exports.updatePoet = async (req, res) => {
 
 // DELETE /poets/:id - delete poet (admin only)
 exports.deletePoet = async (req, res) => {
-    try {
-        const poetId = req.params.id;
+  try {
+    const poetId = req.params.id;
 
-        // Find poet
-        const poet = await Poet.findById(poetId);
-        if (!poet) {
-            return res.status(404).json({ message: "Poet not found" });
-        }
-
-        // Check if poet has poems
-        const poemCount = await Poem.countDocuments({ poet: poetId });
-        if (poemCount > 0) {
-            return res.status(400).json({ 
-                message: `Cannot delete poet. There are ${poemCount} poems associated with this poet.` 
-            });
-        }
-
-        // Soft delete (set isActive to false)
-        // poet.isActive = false;
-        // await poet.save();
-
-        await Poet.findByIdAndDelete(poetId);
-
-        res.status(200).json({
-            message: "Poet deleted successfully"
-        });
-
-    } catch (error) {
-        console.error("Delete poet error:", error);
-        
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: "Invalid poet ID" });
-        }
-        
-        res.status(500).json({ message: "Error deleting poet" });
+    // Check poems linked to poet
+    const poemCount = await Poem.countDocuments({ poet: poetId });
+    if (poemCount > 0) {
+      return res.status(400).json({
+        message: `Cannot delete poet. There are ${poemCount} poems associated with this poet.`
+      });
     }
-}
+
+    // Hard delete poet (atomic)
+    const deletedPoet = await Poet.findByIdAndDelete(poetId);
+    if (!deletedPoet) {
+      return res.status(404).json({ message: "Poet not found" });
+    }
+
+    // Update stats
+    await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      { $inc: { poets: -1 } },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      message: "Poet deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete poet error:", error);
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid poet ID" });
+    }
+
+    res.status(500).json({ message: "Error deleting poet" });
+  }
+};
+
 
 /* -------- POEMS -------- */
 
@@ -212,22 +244,9 @@ exports.deletePoet = async (req, res) => {
 exports.createPoem = async (req, res) => {
     try {
         const { title, content, poet, category, tags } = req.body;
-        if (
-            !content ||
-            (
-                !content.hindi?.trim() &&
-                !content.roman?.trim()
-            )
-            ) {
-            return res.status(400).json({
-                message: "At least one language content is required"
-            });
-        }
-
-
 
         // Validate required fields
-        if (!title || !poet || !category) {
+        if (!title || !content || !poet || !category) {
             return res.status(400).json({ message: "Title, content, poet and category are required" });
         }
 
@@ -255,6 +274,14 @@ exports.createPoem = async (req, res) => {
             tags: tags || []
         });
 
+        // Increment poem count in stats
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poems: 1 } },
+            { upsert: true }
+        );
+
+
         // Populate the created poem
         const populatedPoem = await Poem.findById(poem._id)
             .populate('poet', 'name era')
@@ -275,7 +302,6 @@ exports.createPoem = async (req, res) => {
         res.status(500).json({ message: "Error creating poem" });
     }
 }
-
 // PUT /poems/:id - update poem (admin only)
 exports.updatePoem = async (req, res) => {
     try {
@@ -351,17 +377,17 @@ exports.deletePoem = async (req, res) => {
     try {
         const poemId = req.params.id;
 
-        // Find poem
-        const poem = await Poem.findById(poemId);
-        if (!poem) {
-            return res.status(404).json({ message: "Poem not found" });
+        const deletedPoem = await Poem.findByIdAndDelete(poemId);
+        if (!deletedPoem) {
+        return res.status(404).json({ message: "Poem not found" });
         }
 
-        // Soft delete (set isActive to false)
-        // poem.isActive = false;
-        // await poem.save();
 
-        await Poem.findByIdAndDelete(poemId);
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poems: -1 } },
+            { upsert: true }
+        );
 
         res.status(200).json({
             message: "Poem deleted successfully"
@@ -468,6 +494,12 @@ exports.createCollection = async (req, res) => {
             poems: [] // Start with empty poems array
         });
 
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { collections: 1 } },
+            { upsert: true }
+        );
+
         // Populate the created collection
         const populatedCollection = await Collection.findById(collection._id)
             .populate('category', 'name type')
@@ -562,33 +594,36 @@ exports.updateCollection = async (req, res) => {
 
 // DELETE /collections/:id - delete collection (admin only)
 exports.deleteCollection = async (req, res) => {
-    try {
-        const collectionId = req.params.id;
+  try {
+    const collectionId = req.params.id;
 
-        // Find collection
-        const collection = await Collection.findById(collectionId);
-        if (!collection) {
-            return res.status(404).json({ message: "Collection not found" });
-        }
-
-        // Soft delete (set isActive to false)
-        collection.isActive = false;
-        await collection.save();
-
-        res.status(200).json({
-            message: "Collection deleted successfully"
-        });
-
-    } catch (error) {
-        console.error("Delete collection error:", error);
-        
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: "Invalid collection ID" });
-        }
-        
-        res.status(500).json({ message: "Error deleting collection" });
+    // Hard delete (atomic)
+    const deletedCollection = await Collection.findByIdAndDelete(collectionId);
+    if (!deletedCollection) {
+      return res.status(404).json({ message: "Collection not found" });
     }
-}
+
+    // ✅ Update stats
+    await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      { $inc: { collections: -1 } },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      message: "Collection deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete collection error:", error);
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid collection ID" });
+    }
+
+    res.status(500).json({ message: "Error deleting collection" });
+  }
+};
 
 // POST /collections/:id/poems - add poem to collection (admin only)
 exports.addPoemToCollection = async (req, res) => {

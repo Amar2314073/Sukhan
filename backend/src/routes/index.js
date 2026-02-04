@@ -12,7 +12,7 @@ router.use('/admin', require('./admin.routes'));
 router.use('/ai', require('./ai.routes'));
 router.use('/home', require('./home.routes'));
 router.use('/comments', require('./comment.routes'));
-
+router.use('/stats', require('./stat.routes'));
 
 
 module.exports = router;

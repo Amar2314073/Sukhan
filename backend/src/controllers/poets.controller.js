@@ -1,5 +1,6 @@
 const Poet = require('../models/poet');
 const Poem = require('../models/poem');
+const Stat = require('../models/stat');
 
 // GET /poets - get all poets with pagination and filters
 exports.getAllPoets = async (req, res) => {
@@ -231,6 +232,12 @@ exports.createPoet = async (req, res) => {
             image: image || ''
         });
 
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poets: 1 } },
+            { upsert: true }
+        );
+
         res.status(201).json({
             poet,
             message: "Poet created successfully"
@@ -321,41 +328,45 @@ exports.updatePoet = async (req, res) => {
 
 // DELETE /poets/:id - delete poet (admin only)
 exports.deletePoet = async (req, res) => {
-    try {
-        const poetId = req.params.id;
+  try {
+    const poetId = req.params.id;
 
-        // Find poet
-        const poet = await Poet.findById(poetId);
-        if (!poet) {
-            return res.status(404).json({ message: "Poet not found" });
-        }
-
-        // Check if poet has poems
-        const poemCount = await Poem.countDocuments({ poet: poetId, isActive: true });
-        if (poemCount > 0) {
-            return res.status(400).json({ 
-                message: `Cannot delete poet. There are ${poemCount} poems associated with this poet.` 
-            });
-        }
-
-        // Soft delete (set isActive to false)
-        poet.isActive = false;
-        await poet.save();
-
-        res.status(200).json({
-            message: "Poet deleted successfully"
-        });
-
-    } catch (error) {
-        console.error("Delete poet error:", error);
-        
-        if (error.name === 'CastError') {
-            return res.status(400).json({ message: "Invalid poet ID" });
-        }
-        
-        res.status(500).json({ message: "Error deleting poet" });
+    // Check poems linked to poet
+    const poemCount = await Poem.countDocuments({ poet: poetId });
+    if (poemCount > 0) {
+      return res.status(400).json({
+        message: `Cannot delete poet. There are ${poemCount} poems associated with this poet.`
+      });
     }
-}
+
+    // Hard delete poet (atomic)
+    const deletedPoet = await Poet.findByIdAndDelete(poetId);
+    if (!deletedPoet) {
+      return res.status(404).json({ message: "Poet not found" });
+    }
+
+    // Update stats
+    await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      { $inc: { poets: -1 } },
+      { upsert: true }
+    );
+
+    res.status(200).json({
+      message: "Poet deleted successfully"
+    });
+
+  } catch (error) {
+    console.error("Delete poet error:", error);
+
+    if (error.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid poet ID" });
+    }
+
+    res.status(500).json({ message: "Error deleting poet" });
+  }
+};
+
 
 // GET /poets/search?q=... - search poets
 exports.searchPoets = async (req, res) => {

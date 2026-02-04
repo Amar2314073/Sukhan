@@ -5,6 +5,7 @@ const ms = require('ms');
 const User = require('../models/user');
 const userValidator = require('../utils/userValidator');
 const Poem = require('../models/poem')
+const Stat = require('../models/stat');
 
 const tokenValidity = '100d';
 
@@ -44,6 +45,12 @@ exports.register = async (req,res) => {
             likedPoems: user.likedPoems || [],
             savedPoems: user.savedPoems || []
         };
+
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { users: 1 } },
+            { upsert: true }
+        );        
 
 
         res.status(200).json({
@@ -311,6 +318,12 @@ exports.deleteProfile = async (req, res) => {
                 sameSite: "none"
             });
         }
+
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { users: -1 } },
+            { upsert: true }
+        );
 
         res.status(200).json({ message: "Account deleted successfully" });
 

@@ -1,5 +1,6 @@
 const Poem = require('../models/poem');
 const Poet = require('../models/poet');
+const Stat = require('../models/stat');
 const Category = require('../models/category');
 
 // GET /poems - get all poems with pagination and filters
@@ -131,6 +132,14 @@ exports.createPoem = async (req, res) => {
             tags: tags || []
         });
 
+        // Increment poem count in stats
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poems: 1 } },
+            { upsert: true }
+        );
+
+
         // Populate the created poem
         const populatedPoem = await Poem.findById(poem._id)
             .populate('poet', 'name era')
@@ -227,18 +236,17 @@ exports.deletePoem = async (req, res) => {
     try {
         const poemId = req.params.id;
 
-        // Find poem
-        const poem = await Poem.findById(poemId);
-        if (!poem) {
-            return res.status(404).json({ message: "Poem not found" });
+        const deletedPoem = await Poem.findByIdAndDelete(poemId);
+        if (!deletedPoem) {
+        return res.status(404).json({ message: "Poem not found" });
         }
 
-        // Soft delete (set isActive to false)
-        poem.isActive = false;
-        await poem.save();
 
-        // Alternatively, you can hard delete with:
-        // await Poem.findByIdAndDelete(poemId);
+        await Stat.findByIdAndUpdate(
+            'GLOBAL_STATS',
+            { $inc: { poems: -1 } },
+            { upsert: true }
+        );
 
         res.status(200).json({
             message: "Poem deleted successfully"
