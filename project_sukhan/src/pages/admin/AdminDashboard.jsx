@@ -46,6 +46,11 @@ const AdminDashboard = () => {
             desc="Create, edit or delete collections"
             onClick={() => navigate('/admin/collections')}
           />
+          <ActionCard
+            title="Manage Books"
+            desc="Create, edit or delete Books"
+            onClick={() => navigate('/admin/books')}
+          />
         </div>
 
       </div>

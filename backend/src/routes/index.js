@@ -13,6 +13,7 @@ router.use('/ai', require('./ai.routes'));
 router.use('/home', require('./home.routes'));
 router.use('/comments', require('./comment.routes'));
 router.use('/stats', require('./stat.routes'));
+router.use('/books', require('./books.routes'));
 
 
 module.exports = router;

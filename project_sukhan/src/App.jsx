@@ -25,6 +25,10 @@ import LikedPoems from './pages/LikedPoems';
 import SavedPoems from './pages/SavedPoems';
 import CollectionForm from './components/admin/CollectionForm';
 import CollectionDetail from './pages/CollectionDetail';
+import ExploreBooks from './pages/ExploreBooks';
+import AddBook from './pages/admin/AddBook';
+import EditBook from './pages/admin/EditBook';
+import AdminBooks from './pages/admin/AdminBooks';
 
 function App() {
   const dispatch = useDispatch();
@@ -62,6 +66,11 @@ function App() {
               <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
               <Route path="/profile/likedPoems" element={<PrivateRoute><LikedPoems /></PrivateRoute>} />
               <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
+              <Route path="/books/explore" element={<ExploreBooks/>} />
+              <Route path="/admin/books" element={<AdminBooks />} />
+              <Route path="/admin/books/add" element={<AddBook />} />
+              <Route path="/admin/books/edit/:id" element={<EditBook />} />
+
               {/* <Route path="/dictionary" element={<Dictionary />} /> */}
 
               <Route path="/admin" element={<AdminRoutes />}>

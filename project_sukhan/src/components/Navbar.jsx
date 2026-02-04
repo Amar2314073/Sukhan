@@ -150,6 +150,7 @@ const Navbar = () => {
             <NavLink to="/poems" className={getNavLinkClass}>Poems</NavLink>
             <NavLink to="/collections" className={getNavLinkClass}>Collections</NavLink>
             <NavLink to="/dictionary" className={getNavLinkClass}>Dictionary</NavLink>
+            <NavLink to="/books/explore" className={getNavLinkClass}>Books</NavLink>
           </div>
 
           {/* RIGHT */}
@@ -411,6 +412,7 @@ const Navbar = () => {
           <NavLink to="/poems" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Poems</NavLink>
           <NavLink to="/collections" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Collections</NavLink>
           <NavLink to="/dictionary" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Dictionary</NavLink>
+          <NavLink to="/books/explore" onClick={() => setMobileMenuOpen(false)} className="block px-4 py-3 hover:bg-base-200">Books</NavLink>
         </div>
       )}
     </nav>
