@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { BookOpen, Calendar, Clock, MapPin } from 'lucide-react';
+import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi'
 import {
   getPoetById,
   getPoemsByPoet,
@@ -103,7 +103,7 @@ const PoetProfile = () => {
                   {/* Birth / Death */}
                   {currentPoet.birthYear && (
                     <span className="flex items-center gap-1">
-                      <Calendar size={14} className="opacity-70" />
+                      <FiCalendar size={14} className="opacity-70" />
                       {currentPoet.birthYear}
                       {currentPoet.deathYear
                         ? ` – ${currentPoet.deathYear}`
@@ -119,7 +119,7 @@ const PoetProfile = () => {
                   {/* Country */}
                   {currentPoet.country && (
                     <span className="flex items-center gap-1">
-                      <MapPin size={14} className="opacity-70" />
+                      <FiMapPin size={14} className="opacity-70" />
                       {currentPoet.country}
                     </span>
                   )}
@@ -287,7 +287,7 @@ const PoetProfile = () => {
 
             {/* Era */}
             <div className="flex items-center gap-3">
-              <Clock size={18} className="text-primary/80" />
+              <FiClock size={18} className="text-primary/80" />
               <div>
                 <div className="text-xs text-base-content/60">दौर</div>
                 <div className="font-medium text-base-content">
@@ -298,7 +298,7 @@ const PoetProfile = () => {
 
             {/* Country */}
             <div className="flex items-center gap-3">
-              <MapPin size={18} className="text-primary/80" />
+              <FiMapPin size={18} className="text-primary/80" />
               <div>
                 <div className="text-xs text-base-content/60">देश</div>
                 <div className="font-medium text-base-content">

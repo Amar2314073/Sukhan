@@ -5,21 +5,9 @@ import { fetchPoemById, clearCurrentPoem } from '../redux/slices/poemSlice';
 import { toggleLikePoem, toggleSavePoem } from '../redux/slices/authSlice';
 import { toggleZenMode } from '../redux/slices/uiSlice';
 import AutoFitMisra from '../components/AutoFitMisra';
-import ChatAI from '../components/ChatAI';
 import CommentSheet from '../components/CommentSheet';
-import {
-  Heart,
-  ThumbsUp,
-  Bookmark,
-  Volume2,
-  VolumeX,
-  BookOpen,
-  X,
-  ChevronDown,
-  Star,
-  MessageCircle
-} from 'lucide-react';
-
+import { FiThumbsUp , FiBookmark, FiVolumeX, FiBookOpen, FiX, FiChevronDown, FiStar } from 'react-icons/fi'
+import { TfiVolume, TfiHeart, TfiCommentAlt } from 'react-icons/tfi'
 const BG_IMAGE =
   'https://rekhta.pc.cdn.bitgravity.com/Images/poet-profile-banner.png';
 
@@ -145,7 +133,7 @@ const PoemDetail = () => {
           <div className="flex items-start justify-between">
 
             {/* LEFT */}
-            <div className="flex gap-3">
+            <div onClick={()=>navigate(`/poets/${currentPoem.poet._id}`)} className="flex gap-3 cursor-pointer">
               <img
                 src={currentPoem?.poet?.image || 'https://www.gravatar.com/avatar/?d=mp&s=80'}
                 alt=""
@@ -156,9 +144,7 @@ const PoemDetail = () => {
                 <p className="text-xs opacity-80">
                   {currentPoem.type || 'Poem'} by
                 </p>
-                <p
-                onClick={()=>navigate(`/poets/${currentPoem.poet._id}`)}
-                className="font-medium cursor-pointer">
+                <p className="font-medium">
                   {currentPoem.poet?.name}
                 </p>
               </div>
@@ -171,7 +157,7 @@ const PoemDetail = () => {
                 className="flex items-center gap-1 bg-black/40 px-3 py-1.5 rounded-full text-sm"
               >
                 {lang.charAt(0).toUpperCase() + lang.slice(1)}
-                <ChevronDown size={14} />
+                <FiChevronDown size={14} />
               </button>
 
               {showLang && (
@@ -196,13 +182,13 @@ const PoemDetail = () => {
           {/* META */}
           <div className="mt-4 flex items-center gap-4 text-sm opacity-90">
             <div className="flex items-center gap-1">
-              <Heart size={14} className="text-red-400" />
+              <TfiHeart size={14} className="text-red-400" />
               {currentPoem.likes || 0}
             </div>
 
             {currentPoem.popular && (
               <div className="flex items-center gap-1 text-yellow-400">
-                <Star size={14} fill="currentColor" /> Popular
+                <FiStar size={14} fill="currentColor" /> Popular
               </div>
             )}
           </div>
@@ -232,7 +218,7 @@ const PoemDetail = () => {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2">
         <div className="flex gap-6 bg-gray-900/90 px-8 py-4 rounded-full shadow-lg">
           <button onClick={handleLike}>
-            <ThumbsUp
+            <FiThumbsUp
                 size={26}
                 className={`
                     transition
@@ -244,7 +230,7 @@ const PoemDetail = () => {
           </button>
 
           <button onClick={handleSave}>
-            <Bookmark
+            <FiBookmark
                 size={26}
                 className={`
                     transition
@@ -257,15 +243,15 @@ const PoemDetail = () => {
           </button>
 
           <button onClick={speakPoem}>
-            {speaking ? <VolumeX size={26} /> : <Volume2 size={26} />}
+            {speaking ? <FiVolumeX size={26} /> : <TfiVolume size={26} />}
           </button>
 
           <button onClick={() => dispatch(toggleZenMode())}>
-            {zenMode ? <X size={26} /> : <BookOpen size={26} />}
+            {zenMode ? <FiX size={26} /> : <FiBookOpen size={26} />}
           </button>
           
           <button onClick={() => setCommentsOpen(true)}>
-            <MessageCircle
+            <TfiCommentAlt
               size={26}
               className="text-gray-400 hover:text-primary transition"
             />
@@ -281,8 +267,6 @@ const PoemDetail = () => {
         commentCount={currentPoem.commentCount}
       />
 
-
-      {/* {!zenMode && <ChatAI poem={currentPoem} />} */}
     </div>
   );
 };
