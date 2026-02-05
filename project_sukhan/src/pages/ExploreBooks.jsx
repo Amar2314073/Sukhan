@@ -14,7 +14,6 @@ const ExploreBooks = () => {
     try {
       const res = await axiosClient.get('/books');
       setBooks(res.data.books);
-      console.log(res.data.books[0])
     } catch (err) {
       console.error(err);
     } finally {
@@ -23,16 +22,20 @@ const ExploreBooks = () => {
   };
 
   if (loading) {
-    return <p className="text-center py-20">Loading books…</p>;
+    return (
+      <div className="py-32 text-center text-base-content/60">
+        Loading books…
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10">
-      <h1 className="text-3xl font-serif mb-8">
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-serif font-bold mb-10">
         Explore Books
       </h1>
 
-      <div className="flex flex-wrap justify-center gap-6">
+      <div className="flex flex-wrap justify-around">
         {books.map(book => (
           <BookCard key={book._id} book={book} />
         ))}
