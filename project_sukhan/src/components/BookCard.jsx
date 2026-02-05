@@ -24,12 +24,22 @@ const BookCard = ({ book }) => {
         bg-base-200
       "
     >
-      <img
-        src={book.image}
-        alt={book.title}
-        className="w-full object-cover"
-      />
+      <div className="h-64 bg-base-300 flex items-center justify-center">
+        <img
+          src={book.image}
+          alt={book.title}
+          className="
+            max-h-full
+            w-auto
+            object-contain
+            transition-transform
+            duration-300
+            hover:scale-105
+          "
+        />
+      </div>
     </div>
+
   );
 };
 

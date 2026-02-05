@@ -31,7 +31,7 @@ const ExploreBooks = () => {
         Explore Books
       </h1>
 
-      <div className="flex flex-col md:grid md:grid-cols-4 gap-6">
+      <div className="flex flex-wrap justify-center gap-6">
         {books.map(book => (
           <BookCard key={book._id} book={book} />
         ))}
