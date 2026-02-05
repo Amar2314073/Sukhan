@@ -6,7 +6,7 @@ const User = require('../models/user');
 
 exports.getStats = async (req, res) => {
   try {
-    const stats = await Stat.findById('GLOBAL_STATS');
+    const stats = await Stat.findById('GLOBAL_STATS', {users: 0});
 
     if (!stats) {
       const initialStats = await Stat.create({ _id: 'GLOBAL_STATS' });

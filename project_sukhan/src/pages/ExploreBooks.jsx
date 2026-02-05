@@ -14,6 +14,7 @@ const ExploreBooks = () => {
     try {
       const res = await axiosClient.get('/books');
       setBooks(res.data.books);
+      console.log(res.data.books[0])
     } catch (err) {
       console.error(err);
     } finally {

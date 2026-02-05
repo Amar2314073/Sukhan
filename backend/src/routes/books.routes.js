@@ -8,6 +8,7 @@ const adminMiddleware = require('../middleware/adminMiddleware');
 router.get('/', bookController.getAllBooks);
 router.get('/:id', bookController.getBookById);
 router.post('/:id/click', bookController.trackBookClick);
+router.get('/trending', bookController.getTrendingBooks);
 
 /* ADMIN */
 router.post('/', adminMiddleware, bookController.createBook);

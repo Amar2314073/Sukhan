@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const { Schema } = mongoose;
 
-const bookSchema = new mongoose.Schema({
+const bookSchema = new Schema({
   title: {
     type: String,
     required: true,
@@ -8,9 +9,10 @@ const bookSchema = new mongoose.Schema({
   },
   author: {
     type: String,
-    trim: true
+    trim: true,
+    default: null
   },
-  image: {
+  coverImage: {
     type: String,
     required: true
   },
@@ -18,9 +20,16 @@ const bookSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  clicked: {
+  price:{
     type: Number,
-    dafault: 0,
+    default: null
+  },
+  category:{
+    type: String
+  },
+  clicks: {
+    type: Number,
+    default: 0
   },
   lastClickedAt: Date,
   language: {
@@ -34,5 +43,6 @@ const bookSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-Book = mongoose.model('book', bookSchema);
+bookSchema.index({ clicks: -1 });
+const Book = mongoose.model('book', bookSchema);
 module.exports = Book;

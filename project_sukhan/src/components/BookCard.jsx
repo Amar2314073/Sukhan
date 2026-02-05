@@ -26,7 +26,7 @@ const BookCard = ({ book }) => {
     >
       <div className="h-64 bg-base-300 flex items-center justify-center">
         <img
-          src={book.image}
+          src={book.coverImage}
           alt={book.title}
           className="
             max-h-full
@@ -37,6 +37,18 @@ const BookCard = ({ book }) => {
             hover:scale-105
           "
         />
+      </div>
+      {/* Info */}
+      <div className="p-4 text-center space-y-1">
+        <h3 className="text-sm font-serif font-semibold line-clamp-2">
+          {book.title}
+        </h3>
+
+        {book.author && (
+          <p className="text-xs text-base-content/60 italic">
+            by {book.author}
+          </p>
+        )}
       </div>
     </div>
 

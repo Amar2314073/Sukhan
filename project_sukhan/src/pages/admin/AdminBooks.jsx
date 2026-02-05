@@ -36,7 +36,7 @@ const AdminBooks = () => {
       <div className="flex flex-col md:grid md:grid-cols-4 gap-6">
         {books.map(book => (
           <div key={book._id} className="bg-base-200 p-3 rounded">
-            <img src={book.image} className="w-full object-cover" />
+            <img src={book.coverImage} className="w-full object-cover" />
             <p className="mt-2 text-sm">{book.title}</p>
 
             <div className="flex gap-2 mt-2">

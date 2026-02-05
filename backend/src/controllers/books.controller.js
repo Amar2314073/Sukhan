@@ -5,7 +5,7 @@ const Book = require('../models/book');
 ============================ */
 exports.createBook = async (req, res) => {
   try {
-    const { title, author, coverImage, affiliateLink, language } = req.body;
+    const { title, author, coverImage, affiliateLink, price, category, language } = req.body;
 
     if (!title || !coverImage || !affiliateLink) {
       return res.status(400).json({
@@ -15,10 +15,12 @@ exports.createBook = async (req, res) => {
 
     const book = await Book.create({
       title: title.trim(),
-      author: author?.trim(),
-      image: coverImage,
+      author: author?.trim() || null,
+      coverImage,
       affiliateLink,
-      language
+      price: price || null,
+      category: category || null,
+      language: language || 'Hindi'
     });
 
     res.status(201).json({
@@ -37,12 +39,31 @@ exports.createBook = async (req, res) => {
 exports.getAllBooks = async (req, res) => {
   try {
     const books = await Book.find({ isActive: true })
-      .sort({ createdAt: -1 });
-
+    .select('title author coverImage price category language clicks')
+    .sort({ createdAt: -1 });
     res.json({ books });
   } catch (error) {
     console.error('Get books error:', error);
     res.status(500).json({ message: 'Failed to fetch books' });
+  }
+};
+
+/* ============================
+   GET TRENDING BOOKS
+   (Homepage / Highlights)
+============================ */
+exports.getTrendingBooks = async (req, res) => {
+  try {
+    const books = await Book.find({ isActive: true })
+      .sort({ clicks: -1 })
+      .limit(10)
+      .select('title coverImage author clicks');
+
+    res.json({ books });
+
+  } catch (error) {
+    console.error('Trending books error:', error);
+    res.status(500).json({ message: 'Failed to fetch trending books' });
   }
 };
 
@@ -58,6 +79,7 @@ exports.getBookById = async (req, res) => {
     }
 
     res.json({ book });
+
   } catch (error) {
     res.status(400).json({ message: 'Invalid book ID' });
   }
@@ -93,11 +115,7 @@ exports.updateBook = async (req, res) => {
 ============================ */
 exports.deleteBook = async (req, res) => {
   try {
-    const book = await Book.findByIdAndUpdate(
-      req.params.id,
-      { isActive: false },
-      { new: true }
-    );
+    const book = await Book.findByIdAndDelete(req.params.id);
 
     if (!book) {
       return res.status(404).json({ message: 'Book not found' });
@@ -110,7 +128,9 @@ exports.deleteBook = async (req, res) => {
   }
 };
 
-
+/* ============================
+   TRACK BOOK CLICK (AFFILIATE)
+============================ */
 exports.trackBookClick = async (req, res) => {
   try {
     const { id } = req.params;
@@ -124,7 +144,7 @@ exports.trackBookClick = async (req, res) => {
       { new: true }
     );
 
-    if (!book) {
+    if (!book || !book.isActive) {
       return res.status(404).json({ message: 'Book not found' });
     }
 
