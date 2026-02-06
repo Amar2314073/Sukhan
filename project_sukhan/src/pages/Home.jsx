@@ -628,7 +628,7 @@ const Home = () => {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <p className="text-4xl font-serif font-bold text-primary">
-                {loading ? '—' : `${statsData.poems-1}+`}
+                {loading ? '—' : `${statsData.poems - statsData.poems % 100}+`}
               </p>
               <p className="mt-2 text-base-content/60">
                 Poems
