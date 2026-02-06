@@ -63,12 +63,12 @@ exports.searchPoets = async (req, res) => {
 // POST /poets - create poet (admin only)
 exports.createPoet = async (req, res) => {
     try {
-        const { name, bio, era, birthYear, deathYear, image } = req.body;
+        const { name, bio, era, birthYear, deathYear, country, image } = req.body;
 
         // Validate required fields
-        if (!name || !bio || !era) {
+        if (!name || !bio || !era || !country) {
             return res.status(400).json({ 
-                message: "Name, bio, and era are required" 
+                message: "Name, bio, country and era are required" 
             });
         }
 
@@ -96,6 +96,7 @@ exports.createPoet = async (req, res) => {
             name: name.trim(),
             bio: bio.trim(),
             era,
+            country: country.trim(),
             birthYear: birthYear || null,
             deathYear: deathYear || null,
             image: image || ''
