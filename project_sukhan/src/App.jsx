@@ -37,7 +37,7 @@ function App() {
 
   useEffect(() => {
     dispatch(loadUser());
-  }, [dispatch]);
+  }, []);
 
 
   return (
@@ -68,7 +68,6 @@ function App() {
               <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
               <Route path="/books/explore" element={<ExploreBooks/>} />
 
-              {/* <Route path="/dictionary" element={<Dictionary />} /> */}
 
               <Route path="/admin" element={<AdminRoutes />}>
               <Route index element={<AdminDashboard />} />

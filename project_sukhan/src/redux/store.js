@@ -7,6 +7,7 @@ import collectionReducer from './slices/collectionSlice';
 import uiReducer from './slices/uiSlice';
 import homeReducer from './slices/homeSlice';
 import statReducer from './slices/statSlice';
+import globalSearchReducer from './slices/globalSearchSlice';
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     ui: uiReducer,
     home: homeReducer,
     stats: statReducer,
+    globalSearch: globalSearchReducer,
   },
   devTools: import.meta.env.MODE !== 'production',
 });

@@ -14,6 +14,7 @@ router.use('/home', require('./home.routes'));
 router.use('/comments', require('./comment.routes'));
 router.use('/stats', require('./stat.routes'));
 router.use('/books', require('./books.routes'));
+router.use('/search', require('./search.routes'));
 
 
 module.exports = router;

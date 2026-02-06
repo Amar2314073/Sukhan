@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { adminService } from '../../services/admin.service';
+import { searchService } from '../../services/search.service';
 
 
 const BookForm = ({ initialData = {}, onSubmit }) => {
@@ -42,7 +42,7 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
     const timer = setTimeout(async () => {
       try {
         setLoadingPoets(true);
-        const res = await adminService.searchPoets(poetQuery);
+        const res = await searchService.searchPoets(poetQuery);
         setPoetResults(res.data.poets);
       } catch (err) {
         console.error(err);

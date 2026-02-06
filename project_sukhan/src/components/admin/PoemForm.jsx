@@ -3,6 +3,7 @@ import { adminService } from '../../services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/slices/categorySlice';
 import toast from 'react-hot-toast';
+import { searchService } from '../../services/search.service';
 
 const PoemForm = ({ poem, onClose, onSuccess }) => {
   const dispatch = useDispatch();
@@ -23,7 +24,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
     const timer = setTimeout(async () => {
       try {
         setLoadingPoets(true);
-        const res = await adminService.searchPoets(poetQuery);
+        const res = await searchService.searchPoets(poetQuery);
         setPoetResults(res.data.poets);
       } catch (err) {
         console.error(err);

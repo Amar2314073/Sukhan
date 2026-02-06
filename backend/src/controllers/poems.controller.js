@@ -22,19 +22,18 @@ exports.getAllPoems = async (req, res) => {
     /* ===== POET NAME SEARCH ===== */
     if (q && q.trim()) {
       const search = q.trim();
+      const loose = search.split('').join('.*');
 
-      // 1️⃣ Find matching poets
       const poets = await Poet.find({
-        name: { $regex: search, $options: 'i' }
+        name: { $regex: loose, $options: 'i' }
       }).select('_id');
 
       poetIds = poets.map(p => p._id);
 
-      // 2️⃣ Apply OR condition
       filter.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { 'content.hindi': { $regex: search, $options: 'i' } },
-        { 'content.roman': { $regex: search, $options: 'i' } },
+        { title: { $regex: loose, $options: 'i' } },
+        { 'content.hindi': { $regex: loose, $options: 'i' } },
+        { 'content.roman': { $regex: loose, $options: 'i' } },
         ...(poetIds.length ? [{ poet: { $in: poetIds } }] : [])
       ];
     }
@@ -100,60 +99,62 @@ exports.getPoemById = async (req, res) => {
 
 // GET /poems/search?q=... - search poems
 exports.searchPoem = async (req, res) => {
-    try {
-        const query = req.query.q;
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const skip = (page - 1) * limit;
+  try {
+    const query = req.query.q?.trim();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
 
-        if (!query || query.trim() === '') {
-            return res.status(400).json({ message: "Search query is required" });
-        }
-
-        // Build search filter
-        const searchFilter = {
-            isActive: true,
-            $text: { $search: query }
-        };
-
-        // Additional filters
-        if (req.query.poet) {
-            searchFilter.poet = req.query.poet;
-        }
-        
-        if (req.query.category) {
-            searchFilter.category = req.query.category;
-        }
-
-        // Search poems with text index
-        const poems = await Poem.find(searchFilter)
-            .populate('poet', 'name era')
-            .populate('category', 'name type')
-            .sort({ score: { $meta: "textScore" } })
-            .skip(skip)
-            .limit(limit);
-
-        // Get total count
-        const total = await Poem.countDocuments(searchFilter);
-        const totalPages = Math.ceil(total / limit);
-
-        res.status(200).json({
-            poems,
-            pagination: {
-                currentPage: page,
-                totalPages,
-                totalResults: total,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            },
-            message: poems.length > 0 ? "Search completed successfully" : "No poems found"
-        });
-
-    } catch (error) {
-        console.error("Search poem error:", error);
-        res.status(500).json({ message: "Error searching poems" });
+    if (!query) {
+      return res.status(400).json({ message: "Search query is required" });
     }
-}
+
+    const loose = query.split('').join('.*'); 
+    // galib → g.*a.*l.*i.*b
+
+    const searchFilter = {
+      isActive: true,
+      $or: [
+        { title: { $regex: loose, $options: 'i' } },
+        { 'content.hindi': { $regex: loose, $options: 'i' } },
+        { 'content.roman': { $regex: loose, $options: 'i' } }
+      ]
+    };
+
+    if (req.query.poet) {
+      searchFilter.poet = req.query.poet;
+    }
+
+    if (req.query.category) {
+      searchFilter.category = req.query.category;
+    }
+
+    const poems = await Poem.find(searchFilter)
+      .populate('poet', 'name era')
+      .populate('category', 'name type')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    const total = await Poem.countDocuments(searchFilter);
+
+    res.json({
+      poems,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(total / limit),
+        totalResults: total,
+        hasNext: page < Math.ceil(total / limit),
+        hasPrev: page > 1
+      }
+    });
+
+  } catch (error) {
+    console.error("Search poem error:", error);
+    res.status(500).json({ message: "Error searching poems" });
+  }
+};
+
 
 // GET /poems/poet/:poetId - get poems by poet
 exports.getPoemsByPoet = async (req, res) => {

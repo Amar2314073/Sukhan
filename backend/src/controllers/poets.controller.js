@@ -191,74 +191,10 @@ exports.getPoetsByEra = async (req, res) => {
     }
 }
 
-// POST /poets - create poet (admin only)
-exports.createPoet = async (req, res) => {
-    try {
-        const { name, bio, era, birthYear, deathYear, image } = req.body;
-
-        // Validate required fields
-        if (!name || !bio || !era) {
-            return res.status(400).json({ 
-                message: "Name, bio, and era are required" 
-            });
-        }
-
-        // Validate era
-        const validEras = ['Classical', 'Modern', 'Contemporary'];
-        if (!validEras.includes(era)) {
-            return res.status(400).json({ 
-                message: "Invalid era. Must be: Classical, Modern, or Contemporary" 
-            });
-        }
-
-        // Check if poet already exists (case insensitive)
-        const existingPoet = await Poet.findOne({ 
-            name: { $regex: new RegExp(`^${name}$`, 'i') } 
-        });
-
-        if (existingPoet) {
-            return res.status(409).json({ 
-                message: "Poet with this name already exists" 
-            });
-        }
-
-        // Create poet
-        const poet = await Poet.create({
-            name: name.trim(),
-            bio: bio.trim(),
-            era,
-            birthYear: birthYear || null,
-            deathYear: deathYear || null,
-            image: image || ''
-        });
-
-        await Stat.findByIdAndUpdate(
-            'GLOBAL_STATS',
-            { $inc: { poets: 1 } },
-            { upsert: true }
-        );
-
-        res.status(201).json({
-            poet,
-            message: "Poet created successfully"
-        });
-
-    } catch (error) {
-        console.error("Create poet error:", error);
-        
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ message: error.message });
-        }
-        
-        res.status(500).json({ message: "Error creating poet" });
-    }
-}
-
-
 // GET /poets/search?q=... - search poets
 exports.searchPoets = async (req, res) => {
     try {
-        const query = req.query.q;
+        const query = req.query.q.trim();
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 12;
         const skip = (page - 1) * limit;
@@ -267,12 +203,14 @@ exports.searchPoets = async (req, res) => {
             return res.status(400).json({ message: "Search query is required" });
         }
 
+        const loose = query.split('').join('.*');
+
         // Build search filter
         const searchFilter = {
             isActive: true,
             $or: [
-                { name: { $regex: query, $options: 'i' } },
-                { bio: { $regex: query, $options: 'i' } }
+                { name: { $regex: loose, $options: 'i' } },
+                { bio: { $regex: loose, $options: 'i' } }
             ]
         };
 
