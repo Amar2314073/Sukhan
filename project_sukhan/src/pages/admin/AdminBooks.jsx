@@ -18,7 +18,7 @@ const AdminBooks = () => {
 
   const deleteBook = async (id) => {
     if (!window.confirm('Delete this book?')) return;
-    await adminService.deleteBook(`/admin/books/${id}`);
+    await adminService.deleteBook(id);
     fetchBooks();
   };
 

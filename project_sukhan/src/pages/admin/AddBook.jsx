@@ -6,7 +6,7 @@ const AddBook = () => {
   const navigate = useNavigate();
 
   const createBook = async (data) => {
-    await adminService.createBook('/admin/books', data);
+    await adminService.createBook(data);
     navigate('/admin/books');
   };
 
