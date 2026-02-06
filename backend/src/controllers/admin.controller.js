@@ -4,6 +4,7 @@ const User = require('../models/user');
 const Category = require('../models/category');
 const Collection = require('../models/collection');
 const Stat = require('../models/stat');
+const Book = require('../models/book');
 
 /* -------- DASHBOARD -------- */
 exports.dashboard = async (req, res) => {
@@ -738,3 +739,77 @@ exports.removePoemFromCollection = async (req, res) => {
         res.status(500).json({ message: "Error removing poem from collection" });
     }
 }
+
+
+
+// Books
+
+// create book
+exports.createBook = async (req, res) => {
+  try {
+    const { title, author, coverImage, affiliateLink, price, category, language } = req.body;
+
+    if (!title || !coverImage || !affiliateLink) {
+      return res.status(400).json({
+        message: 'Title, image and affiliate link are required'
+      });
+    }
+
+    const book = await Book.create({
+      title: title.trim(),
+      author: author?.trim() || null,
+      coverImage,
+      affiliateLink,
+      price: price || null,
+      category: category || null,
+      language: language || 'Hindi'
+    });
+
+    res.status(201).json({
+      message: 'Book added successfully',
+      book
+    });
+  } catch (error) {
+    console.error('Create book error:', error);
+    res.status(500).json({ message: 'Failed to create book' });
+  }
+};
+
+// update book
+exports.updateBook = async (req, res) => {
+  try {
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    res.json({
+      message: 'Book updated successfully',
+      book
+    });
+  } catch (error) {
+    console.error('Update book error:', error);
+    res.status(500).json({ message: 'Failed to update book' });
+  }
+};
+
+// delete book
+exports.deleteBook = async (req, res) => {
+  try {
+    const book = await Book.findByIdAndDelete(req.params.id);
+
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    res.json({ message: 'Book removed successfully' });
+  } catch (error) {
+    console.error('Delete book error:', error);
+    res.status(500).json({ message: 'Failed to delete book' });
+  }
+};

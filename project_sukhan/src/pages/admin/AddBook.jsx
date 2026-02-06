@@ -1,12 +1,12 @@
 import BookForm from '../../components/admin/BookForm';
-import axiosClient from '../../utils/axiosClient';
+import { adminService } from '../../services/admin.service';
 import { useNavigate } from 'react-router';
 
 const AddBook = () => {
   const navigate = useNavigate();
 
   const createBook = async (data) => {
-    await axiosClient.post('/books', data);
+    await adminService.createBook('/admin/books', data);
     navigate('/admin/books');
   };
 

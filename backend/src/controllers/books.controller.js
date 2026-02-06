@@ -1,39 +1,6 @@
 const Book = require('../models/book');
 
 /* ============================
-   CREATE BOOK (ADMIN)
-============================ */
-exports.createBook = async (req, res) => {
-  try {
-    const { title, author, coverImage, affiliateLink, price, category, language } = req.body;
-
-    if (!title || !coverImage || !affiliateLink) {
-      return res.status(400).json({
-        message: 'Title, image and affiliate link are required'
-      });
-    }
-
-    const book = await Book.create({
-      title: title.trim(),
-      author: author?.trim() || null,
-      coverImage,
-      affiliateLink,
-      price: price || null,
-      category: category || null,
-      language: language || 'Hindi'
-    });
-
-    res.status(201).json({
-      message: 'Book added successfully',
-      book
-    });
-  } catch (error) {
-    console.error('Create book error:', error);
-    res.status(500).json({ message: 'Failed to create book' });
-  }
-};
-
-/* ============================
    GET ALL BOOKS (PUBLIC)
 ============================ */
 exports.getAllBooks = async (req, res) => {
@@ -82,49 +49,6 @@ exports.getBookById = async (req, res) => {
 
   } catch (error) {
     res.status(400).json({ message: 'Invalid book ID' });
-  }
-};
-
-/* ============================
-   UPDATE BOOK (ADMIN)
-============================ */
-exports.updateBook = async (req, res) => {
-  try {
-    const book = await Book.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
-
-    res.json({
-      message: 'Book updated successfully',
-      book
-    });
-  } catch (error) {
-    console.error('Update book error:', error);
-    res.status(500).json({ message: 'Failed to update book' });
-  }
-};
-
-/* ============================
-   DELETE BOOK (ADMIN – SOFT)
-============================ */
-exports.deleteBook = async (req, res) => {
-  try {
-    const book = await Book.findByIdAndDelete(req.params.id);
-
-    if (!book) {
-      return res.status(404).json({ message: 'Book not found' });
-    }
-
-    res.json({ message: 'Book removed successfully' });
-  } catch (error) {
-    console.error('Delete book error:', error);
-    res.status(500).json({ message: 'Failed to delete book' });
   }
 };
 

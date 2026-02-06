@@ -10,9 +10,4 @@ router.get('/:id', bookController.getBookById);
 router.post('/:id/click', bookController.trackBookClick);
 router.get('/trending', bookController.getTrendingBooks);
 
-/* ADMIN */
-router.post('/', adminMiddleware, bookController.createBook);
-router.put('/:id', adminMiddleware, bookController.updateBook);
-router.delete('/:id', adminMiddleware, bookController.deleteBook);
-
 module.exports = router;

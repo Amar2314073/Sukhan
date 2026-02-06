@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import axiosClient from '../../utils/axiosClient';
+import { adminService } from '../../services/admin.service';
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -17,7 +18,7 @@ const AdminBooks = () => {
 
   const deleteBook = async (id) => {
     if (!window.confirm('Delete this book?')) return;
-    await axiosClient.delete(`/books/${id}`);
+    await adminService.deleteBook(`/admin/books/${id}`);
     fetchBooks();
   };
 

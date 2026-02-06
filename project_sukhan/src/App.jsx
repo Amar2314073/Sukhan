@@ -67,9 +67,6 @@ function App() {
               <Route path="/profile/likedPoems" element={<PrivateRoute><LikedPoems /></PrivateRoute>} />
               <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
               <Route path="/books/explore" element={<ExploreBooks/>} />
-              <Route path="/admin/books" element={<AdminBooks />} />
-              <Route path="/admin/books/add" element={<AddBook />} />
-              <Route path="/admin/books/edit/:id" element={<EditBook />} />
 
               {/* <Route path="/dictionary" element={<Dictionary />} /> */}
 
@@ -78,6 +75,9 @@ function App() {
               <Route path="poets" element={<AdminPoets />} />
               <Route path="poems" element={<AdminPoems />} />
               <Route path="collections" element={<AdminCollections />} />
+              <Route path="books" element={<AdminBooks />} />
+              <Route path="books/add" element={<AddBook />} />
+              <Route path="books/edit/:id" element={<EditBook />} />
               </Route>
 
             </Routes>

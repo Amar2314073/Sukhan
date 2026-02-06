@@ -11,9 +11,5 @@ router.get('/category/:categoryId', poemController.getPoemsByCategory);
 router.get('/:id', poemController.getPoemById);
 router.get('/featured', poemController.getFeaturedPoems);
 
-// Admin only routes
-router.post('/', adminMiddleware, poemController.createPoem);
-router.put('/update/:id', adminMiddleware, poemController.updatePoem);
-router.delete('/delete/:id', adminMiddleware, poemController.deletePoem);
 
 module.exports = router;

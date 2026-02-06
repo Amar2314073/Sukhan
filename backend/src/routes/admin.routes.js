@@ -25,4 +25,9 @@ router.delete('/collection/:id', adminMiddleware, adminController.deleteCollecti
 router.put('/collection/:id/poems', adminMiddleware, adminController.addPoemToCollection);
 router.delete('/collection/:id/poems', adminMiddleware, adminController.removePoemFromCollection);
 
+/* -------- Books -------- */
+router.post('/books', adminMiddleware, adminController.createBook);
+router.put('/books/:id', adminMiddleware, adminController.updateBook);
+router.delete('/books/:id', adminMiddleware, adminController.deleteBook);
+
 module.exports = router;

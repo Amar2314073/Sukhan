@@ -12,9 +12,10 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   const [poetQuery, setPoetQuery] = useState('');
   const [poetResults, setPoetResults] = useState([]);
   const [loadingPoets, setLoadingPoets] = useState(false);
+  const [poetSelected, setPoetSelected] = useState(false);
 
   useEffect(() => {
-    if (!poetQuery.trim()) {
+    if (!poetQuery.trim() || poetSelected) {
       setPoetResults([]);
       return;
     }
@@ -32,11 +33,12 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [poetQuery]);
+  }, [poetQuery, poetSelected]);
 
   useEffect(() => {
     if (poem?.poet) {
       setPoetQuery(poem.poet.name);
+      setPoetSelected(true);
     }
   }, [poem]);
 
@@ -124,7 +126,10 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
                 <input
                   required
                   value={poetQuery}
-                  onChange={(e) => setPoetQuery(e.target.value)}
+                  onChange={(e) => {
+                    setPoetQuery(e.target.value);
+                    setPoetSelected(false);
+                  }}
                   className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
                   placeholder="Search poet..."
                 />
@@ -144,6 +149,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
                           setForm({ ...form, poet: p._id });
                           setPoetQuery(p.name);
                           setPoetResults([]);
+                          setPoetSelected(true);
                         }}
                         className="px-3 py-2 cursor-pointer hover:bg-base-200"
                       >
