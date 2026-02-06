@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sukhan-pi.vercel.app/api/sitemap/sitemap.xml
