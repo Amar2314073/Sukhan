@@ -49,6 +49,41 @@ const PoetProfile = () => {
   }, [poetPoems]);
 
   useEffect(() => {
+    if (!currentPoet || !poetPoems.length) return;
+
+    const categories = poetPoems
+      .map(p => p.category?.name)
+      .filter(Boolean);
+
+    const hasKavita = categories.includes('Kavita');
+    const hasNonKavita = categories.some(cat => cat !== 'Kavita');
+
+    let languageLabel = 'Poet';
+
+    if (hasKavita && hasNonKavita) {
+      languageLabel = 'Hindi & Urdu Poet';
+    } else if (hasKavita) {
+      languageLabel = 'Hindi Poet';
+    } else {
+      languageLabel = 'Urdu Poet';
+    }
+
+    // TITLE
+    document.title = `${currentPoet.name} – ${languageLabel} | Sukhan`;
+
+    // META DESCRIPTION
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) {
+      metaDesc.setAttribute(
+        'content',
+        `Read ${languageLabel.toLowerCase()} by ${currentPoet.name}. Explore poems, ghazals and literary works on Sukhan.`
+      );
+    }
+  }, [currentPoet, poetPoems]);
+
+
+
+  useEffect(() => {
     if (categories.length && !activeCategory) {
       setActiveCategory(categories[0]);
     }

@@ -714,8 +714,8 @@ const Home = () => {
               <Link to="/register" className="btn btn-primary">
                 Create Account
               </Link>
-              <Link to="/explore" className="btn btn-outline">
-                Explore as Guest
+              <Link to="/books/explore" className="btn btn-outline">
+                Explore Books
               </Link>
             </div>
           </>
