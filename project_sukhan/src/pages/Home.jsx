@@ -228,22 +228,40 @@ const Home = () => {
 
       {/* HEADER */}
       <div className="border-b border-base-300/40 bg-base-200">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-center">
-          <h1 className="text-4xl font-serif font-bold">
+        <div className="max-w-6xl mx-auto px-4 py-10 text-center space-y-4">
+
+          {/* H1 – BRAND ONLY */}
+          <h1 className="text-5xl font-serif font-bold tracking-wide">
             Sukhan <span className="text-primary">سخن</span>
           </h1>
-          {isAuthenticated ? (
-            <p className="text-md text-base-content mb-2">
-              Welcome back {user.name.split(' ')[0]}! words are waiting for you.
-            </p>
-          ):(
-            <p className="text-base-content/60 italic mt-2">
-              Where words find their meaning
-            </p>
-          )}
-          <InstallSukhanButton/>
+
+          {/* H2 – PLATFORM IDENTITY */}
+          <h2 className="text-xl font-serif text-base-content/80">
+            An Urdu & Hindi Poetry Platform
+          </h2>
+
+          {/* DESCRIPTION */}
+          <p className="max-w-2xl mx-auto text-base-content/60 italic">
+            Sukhan is a home for Urdu ghazals, nazms, shers, and soulful poetry —
+            where words carry emotion, silence, and meaning.
+          </p>
+
+          {/* INTERNAL LINK (SEO GOLD) */}
+          <p className="text-sm">
+            Curious about the meaning of Sukhan?{" "}
+            <Link to="/about" className="text-primary underline">
+              Learn more
+            </Link>
+          </p>
+
+          {/* CTA */}
+          <div className="pt-4">
+            <InstallSukhanButton />
+          </div>
+
         </div>
       </div>
+
 
       <div className="max-w-6xl mx-auto px-4 py-10">
 
@@ -335,7 +353,7 @@ const Home = () => {
         </section>
 
 
-       {/* POPULAR POETS */}
+        {/* POPULAR POETS */}
         <section className="mb-16">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
@@ -391,6 +409,20 @@ const Home = () => {
           </div>
         </section>
 
+        {/* About Sukhan */}
+        <section className="my-14 text-center">
+          <p className="font-serif text-base-content/70 italic">
+            Every word has a story —
+            <Link
+              to="/about"
+              className="text-primary underline ml-1"
+            >
+              what is Sukhan?
+            </Link>
+          </p>
+        </section>
+
+      
         {/* ================= RANDOM PICKS ================= */}
         <section className="mb-16 space-y-16">
 
@@ -696,14 +728,17 @@ const Home = () => {
               Your words, your silences, your Sukhan.
             </p>
 
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-4 mb-6">
               <Link to="/poems" className="btn btn-primary">
                 Explore Poems
               </Link>
-              <Link to="/profile" className="btn btn-outline">
-                My Profile
+              <Link to="/books/explore" className="btn btn-outline">
+                Explore Books
               </Link>
             </div>
+            <p className="text-sm text-base-content/60">
+              About the name <Link to="/about" className="underline text-lg text-primary">Sukhan</Link>
+            </p>
           </>
         )}
       </div>

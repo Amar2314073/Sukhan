@@ -29,6 +29,7 @@ import ExploreBooks from './pages/ExploreBooks';
 import AddBook from './pages/admin/AddBook';
 import EditBook from './pages/admin/EditBook';
 import AdminBooks from './pages/admin/AdminBooks';
+import About from './pages/About';
 
 function App() {
   const dispatch = useDispatch();
@@ -67,6 +68,7 @@ function App() {
               <Route path="/profile/likedPoems" element={<PrivateRoute><LikedPoems /></PrivateRoute>} />
               <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
               <Route path="/books/explore" element={<ExploreBooks/>} />
+              <Route path="/about" element={<About />} />
 
 
               <Route path="/admin" element={<AdminRoutes />}>

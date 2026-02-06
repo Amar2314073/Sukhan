@@ -15,7 +15,7 @@ const BookCard = ({ book }) => {
       onClick={handleClick}
       className="
         group cursor-pointer
-        w-[180px]
+        w-[180px] m-2
         rounded-xl
         bg-base-200
         hover:bg-base-100

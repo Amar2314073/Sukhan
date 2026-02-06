@@ -135,7 +135,7 @@ const Navbar = () => {
         <div className="flex h-16 items-center justify-between">
 
           {/* LOGO */}
-          <NavLink to="/" className="flex items-center gap-2">
+          <NavLink to="/" title='Sukhan - Urdu and Hindi Poetry Platform' className="flex items-center gap-2">
             <span className="text-2xl text-primary">📖</span>
             <div>
               <div className="font-serif text-xl font-bold text-base-content">Sukhan</div>

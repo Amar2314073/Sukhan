@@ -7,7 +7,7 @@ exports.getAllBooks = async (req, res) => {
   try {
     const books = await Book.find({ isActive: true })
     .select('title author coverImage price category language clicks')
-    .sort({ createdAt: -1 });
+    .sort({ clicks: -1 });
     res.json({ books });
   } catch (error) {
     console.error('Get books error:', error);
