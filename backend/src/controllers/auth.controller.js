@@ -486,6 +486,8 @@ exports.loadUser = async (req, res) => {
             avatar: user.avatar,
             likedPoems: user.likedPoems,
             savedPoems: user.savedPoems,
+            isPoetOwner: user.isPoetOwner,
+            ownedPoet: user.ownedPoet,
             preferredLanguage: user.preferredLanguage
         };
 

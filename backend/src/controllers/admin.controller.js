@@ -5,6 +5,8 @@ const Category = require('../models/category');
 const Collection = require('../models/collection');
 const Stat = require('../models/stat');
 const Book = require('../models/book');
+const PoetOwnershipRequest = require('../models/poetOwnershipRequest');
+const mongoose = require('mongoose');
 
 /* -------- DASHBOARD -------- */
 exports.dashboard = async (req, res) => {
@@ -17,13 +19,18 @@ exports.dashboard = async (req, res) => {
       });
     }
 
+    const pendingOwnershipRequests = await PoetOwnershipRequest.countDocuments({status: 'pending'});
+
     res.json({
       poets: stats.poets,
       poems: stats.poems,
       collections: stats.collections,
       users: stats.users || 0,
+      books: stats.books,
+      poetOwners: stats.poetOwners,
       languages: stats.languages,
-      era: stats.era
+      era: stats.era,
+      pendingOwnershipRequests
     });
 
   } catch (error) {
@@ -124,7 +131,6 @@ exports.createPoet = async (req, res) => {
     }
 }
 
-
 // PUT /poets/:id - update poet (admin only)
 exports.updatePoet = async (req, res) => {
     try {
@@ -223,6 +229,7 @@ exports.deletePoet = async (req, res) => {
       { $inc: { poets: -1 } },
       { upsert: true }
     );
+    
 
     res.status(200).json({
       message: "Poet deleted successfully"
@@ -766,6 +773,12 @@ exports.createBook = async (req, res) => {
       language: language || 'Hindi'
     });
 
+    await Stat.findByIdAndUpdate(
+        'GLOBAL_STATS',
+        { $inc: { books: 1 } },
+        { upsert: true }
+    );
+
     res.status(201).json({
       message: 'Book added successfully',
       book
@@ -808,6 +821,12 @@ exports.deleteBook = async (req, res) => {
       return res.status(404).json({ message: 'Book not found' });
     }
 
+    await Stat.findByIdAndUpdate(
+        'GLOBAL_STATS',
+        { $inc: { poets: -1 } },
+        { upsert: true }
+    );
+
     res.json({ message: 'Book removed successfully' });
   } catch (error) {
     console.error('Delete book error:', error);
@@ -849,11 +868,13 @@ exports.resetStats = async (req, res) => {
 exports.syncStats = async (req, res) => {
   try {
 
-    const [poems, poets, collections, users] = await Promise.all([
+    const [poems, poets, collections, users, books, poetOwners] = await Promise.all([
       Poem.countDocuments(),
       Poet.countDocuments(),
       Collection.countDocuments(),
-      User.countDocuments()
+      User.countDocuments(),
+      Book.countDocuments(),
+      User.countDocuments({isPoetOwner: true})
     ]);
 
     const stats = await Stat.findByIdAndUpdate(
@@ -862,7 +883,9 @@ exports.syncStats = async (req, res) => {
         poems,
         poets,
         collections,
+        books,
         users,
+        poetOwners,
         languages: 2,
         literaryEras: 3
       },
@@ -1027,3 +1050,176 @@ exports.deleteCategory = async (req, res) => {
         res.status(500).json({ message: "Error deleting category" });
     }
 }
+
+
+// poet ownership
+
+// GET /admin/poet-owners
+exports.getAllPoetOwners = async (req, res) => {
+  try {
+    const { search = '' } = req.query;
+
+    const query = {
+      owner: { $ne: null },
+      isActive: true
+    };
+
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    const poets = await Poet.find(query)
+      .populate('owner', 'name email')
+      .populate('ownerVerifiedBy', 'name email')
+      .sort({ ownerAssignedAt: -1 });
+
+    res.status(200).json({
+      count: poets.length,
+      poets
+    });
+
+  } catch (error) {
+    console.error('Get poet owners error:', error);
+    res.status(500).json({ message: 'Failed to fetch poet owners' });
+  }
+};
+
+exports.getPoetOwnershipRequests = async (req, res) => {
+  try {
+    const requests = await PoetOwnershipRequest.find({ status: 'pending' })
+      .populate('poet', 'name')
+      .populate('user', 'name email')
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({ requests });
+
+  } catch (error) {
+    console.error('Get ownership requests error:', error);
+    res.status(500).json({ message: 'Failed to load requests' });
+  }
+};
+
+
+exports.approvePoetOwnership = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const { requestId } = req.params;
+
+    const request = await PoetOwnershipRequest
+      .findById(requestId)
+      .session(session);
+
+    if (!request || request.status !== 'pending') {
+      throw new Error('Invalid or already processed request');
+    }
+
+    const poet = await Poet
+      .findById(request.poet)
+      .session(session);
+
+    if (poet.owner) {
+      throw new Error('Poet already has an owner');
+    }
+
+    // Update request
+    request.status = 'approved';
+    request.reviewedBy = req.user._id;
+    request.reviewedAt = new Date();
+    await request.save({ session });
+
+    // Update poet
+    poet.owner = request.user;
+    poet.ownerAssignedAt = new Date();
+    poet.ownerVerifiedBy = req.user._id;
+    await poet.save({ session });
+
+    await User.findByIdAndUpdate(request.user, {
+        isPoetOwner: true,
+        ownedPoet: poet._id
+    });
+
+    await Stat.findByIdAndUpdate(
+        'GLOBAL_STATS',
+        { $inc: { poetOwners: 1 } },
+        { upsert: true }
+    );
+
+    await session.commitTransaction();
+    session.endSession();
+
+    res.json({ message: 'Poet ownership approved successfully' });
+
+  } catch (error) {
+    await session.abortTransaction();
+    session.endSession();
+
+    console.error('Approve ownership error:', error.message);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+
+exports.rejectPoetOwnership = async (req, res) => {
+  try {
+    const request = await PoetOwnershipRequest.findById(req.params.requestId);
+
+    if (!request || request.status !== 'pending') {
+      return res.status(404).json({ message: 'Request not found' });
+    }
+
+    request.status = 'rejected';
+    request.reviewedBy = req.user._id;
+    request.reviewedAt = new Date();
+    await request.save();
+
+    // await PoetOwnershipRequest.findOneAndDelete(request._id);
+
+    res.json({ message: 'Ownership request rejected' });
+
+  } catch (error) {
+    console.error('Reject ownership error:', error);
+    res.status(500).json({ message: 'Rejection failed' });
+  }
+};
+
+
+exports.revokePoetOwner = async (req, res) => {
+  try {
+    const poet = await Poet.findById(req.params.poetId);
+
+    if (!poet) {
+      return res.status(404).json({ message: 'Poet not found' });
+    }
+
+    // Poems are intentionally preserved for historical integrity
+    poet.owner = null;
+    poet.ownerAssignedAt = null;
+    poet.ownerVerifiedBy = null;
+    await poet.save();
+
+    await PoetOwnershipRequest.updateMany(
+        { poet: poet._id, status: 'pending' },
+        { status: 'rejected' }
+    );
+
+    await User.findByIdAndUpdate(request.user, {
+        isPoetOwner: false,
+        ownedPoet: null
+    });
+
+    await Stat.findByIdAndUpdate(
+        'GLOBAL_STATS',
+        { $inc: { poetOwners: -1 } },
+        { upsert: true }
+    );
+
+    res.json({ message: 'Poet owner revoked successfully' });
+
+  } catch (error) {
+    console.error('Revoke owner error:', error);
+    res.status(500).json({ message: 'Failed to revoke owner' });
+  }
+};
+

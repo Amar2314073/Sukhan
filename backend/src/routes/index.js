@@ -1,6 +1,7 @@
 const express = require('express');
-const authMiddleware = require('../middleware/authMiddleware');
 const router = express.Router();
+const authMiddleware = require('../middleware/authMiddleware');
+const adminOnlyMiddleware = require('../middleware/adminOnlyMiddleware');
 
 router.use('/auth', require('./auth.routes'));
 router.use('/poems', require('./poems.routes'));
@@ -17,6 +18,7 @@ router.use('/books', require('./books.routes'));
 router.use('/search', require('./search.routes'));
 router.use('/sitemap', require('./sitemap.routes'));
 router.use('/admin', authMiddleware, require('./admin.routes'));
+router.use('/poetOwner', authMiddleware, adminOnlyMiddleware, require('./poetOwner.routes'));
 
 
 module.exports = router;

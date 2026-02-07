@@ -4,40 +4,61 @@ const adminOnlyMiddleware = require('../middleware/adminOnlyMiddleware');
 const adminController = require('../controllers/admin.controller');
 
 /* -------- DASHBOARD -------- */
-router.get('/dashboard', adminOnlyMiddleware, adminController.dashboard);
+router.get('/dashboard', adminController.dashboard);
 
 /* -------- POETS -------- */
-router.get('/poets/search', adminOnlyMiddleware, adminController.searchPoets);
-router.post('/poet', adminOnlyMiddleware, adminController.createPoet);
-router.put('/poet/:id', adminOnlyMiddleware, adminController.updatePoet);
-router.delete('/poet/:id', adminOnlyMiddleware, adminController.deletePoet);
+router.get('/poets/search', adminController.searchPoets);
+router.post('/poet', adminController.createPoet);
+router.put('/poet/:id', adminController.updatePoet);
+router.delete('/poet/:id', adminController.deletePoet);
 
 /* -------- POEMS -------- */
-router.post('/poem', adminOnlyMiddleware, adminController.createPoem);
-router.put('/poem/:id', adminOnlyMiddleware, adminController.updatePoem);
-router.delete('/poem/:id', adminOnlyMiddleware, adminController.deletePoem);
+router.post('/poem', adminController.createPoem);
+router.put('/poem/:id', adminController.updatePoem);
+router.delete('/poem/:id', adminController.deletePoem);
 
 /* -------- Collections -------- */
-router.get('/collections', adminOnlyMiddleware, adminController.getAllCollections);
-router.post('/collection', adminOnlyMiddleware, adminController.createCollection);
-router.put('/collection/:id', adminOnlyMiddleware, adminController.updateCollection);
-router.delete('/collection/:id', adminOnlyMiddleware, adminController.deleteCollection);
-router.put('/collection/:id/poems', adminOnlyMiddleware, adminController.addPoemToCollection);
-router.delete('/collection/:id/poems', adminOnlyMiddleware, adminController.removePoemFromCollection);
+router.get('/collections', adminController.getAllCollections);
+router.post('/collection', adminController.createCollection);
+router.put('/collection/:id', adminController.updateCollection);
+router.delete('/collection/:id', adminController.deleteCollection);
+router.put('/collection/:id/poems', adminController.addPoemToCollection);
+router.delete('/collection/:id/poems', adminController.removePoemFromCollection);
 
 /* -------- Books -------- */
-router.post('/books', adminOnlyMiddleware, adminController.createBook);
-router.put('/books/:id', adminOnlyMiddleware, adminController.updateBook);
-router.delete('/books/:id', adminOnlyMiddleware, adminController.deleteBook);
+router.post('/books', adminController.createBook);
+router.put('/books/:id', adminController.updateBook);
+router.delete('/books/:id', adminController.deleteBook);
 
 
 /* -------- Stats -------- */
-router.post('/reset', adminOnlyMiddleware, adminController.resetStats);
-router.post('/sync', adminOnlyMiddleware, adminController.syncStats);
+router.post('/stats/reset', adminController.resetStats);
+router.post('/stats/sync', adminController.syncStats);
 
 /* -------- Categories -------- */
-router.post('/categories', adminOnlyMiddleware, adminController.createCategory);
-router.put('categories/:id', adminOnlyMiddleware, adminController.updateCategory);
-router.delete('categories/:id', adminOnlyMiddleware, adminController.deleteCategory);
+router.post('/categories', adminController.createCategory);
+router.put('categories/:id', adminController.updateCategory);
+router.delete('categories/:id', adminController.deleteCategory);
+
+
+/* -------- POET OWNERSHIP -------- */
+
+
+// get all poet owners
+router.get('/poet-owners', adminController.getAllPoetOwners);
+
+// all pending ownership requests
+router.get('/poet-ownership/requests', adminController.getPoetOwnershipRequests);
+
+// approve ownership
+router.post('/poet-ownership/:requestId/approve', adminController.approvePoetOwnership);
+
+// reject ownership
+router.post('/poet-ownership/:requestId/reject', adminController.rejectPoetOwnership);
+
+// revoke existing owner
+router.post('/poet/:poetId/revoke-owner', adminController.revokePoetOwner);
+
+
 
 module.exports = router;

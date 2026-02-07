@@ -1,6 +1,7 @@
 const Poet = require('../models/poet');
 const Poem = require('../models/poem');
 const Stat = require('../models/stat');
+const PoetOwnershipRequest = require('../models/poetOwnershipRequest')
 
 // GET /poets - get all poets with pagination and filters
 exports.getAllPoets = async (req, res) => {
@@ -78,10 +79,23 @@ exports.getPoetById = async (req, res) => {
             totalViews: totalViews[0]?.totalViews || 0
         };
 
+        let hasPendingClaim = false;
+
+        if (req.user) {
+            const existing = await PoetOwnershipRequest.findOne({
+                poet: poet._id,
+                user: req.user._id,
+                status: 'pending'
+            });
+            hasPendingClaim = !!existing;
+        }
+
+
         res.status(200).json({
             poet: {
                 ...poet.toObject(),
-                stats: poetStats
+                stats: poetStats,
+                hasPendingClaim
             },
             message: "Poet fetched successfully"
         });

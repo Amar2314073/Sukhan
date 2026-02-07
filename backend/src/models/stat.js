@@ -22,6 +22,14 @@ const statSchema = new Schema({
     type: Number,
     default: 0
   },
+  books: {
+    type: Number,
+    default: 0
+  },
+  poetOwners: {
+    type: Number,
+    default: 0
+  },
   languages: {
     type: Number,
     default: 2,

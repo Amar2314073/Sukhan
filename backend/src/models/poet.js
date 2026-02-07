@@ -13,6 +13,11 @@ const poetSchema = new Schema({
     required: [true, 'Bio is required'],
     maxlength: [2000, 'Bio cannot exceed 2000 characters']
   },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'user',
+    default: null
+  },
   era: {
     type: String,
     required: [true, 'Era is required'],
@@ -37,6 +42,11 @@ const poetSchema = new Schema({
   image: {
     type: String,
     default: ''
+  },
+  ownerAssignedAt: Date,
+  ownerVerifiedBy: {
+    type: Schema.Types.ObjectId,
+    ref: 'user'
   },
   isActive: {
     type: Boolean,

@@ -60,6 +60,15 @@ const userSchema = new Schema({
     type: Boolean,
     default: false
   },
+  isPoetOwner: {
+    type: Boolean,
+    default: false
+  },
+  ownedPoet: {
+    type: Schema.Types.ObjectId,
+    ref: 'poet',
+    default: null
+  },
 
   likedPoems: [{
     type: Schema.Types.ObjectId,
