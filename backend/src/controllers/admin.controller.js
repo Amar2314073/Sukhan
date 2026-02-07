@@ -814,3 +814,216 @@ exports.deleteBook = async (req, res) => {
     res.status(500).json({ message: 'Failed to delete book' });
   }
 };
+
+
+// Stats
+
+// reset stats
+exports.resetStats = async (req, res) => {
+  try {
+    const stats = await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      {
+        poems: 0,
+        poets: 0,
+        collections: 0,
+        users: 0,
+        languages: 2,
+        literaryEras: 3,
+      },
+      { upsert: true, new: true }
+    );
+
+    res.status(200).json({
+      stats,
+      message: 'Stats reset successfully'
+    });
+
+  } catch (error) {
+    console.error('Reset stats error:', error);
+    res.status(500).json({ message: 'Error resetting stats' });
+  }
+};
+
+// sync stats
+exports.syncStats = async (req, res) => {
+  try {
+
+    const [poems, poets, collections, users] = await Promise.all([
+      Poem.countDocuments(),
+      Poet.countDocuments(),
+      Collection.countDocuments(),
+      User.countDocuments()
+    ]);
+
+    const stats = await Stat.findByIdAndUpdate(
+      'GLOBAL_STATS',
+      {
+        poems,
+        poets,
+        collections,
+        users,
+        languages: 2,
+        literaryEras: 3
+      },
+      { upsert: true, new: true }
+    );
+
+    res.status(200).json({
+      stats,
+      message: 'Stats synced successfully'
+    });
+
+  } catch (error) {
+    console.error('Sync stats error:', error);
+    res.status(500).json({ message: 'Error syncing stats' });
+  }
+};
+
+
+// Categories
+
+// POST /categories - create category (admin only)
+exports.createCategory = async (req, res) => {
+    try {
+        const { name, description, type } = req.body;
+
+        // Validate required fields
+        if (!name || !type) {
+            return res.status(400).json({ 
+                message: "Name and type are required" 
+            });
+        }
+       
+        // Check if category already exists (case insensitive)
+        const existingCategory = await Category.findOne({ 
+            name: { $regex: new RegExp(`^${name}$`, 'i') } 
+        });
+
+        if (existingCategory) {
+            return res.status(409).json({ 
+                message: "Category with this name already exists" 
+            });
+        }
+
+        // Create category
+        const category = await Category.create({
+            name: name.trim(),
+            description: description?.trim() || '',
+            type
+        });
+
+        res.status(201).json({
+            category,
+            message: "Category created successfully"
+        });
+
+    } catch (error) {
+        console.error("Create category error:", error);
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+        
+        res.status(500).json({ message: "Error creating category" });
+    }
+}
+
+// PUT /categories/:id - update category (admin only)
+exports.updateCategory = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+        const { name, description, type } = req.body;
+
+        // Find existing category
+        const existingCategory = await Category.findById(categoryId);
+        if (!existingCategory) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        
+
+        // Check for duplicate name if name is being updated
+        if (name && name !== existingCategory.name) {
+            const duplicateCategory = await Category.findOne({ 
+                name: { $regex: new RegExp(`^${name}$`, 'i') },
+                _id: { $ne: categoryId }
+            });
+
+            if (duplicateCategory) {
+                return res.status(409).json({ 
+                    message: "Another category with this name already exists" 
+                });
+            }
+        }
+
+        // Prepare update object
+        const updateData = {};
+        if (name) updateData.name = name.trim();
+        if (description !== undefined) updateData.description = description.trim();
+        if (type) updateData.type = type;
+
+        // Update category
+        const updatedCategory = await Category.findByIdAndUpdate(
+            categoryId,
+            updateData,
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            category: updatedCategory,
+            message: "Category updated successfully"
+        });
+
+    } catch (error) {
+        console.error("Update category error:", error);
+        
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: "Invalid category ID" });
+        }
+        
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ message: error.message });
+        }
+        
+        res.status(500).json({ message: "Error updating category" });
+    }
+}
+
+// DELETE /categories/:id - delete category (admin only)
+exports.deleteCategory = async (req, res) => {
+    try {
+        const categoryId = req.params.id;
+
+        // Find category
+        const category = await Category.findById(categoryId);
+        if (!category) {
+            return res.status(404).json({ message: "Category not found" });
+        }
+
+        // Check if category has poems
+        const poemCount = await Poem.countDocuments({ category: categoryId, isActive: true });
+        if (poemCount > 0) {
+            return res.status(400).json({ 
+                message: `Cannot delete category. There are ${poemCount} poems associated with this category.` 
+            });
+        }
+
+        // Soft delete (set isActive to false)
+        category.isActive = false;
+        await category.save();
+
+        res.status(200).json({
+            message: "Category deleted successfully"
+        });
+
+    } catch (error) {
+        console.error("Delete category error:", error);
+        
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: "Invalid category ID" });
+        }
+        
+        res.status(500).json({ message: "Error deleting category" });
+    }
+}

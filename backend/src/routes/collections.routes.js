@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const collectionController = require('../controllers/collections.controller');
-const adminMiddleware = require('../middleware/adminMiddleware');
 
 // Public routes
 router.get('/', collectionController.getAllCollections);

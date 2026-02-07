@@ -4,6 +4,7 @@ const aiController = require('../controllers/ai.controller');
 
 /* -------- POEM CHAT -------- */
 router.post('/poemChat', aiController.poemAIChat);
+
 /* -------- WORD MEANING -------- */
 router.post('/wordMeaning', aiController.wordMeaning);
 

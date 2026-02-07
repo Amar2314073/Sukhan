@@ -1,11 +1,11 @@
 const express = require('express');
-const userMiddleware = require('../middleware/userMiddleware');
 const router = express.Router();
-const commentController = require('../controllers/comment.controller')
+const commentController = require('../controllers/comment.controller');
+const authMiddleware = require('../middleware/authMiddleware');
 
-router.post('/post', userMiddleware, commentController.postComment);
+router.post('/post', authMiddleware, commentController.postComment);
 router.get('/poem/:poemId', commentController.getPoemComments);
-router.delete('/:id', userMiddleware, commentController.deleteComment);
-router.put('/:id', userMiddleware, commentController.updateComment);
+router.delete('/:id', authMiddleware, commentController.deleteComment);
+router.put('/:id', authMiddleware, commentController.updateComment);
 
 module.exports = router;

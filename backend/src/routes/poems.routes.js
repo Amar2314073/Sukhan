@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const poemController = require('../controllers/poems.controller');
-const adminMiddleware = require('../middleware/adminMiddleware');
 
 // Public routes
 router.get('/', poemController.getAllPoems);
