@@ -1,5 +1,5 @@
 import { useState } from "react";
-import PoetOwnerPoetForm from "../../components/poetOwner/PoetOwnerPoetForm";
+import PoetOwnerPoetForm from "../../../../../poetOwner/PoetOwnerPoetForm";
 
 const PoetOwnerPoetProfile = ({ poet, setPoet }) => {
   const [editing, setEditing] = useState(false);

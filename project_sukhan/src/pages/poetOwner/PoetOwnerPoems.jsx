@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FiEdit2, FiPlus } from "react-icons/fi";
-import PoetOwnerPoemForm from "../../components/poetOwner/PoetOwnerPoemForm";
+import PoetOwnerPoemForm from "../../../../../poetOwner/PoetOwnerPoemForm";
 
 const PoetOwnerPoems = ({ poems, setPoems }) => {
   const [editingPoem, setEditingPoem] = useState(null);
