@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { poetOwnerService } from "../Sukhan/project_sukhan/src/services/poetOwner.service";
+import { poetOwnerService } from "../../services/poetOwner.service";
 import toast from "react-hot-toast";
 
 const PoetOwnerPoetForm = ({ poet, onClose, onSuccess }) => {
