@@ -3,7 +3,7 @@ import axiosClient from '../../utils/axiosClient';
 
 /* ========================= THUNKS ========================= */
 
-// 1️⃣ Fetch all collections (pagination + filters)
+// Fetch all collections (pagination + filters)
 export const fetchCollections = createAsyncThunk(
   'collections/fetchAll',
   async ({ page = 1, limit = 12, category, featured }, { rejectWithValue }) => {
@@ -20,7 +20,7 @@ export const fetchCollections = createAsyncThunk(
   }
 );
 
-// 2️⃣ Featured collections
+// Featured collections
 export const fetchFeaturedCollections = createAsyncThunk(
   'collections/fetchFeatured',
   async (limit = 6, { rejectWithValue }) => {
@@ -33,7 +33,7 @@ export const fetchFeaturedCollections = createAsyncThunk(
   }
 );
 
-// 3️⃣ Trending collections
+// Trending collections
 export const fetchTrendingCollections = createAsyncThunk(
   'collections/fetchTrending',
   async (_, { rejectWithValue }) => {
@@ -46,7 +46,7 @@ export const fetchTrendingCollections = createAsyncThunk(
   }
 );
 
-// 4️⃣ Collections by category
+// Collections by category
 export const fetchCollectionsByCategory = createAsyncThunk(
   'collections/fetchByCategory',
   async ({ categoryId, page = 1, limit = 12 }, { rejectWithValue }) => {
@@ -61,7 +61,7 @@ export const fetchCollectionsByCategory = createAsyncThunk(
   }
 );
 
-// 5️⃣ Single collection detail
+// Single collection detail
 export const fetchCollectionById = createAsyncThunk(
   'collections/fetchById',
   async (id, { rejectWithValue }) => {
