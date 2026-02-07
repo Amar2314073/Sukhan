@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { searchService } from '../../services/search.service';
-
+import toast from 'react-hot-toast';
 
 const BookForm = ({ initialData = {}, onSubmit }) => {
+  const isEdit = Boolean(initialData?._id);
+
   const [form, setForm] = useState({
     title: initialData.title || '',
     author: initialData.author || '',
@@ -13,11 +15,13 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
     language: initialData.language || ''
   });
 
+  const [submitting, setSubmitting] = useState(false);
+
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Poet search
+  /* ================= POET SEARCH ================= */
   const [poetQuery, setPoetQuery] = useState('');
   const [poetResults, setPoetResults] = useState([]);
   const [loadingPoets, setLoadingPoets] = useState(false);
@@ -30,8 +34,6 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
       setPoetSelected(true);
     }
   }, [initialData]);
-
-
 
   useEffect(() => {
     if (!poetQuery.trim() || poetSelected) {
@@ -54,18 +56,49 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
     return () => clearTimeout(timer);
   }, [poetQuery, poetSelected]);
 
-
-
-  const submit = (e) => {
+  /* ================= SUBMIT ================= */
+  const submit = async (e) => {
     e.preventDefault();
-    onSubmit({
-      ...form,
-      price: form.price ? Number(form.price) : null
-    });
+
+    const toastId = toast.loading(
+      isEdit ? 'Updating book…' : 'Creating book…'
+    );
+
+    try {
+      setSubmitting(true);
+
+      await onSubmit({
+        ...form,
+        price: form.price ? Number(form.price) : null
+      });
+
+      toast.success(
+        isEdit ? 'Book updated successfully' : 'Book created successfully',
+        { id: toastId }
+      );
+    } catch (err) {
+      toast.error('Something went wrong', { id: toastId });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <form onSubmit={submit} className="space-y-4 max-w-md">
+    <form
+      onSubmit={submit}
+      className="
+        space-y-4
+        max-w-md
+        bg-base-200
+        p-6
+        rounded-2xl
+        border border-base-300/40
+      "
+    >
+      <h2 className="text-xl font-serif font-semibold mb-2">
+        {isEdit ? 'Update Book' : 'Create Book'}
+      </h2>
+
       <input
         name="title"
         placeholder="Book Title"
@@ -94,17 +127,17 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
       />
 
       <input
-          type="number"
-          name="price"
-          placeholder="Price"
-          value={form.price}
-          onChange={handleChange}
-          className="input input-bordered w-full"
-        />
+        type="number"
+        name="price"
+        placeholder="Price (optional)"
+        value={form.price}
+        onChange={handleChange}
+        className="input input-bordered w-full"
+      />
 
       <input
         name="category"
-        placeholder="Category (e.g. Ghazal, Poetry, Novel)"
+        placeholder="Category (e.g. Ghazal, Poetry)"
         value={form.category}
         onChange={handleChange}
         className="input input-bordered w-full"
@@ -122,6 +155,7 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
         <option value="English">English</option>
       </select>
 
+      {/* ===== AUTHOR SEARCH ===== */}
       <div className="relative">
         <input
           name="author"
@@ -161,9 +195,18 @@ const BookForm = ({ initialData = {}, onSubmit }) => {
         )}
       </div>
 
-
-      <button className="btn btn-primary w-full">
-        Save Book
+      {/* ===== ACTION BUTTON ===== */}
+      <button
+        type="submit"
+        disabled={submitting}
+        className="
+          btn btn-ghost bg-base-100
+          disabled:opacity-60
+        "
+      >
+        {submitting
+          ? (isEdit ? 'Updating…' : 'Creating…')
+          : (isEdit ? 'Update Book' : 'Create Book')}
       </button>
     </form>
   );

@@ -14,6 +14,7 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   const [poetResults, setPoetResults] = useState([]);
   const [loadingPoets, setLoadingPoets] = useState(false);
   const [poetSelected, setPoetSelected] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!poetQuery.trim() || poetSelected) {
@@ -63,23 +64,29 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
   const submit = async (e) => {
     e.preventDefault();
 
+    if(submitting) return;
+    setSubmitting(true);
+
     const toastId = toast.loading(
       poem ? 'Updating poem...' : 'Creating poem...'
     );
 
     try {
+      let res;
       if (poem) {
-        await adminService.updatePoem(poem._id, form);
+        res = await adminService.updatePoem(poem._id, form);
         toast.success('Poem updated successfully', { id: toastId });
       } else {
-        await adminService.createPoem(form);
+        res = await adminService.createPoem(form);
         toast.success('Poem created successfully', { id: toastId });
       }
 
-      onSuccess();
+      onSuccess(res?.data?.poem);
     } catch (error) {
       console.error(error);
       toast.error('Something went wrong', { id: toastId });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -233,9 +240,21 @@ const PoemForm = ({ poem, onClose, onSuccess }) => {
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg bg-primary text-primary-content"
+              disabled={submitting}
+              className="
+                px-5 py-2 rounded-lg
+                bg-primary text-primary-content
+                disabled:opacity-60
+                disabled:cursor-not-allowed
+              "
             >
-              {poem ? 'Update' : 'Create'}
+              {submitting
+                ? poem
+                  ? 'Updating…'
+                  : 'Creating…'
+                : poem
+                  ? 'Update'
+                  : 'Create'}
             </button>
           </div>
 

@@ -11,6 +11,7 @@ import {
 const PoetProfile = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
+  const { isAuthenticated } = useSelector(state => state.auth);
 
   const { currentPoet, poetPoems, loading, error } = useSelector(
     state => state.poets
@@ -162,9 +163,7 @@ const PoetProfile = () => {
                 </p>
               )}
 
-
-
-
+              {/* Bio */}
               {currentPoet.bio && (
                 <p className="
                   mt-3
@@ -181,6 +180,30 @@ const PoetProfile = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Claim Button */}
+      {isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
+        <div className="md:hidden px-4 mt-4">
+          <Link
+            to={`/poet-ownership/claim/${currentPoet._id}`}
+            className="
+              block
+              text-center
+              px-4 py-2
+              rounded-xl
+              border border-primary/40
+              text-primary
+              hover:bg-primary/10
+              transition
+              text-sm
+              font-medium
+            "
+          >
+            Claim this poet profile
+          </Link>
+        </div>
+      )}
+
 
       {/* ================= CATEGORY TABS ================= */}
       {categories.length > 0 && (
@@ -287,6 +310,27 @@ const PoetProfile = () => {
               space-y-5
             "
           >
+            {/* Claim ownership */}
+            {isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
+              <Link
+                to={`/poet-ownership/claim/${currentPoet._id}`}
+                className="
+                  block
+                  text-center
+                  px-4 py-2
+                  rounded-xl
+                  border border-primary/40
+                  text-primary
+                  hover:bg-primary/10
+                  transition
+                  text-sm
+                  font-medium
+                "
+              >
+                Claim this poet profile
+              </Link>
+            )}
+
             {/* Heading */}
             <h3 className="font-serif text-base font-semibold text-base-content">
               प्रोफ़ाइल विवरण

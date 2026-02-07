@@ -1,25 +1,56 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router';
-import axiosClient from '../../utils/axiosClient';
-import { adminService } from '../../services/admin.service';
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
+import axiosClient from "../../utils/axiosClient";
+import { adminService } from "../../services/admin.service";
+import toast from "react-hot-toast";
+import ConfirmDelete from "../../components/ConfirmDelete";
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmBook, setConfirmBook] = useState(null);
   const navigate = useNavigate();
+
+  const fetchBooks = async () => {
+    try {
+      const res = await axiosClient.get("/books");
+      setBooks(res.data.books || []);
+    } catch (err) {
+      toast.error("Failed to load books");
+    }
+  };
 
   useEffect(() => {
     fetchBooks();
   }, []);
 
-  const fetchBooks = async () => {
-    const res = await axiosClient.get('/books');
-    setBooks(res.data.books);
+  /* ================= OPEN CONFIRM ================= */
+  const openDeleteConfirm = (book) => {
+    setConfirmBook(book);
   };
 
-  const deleteBook = async (id) => {
-    if (!window.confirm('Delete this book?')) return;
-    await adminService.deleteBook(id);
-    fetchBooks();
+  /* ================= CONFIRM DELETE ================= */
+  const confirmDeleteBook = async () => {
+    if (!confirmBook) return;
+
+    const toastId = toast.loading("Deleting book...");
+
+    try {
+      setDeletingId(confirmBook._id);
+
+      await adminService.deleteBook(confirmBook._id);
+
+      toast.success("Book deleted successfully", { id: toastId });
+      setConfirmBook(null);
+      fetchBooks();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Delete failed",
+        { id: toastId }
+      );
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   return (
@@ -32,7 +63,7 @@ const AdminBooks = () => {
 
         <button
           className="btn btn-primary"
-          onClick={() => navigate('/admin/books/add')}
+          onClick={() => navigate("/admin/books/add")}
         >
           + Add Book
         </button>
@@ -70,7 +101,6 @@ const AdminBooks = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
             </div>
 
-
             {/* INFO */}
             <div className="p-3 space-y-1">
               <p className="text-sm font-semibold line-clamp-2">
@@ -106,21 +136,47 @@ const AdminBooks = () => {
             {/* ACTIONS */}
             <div className="flex border-t border-base-300/40">
               <button
-                onClick={() => navigate(`/admin/books/edit/${book._id}`)}
-                className="w-1/2 py-2 text-xs hover:bg-base-300 transition"
+                onClick={() =>
+                  navigate(`/admin/books/edit/${book._id}`)
+                }
+                disabled={deletingId === book._id}
+                className="
+                  w-1/2 py-2 text-xs
+                  hover:bg-base-300
+                  transition
+                  disabled:opacity-50
+                "
               >
                 Edit
               </button>
+
               <button
-                onClick={() => deleteBook(book._id)}
-                className="w-1/2 py-2 text-xs text-error hover:bg-error/10 transition"
+                onClick={() => openDeleteConfirm(book)}
+                disabled={deletingId === book._id}
+                className="
+                  w-1/2 py-2 text-xs text-error
+                  hover:bg-error/10
+                  transition
+                  disabled:opacity-50
+                "
               >
-                Delete
+                {deletingId === book._id
+                  ? "Deleting..."
+                  : "Delete"}
               </button>
             </div>
           </div>
         ))}
       </div>
+
+      {/* ===== CONFIRM DELETE MODAL ===== */}
+      {confirmBook && (
+        <ConfirmDelete
+          title={`Delete "${confirmBook.title}" ?`}
+          onCancel={() => setConfirmBook(null)}
+          onConfirm={confirmDeleteBook}
+        />
+      )}
     </div>
   );
 };

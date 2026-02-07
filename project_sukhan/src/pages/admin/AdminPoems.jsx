@@ -3,7 +3,7 @@ import { adminService } from '../../services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/slices/categorySlice';
 import PoemForm from '../../components/admin/PoemForm';
-import ConfirmDelete from '../../components/admin/ConfirmDelete';
+import ConfirmDelete from '../../components/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
 
@@ -20,6 +20,7 @@ const AdminPoems = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingPoem, setEditingPoem] = useState(null);
   const [deletePoem, setDeletePoem] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -208,10 +209,15 @@ const AdminPoems = () => {
                     </button>
                     <button
                       onClick={() => setDeletePoem(poem)}
-                      className="text-error hover:underline"
+                      disabled={deletingId === poem._id}
+                      className={`
+                        text-error hover:underline
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                      `}
                     >
-                      Delete
+                      {deletingId === poem._id ? 'Deleting…' : 'Delete'}
                     </button>
+
                   </td>
                 </tr>
               ))}
@@ -257,10 +263,15 @@ const AdminPoems = () => {
               </button>
               <button
                 onClick={() => setDeletePoem(poem)}
-                className="text-error text-sm"
+                disabled={deletingId === poem._id}
+                className="
+                  text-error text-sm
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
               >
-                Delete
+                {deletingId === poem._id ? 'Deleting…' : 'Delete'}
               </button>
+
             </div>
           </div>
         ))}
@@ -285,6 +296,7 @@ const AdminPoems = () => {
           onCancel={() => setDeletePoem(null)}
           onConfirm={async () => {
             const toastId = toast.loading('Deleting poem...');
+            setDeletingId(deletePoem._id)
 
             try {
               await adminService.deletePoem(deletePoem._id);
@@ -294,6 +306,7 @@ const AdminPoems = () => {
               });
 
               setDeletePoem(null);
+              setDeletingId(null);
               setPage(1);
               setPoems([]);
               loadPoems(1);

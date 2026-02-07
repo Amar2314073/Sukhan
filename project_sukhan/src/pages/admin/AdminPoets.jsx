@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { adminService } from '../../services/admin.service';
 import PoetForm from '../../components/admin/PoetForm';
-import ConfirmDelete from '../../components/admin/ConfirmDelete';
+import ConfirmDelete from '../../components/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
 
@@ -13,6 +13,7 @@ const AdminPoets = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingPoet, setEditingPoet] = useState(null);
   const [deletePoet, setDeletePoet] = useState(null);
+  const [deletingId, setDeletingId] = useState(null)
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -211,9 +212,13 @@ const AdminPoets = () => {
                     </button>
                     <button
                       onClick={() => setDeletePoet(poet)}
-                      className="text-error hover:underline"
+                      disabled={deletingId === poet._id}
+                      className={`
+                        text-error hover:underline
+                        disabled:opacity-50 disabled:cursor-not-allowed
+                      `}
                     >
-                      Delete
+                      {deletingId === poet._id ? 'Deleting…' : 'Delete'}
                     </button>
                   </td>
                 </tr>
@@ -261,10 +266,15 @@ const AdminPoets = () => {
               </button>
               <button
                 onClick={() => setDeletePoet(poet)}
-                className="text-error text-sm"
+                disabled={deletingId === poet._id}
+                className="
+                  text-error text-sm
+                  disabled:opacity-50 disabled:cursor-not-allowed
+                "
               >
-                Delete
+                {deletingId === poet._id ? 'Deleting…' : 'Delete'}
               </button>
+
             </div>
           </div>
         ))}
@@ -295,10 +305,12 @@ const AdminPoets = () => {
           onCancel={() => setDeletePoet(null)}
           onConfirm={async () => {
             const toastId = toast.loading('Deleting poet...');
+            setDeletingId(deletePoet._id)
             try {
               await adminService.deletePoet(deletePoet._id);
               toast.success('Poet deleted successfully', { id: toastId });
               setDeletePoet(null);
+              setDeletingId(null);
               setPage(1);
               setPoets([]);
               loadPoets(1);

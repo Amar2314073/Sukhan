@@ -15,7 +15,7 @@ const EditBook = () => {
   }, [id]);
 
   const updateBook = async (data) => {
-    await axiosClient.put(`/books/${id}`, data);
+    await axiosClient.put(`/admin/books/${id}`, data);
     navigate('/admin/books');
   };
 

@@ -30,6 +30,11 @@ import AddBook from './pages/admin/AddBook';
 import EditBook from './pages/admin/EditBook';
 import AdminBooks from './pages/admin/AdminBooks';
 import About from './pages/About';
+import AdminPoetOwnershipRequests from './pages/admin/AdminPoetOwnershipRequests';
+import ClaimPoetOwnership from './pages/poetOwner/ClaimPoetOwnership';
+import AdminPoetOwners from './pages/admin/AdminPoetOwners';
+import PoetOwnerRoute from './routes/PoetOwnerRoute';
+import PoetOwnerDashboard from './pages/poetOwner/PoetOwnerDashboard';
 
 function App() {
   const dispatch = useDispatch();
@@ -69,16 +74,23 @@ function App() {
               <Route path="/profile/savedPoems" element={<PrivateRoute><SavedPoems /></PrivateRoute>} />
               <Route path="/books/explore" element={<ExploreBooks/>} />
               <Route path="/about" element={<About />} />
+              <Route path='/poet-ownership/claim/:poetId' element={<ClaimPoetOwnership />} />
 
 
               <Route path="/admin" element={<AdminRoutes />}>
-              <Route index element={<AdminDashboard />} />
-              <Route path="poets" element={<AdminPoets />} />
-              <Route path="poems" element={<AdminPoems />} />
-              <Route path="collections" element={<AdminCollections />} />
-              <Route path="books" element={<AdminBooks />} />
-              <Route path="books/add" element={<AddBook />} />
-              <Route path="books/edit/:id" element={<EditBook />} />
+                <Route index element={<AdminDashboard />} />
+                <Route path="poets" element={<AdminPoets />} />
+                <Route path="poems" element={<AdminPoems />} />
+                <Route path="collections" element={<AdminCollections />} />
+                <Route path="books" element={<AdminBooks />} />
+                <Route path="books/add" element={<AddBook />} />
+                <Route path="books/edit/:id" element={<EditBook />} />
+                <Route path='poet-ownership/requests' element={<AdminPoetOwnershipRequests />} />
+                <Route path='poet-owners' element={<AdminPoetOwners />} />
+              </Route>
+
+              <Route path='/poet-owner' element={<PoetOwnerRoute />}>
+                <Route index element={<PoetOwnerDashboard />} />
               </Route>
 
             </Routes>

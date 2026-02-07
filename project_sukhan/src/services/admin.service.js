@@ -3,10 +3,7 @@ import axiosClient from "../utils/axiosClient";
 export const adminService = {
   dashboard: () => axiosClient.get("/admin/dashboard"),
 
-  searchPoets: (q) =>
-    axiosClient.get('/admin/poets/search', {
-      params: { q }
-  }),
+  searchPoets: (q) => axiosClient.get('/admin/poets/search', { params: { q }}),
 
   getPoets: (params) => axiosClient.get("/poets", { params }),
   createPoet: (d) => axiosClient.post("/admin/poet", d),
@@ -27,5 +24,22 @@ export const adminService = {
 
   createBook: (d) => axiosClient.post('/admin/books', d),
   updateBook: (id,d) => axiosClient.put(`/admin/books/${id}`, d),
-  deleteBook: (id) => axiosClient.delete(`/admin/books/${id}`)
+  deleteBook: (id) => axiosClient.delete(`/admin/books/${id}`),
+
+  createCategory: (d) => axiosClient.post('/admin/categories', d),
+  updateCategory: (id, d) => axiosClient.put(`/admin/categories/${id}`, d),
+  deleteCategory: (id) => axiosClient.delete(`/admin/categories/${id}`),
+
+
+  resetStats: () => axiosClient.post('/admin/reset'),
+  syncStats: () => axiosClient.post('/admin/sync'),
+
+
+  // Poet ownership
+  getAllPoetOwners: () => axiosClient.get('/admin/poet-owners'),
+  getPoetOwnershipRequests: () => axiosClient.get('/admin/poet-ownership/requests'),
+  approvePoetOwnership: (requestId) => axiosClient.post(`/admin/poet-ownership/${requestId}/approve`),
+  rejectPoetOwnership: (requestId) => axiosClient.post(`/admin/poet-ownership/${requestId}/reject`),
+  revokePoetOwner: (poetId) => axiosClient.post(`/admin/poet/${poetId}/revoke-owner`),
+
 };

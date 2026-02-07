@@ -21,36 +21,45 @@ const AdminDashboard = () => {
           Admin Dashboard
         </h1>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-14">
-          <StatCard label="Poets" value={stats.poets} />
-          <StatCard label="Poems" value={stats.poems} />
-          <StatCard label="Collections" value={stats.collections} />
-          <StatCard label="Users" value={stats.users} />
-        </div>
-
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <ActionCard
             title="Manage Poets"
             desc="Create, edit or delete poets"
+            count={stats.poets}
             onClick={() => navigate('/admin/poets')}
           />
           <ActionCard
             title="Manage Poems"
             desc="Create, edit or delete poems"
+            count={stats.poems}
             onClick={() => navigate('/admin/poems')}
           />
           <ActionCard
             title="Manage Collections"
             desc="Create, edit or delete collections"
+            count={stats.collections}
             onClick={() => navigate('/admin/collections')}
           />
           <ActionCard
             title="Manage Books"
             desc="Create, edit or delete Books"
+            count={stats.books}
             onClick={() => navigate('/admin/books')}
           />
+          <ActionCard
+            title="Manage Poet Owners"
+            desc="Manage the list of Owners"
+            count={stats.poetOwners}
+            onClick={() => navigate('/admin/poet-owners')}
+          />
+          <ActionCard
+            title="Manage Poet Ownership Requests"
+            desc="Verify and approve poet claims"
+            count={stats.pendingOwnershipRequests}
+            onClick={() => navigate("/admin/poet-ownership/requests")}
+          />
+
         </div>
 
       </div>
@@ -58,9 +67,33 @@ const AdminDashboard = () => {
   );
 };
 
+const StatBadge = ({ value, intent = "neutral" }) => {
+  const styles = {
+    neutral: "bg-base-300 text-base-content/80",
+    primary: "bg-primary/15 text-primary",
+    warning: "bg-warning/20 text-warning",
+    danger: "bg-error/20 text-error"
+  };
+
+  return (
+    <span
+      className={`
+        inline-flex items-center justify-center
+        px-5 py-1
+        text-sm font-semibold
+        rounded-xl
+        tracking-wide
+        border border-base-300/60
+        ${styles[intent]}
+      `}
+    >
+      {value}
+    </span>
+  );
+};
 
 
-const StatCard = ({ label, value, onClick }) => (
+const ActionCard = ({ title, desc, count, onClick }) => (
   <div
     onClick={onClick}
     className="
@@ -71,31 +104,13 @@ const StatCard = ({ label, value, onClick }) => (
       shadow-lg
       rounded-2xl
       p-8
-      text-center
       transition
     "
   >
-    <h3 className="text-sm tracking-wide text-base-content/70">{label}</h3>
-    <p className="text-4xl font-bold mt-3 text-base-content">{value}</p>
-  </div>
-);
-
-
-const ActionCard = ({ title, desc, onClick }) => (
-  <div
-    onClick={onClick}
-    className="
-      cursor-pointer
-      bg-base-200
-      hover:bg-base-300
-      border border-base-300/40
-      shadow-lg
-      rounded-2xl
-      p-8
-      transition
-    "
-  >
-    <h2 className="text-xl font-semibold mb-2 text-base-content">{title}</h2>
+    <div className='flex items-center justify-between mb-2'>
+      <h2 className="text-xl font-semibold text-base-content">{title}</h2>
+      <StatBadge value={count} intent='primary' />
+    </div>
     <p className="text-base-content/70">{desc}</p>
   </div>
 );

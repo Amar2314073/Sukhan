@@ -1,47 +1,30 @@
-import { useState } from 'react';
-import { adminService } from '../../services/admin.service';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { poetOwnerService } from "../../services/poetOwner.service";
+import toast from "react-hot-toast";
 
-const PoetForm = ({ poet, onClose, onSuccess }) => {
+const PoetOwnerPoetForm = ({ poet, onClose, onSuccess }) => {
   const [form, setForm] = useState({
-    name: poet?.name || '',
-    bio: poet?.bio || '',
-    era: poet?.era || 'Classical',
-    birthYear: poet?.birthYear || '',
-    deathYear: poet?.deathYear || '',
-    country: poet?.country || '',
-    image: poet?.image || '',
-    isActive: poet?.isActive ?? true
+    name: poet?.name || "",
+    bio: poet?.bio || "",
+    era: poet?.era || "Contemporary",
+    birthYear: poet?.birthYear || "",
+    deathYear: poet.deathYear || "",
+    country: poet?.country || "",
+    image: poet?.image || ""
   });
-
-  const [submitting, setSubmitting] = useState(false);
 
   const submit = async (e) => {
     e.preventDefault();
 
-    if(submitting) return;
-    setSubmitting(true);
-
-    const toastId = toast.loading(
-      poet ? 'Updating poet...' : 'Creating poet...'
-    );
+    const toastId = toast.loading("Updating poet profile...");
 
     try {
-      let res;
-      if (poet) {
-        res = await adminService.updatePoet(poet._id, form);
-        toast.success('Poet updated successfully!', { id: toastId });
-      } else {
-        res = await adminService.createPoet(form);
-        toast.success('Poet created successfully!', { id: toastId });
-      }
-
-      onSuccess(res?.data?.poet);
+      const res = await poetOwnerService.updatePoetProfile(form);
+      toast.success("Poet profile updated successfully!", { id: toastId });
+      onSuccess(res.data.poet);
     } catch (err) {
       console.error(err);
-      toast.error('Something went wrong', { id: toastId });
-    } finally {
-      setSubmitting(false);
+      toast.error("Something went wrong", { id: toastId });
     }
   };
 
@@ -52,7 +35,7 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
         {/* ================= HEADER ================= */}
         <div className="px-6 py-4 border-b border-base-300/40 flex justify-between items-center">
           <h2 className="text-xl font-serif font-semibold">
-            {poet ? 'Edit Poet' : 'Add Poet'}
+            Edit Poet Profile
           </h2>
           <button
             onClick={onClose}
@@ -74,7 +57,9 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
               <input
                 required
                 value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, name: e.target.value })
+                }
                 className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
                 placeholder="Poet name"
               />
@@ -87,7 +72,9 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
                 required
                 rows={4}
                 value={form.bio}
-                onChange={e => setForm({ ...form, bio: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, bio: e.target.value })
+                }
                 className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
                 placeholder="Short biography"
               />
@@ -98,7 +85,9 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
               <label className="text-sm text-base-content/70">Era *</label>
               <select
                 value={form.era}
-                onChange={e => setForm({ ...form, era: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, era: e.target.value })
+                }
                 className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
               >
                 <option value="Classical">Classical</option>
@@ -108,35 +97,46 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
               </select>
             </div>
 
-            {/* Years + Country */}
+            {/* Birth  and Death Year + Country */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <input
-                placeholder="Birth year"
-                value={form.birthYear}
-                onChange={e => setForm({ ...form, birthYear: e.target.value })}
-                className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
-              />
-              <input
-                placeholder="Death year"
-                value={form.deathYear}
-                onChange={e => setForm({ ...form, deathYear: e.target.value })}
-                className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
-              />
-              <input
-                required
-                placeholder="Country"
-                value={form.country}
-                onChange={e => setForm({ ...form, country: e.target.value })}
-                className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
-              />
-            </div>
+                <input
+                    placeholder="Birth year"
+                    value={form.birthYear}
+                    onChange={e =>
+                    setForm({ ...form, birthYear: e.target.value })
+                    }
+                    className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
+                />
+
+                <input
+                    placeholder="Death year (optional)"
+                    value={form.deathYear}
+                    onChange={e =>
+                    setForm({ ...form, deathYear: e.target.value })
+                    }
+                    className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
+                />
+
+                <input
+                    required
+                    placeholder="Country"
+                    value={form.country}
+                    onChange={e =>
+                    setForm({ ...form, country: e.target.value })
+                    }
+                    className="px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
+                />
+                </div>
+
 
             {/* Image */}
             <div>
               <label className="text-sm text-base-content/70">Image URL</label>
               <input
                 value={form.image}
-                onChange={e => setForm({ ...form, image: e.target.value })}
+                onChange={e =>
+                  setForm({ ...form, image: e.target.value })
+                }
                 className="w-full mt-1 px-4 py-2 rounded-lg bg-base-200/60 border border-base-300/40"
                 placeholder="https://image-url"
               />
@@ -150,7 +150,7 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
                   alt="Image Preview"
                   className="w-16 h-16 rounded-full object-cover border border-base-300"
                   onError={(e) => {
-                    e.target.src = '';
+                    e.target.src = "";
                   }}
                 />
                 <p className="text-sm text-base-content/60">
@@ -158,17 +158,6 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
                 </p>
               </div>
             )}
-
-            {/* Active */}
-            <div className="flex items-center gap-3">
-              <input
-                type="checkbox"
-                checked={form.isActive}
-                onChange={e => setForm({ ...form, isActive: e.target.checked })}
-                className="checkbox checkbox-primary"
-              />
-              <span className="text-sm">Active poet</span>
-            </div>
 
           </div>
 
@@ -183,17 +172,9 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
             </button>
             <button
               type="submit"
-              disabled={submitting}
-              className="
-                px-5 py-2 rounded-lg
-                bg-primary text-primary-content
-                disabled:opacity-60
-                disabled:cursor-not-allowed
-              "
+              className="px-5 py-2 rounded-lg bg-primary text-primary-content"
             >
-              {submitting
-                ? poet ? 'Updating...' : 'Creating...'
-                : poet ? 'Update' : 'Create'}
+              Update
             </button>
           </div>
 
@@ -203,4 +184,4 @@ const PoetForm = ({ poet, onClose, onSuccess }) => {
   );
 };
 
-export default PoetForm;
+export default PoetOwnerPoetForm;
