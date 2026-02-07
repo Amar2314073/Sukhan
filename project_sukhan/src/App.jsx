@@ -89,9 +89,9 @@ function App() {
                 <Route path='poet-owners' element={<AdminPoetOwners />} />
               </Route>
 
-              <Route path='/poet-owner' element={<PoetOwnerRoute />}>
+              {/* <Route path='/poet-owner' element={<PoetOwnerRoute />}>
                 <Route index element={<PoetOwnerDashboard />} />
-              </Route>
+              </Route> */}
 
             </Routes>
           </main>
