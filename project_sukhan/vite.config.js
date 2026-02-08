@@ -8,32 +8,12 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [react(), tailwindcss(), VitePWA({
     registerType: 'autoUpdate',
+    injectRegister: 'auto',
+    devOptions: { enabled: false },
     includeAssets: ['favicon.ico', 'apple-touch-icons.png'],
-    devOptions: { enabled: true },
     workbox: {
       globPatterns: ['**/*.{js,css,html,png,svg,jpg,jpeg}']
     },
-    // manifest: {
-    //   name: "Sukhan",
-    //   short_name: "Sukhan",
-    //   description: "A poetry sharing platform to express yourself through words.",
-    //   theme_color: "#04070d",
-    //   background_color: "#04070d",
-    //   display: "standalone",
-    //   scope: "/",
-    //   icons: [
-    //     {
-    //       src: "/icons/icon-192.png",
-    //       sizes: "192x192",
-    //       type: "image/png"
-    //     },
-    //     {
-    //       src: "/icons/icon-512.png",
-    //       sizes: "512x512",
-    //       type: "image/png"
-    //     }
-    //   ]
-    // }
   })],
 })
 
