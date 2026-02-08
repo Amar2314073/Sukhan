@@ -28,4 +28,6 @@ dist-ssr
 .env.testing
 .env.local
 
+remote
+
 .vercel

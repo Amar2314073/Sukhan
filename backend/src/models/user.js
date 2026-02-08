@@ -69,6 +69,11 @@ const userSchema = new Schema({
     ref: 'poet',
     default: null
   },
+  provider: {
+    type: String,
+    enum: ['local', 'google'],
+    default: 'local'
+  },
 
   likedPoems: [{
     type: Schema.Types.ObjectId,

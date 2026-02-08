@@ -24,6 +24,19 @@ export const registerUser = createAsyncThunk(
   }
 );
 
+export const googleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (googleToken, { rejectWithValue }) => {
+    try {
+      return await authService.googleLogin(googleToken);
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || 'Google login failed'
+      );
+    }
+  }
+);
+
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
   async (_, { rejectWithValue }) => {
@@ -228,6 +241,32 @@ const authSlice = createSlice({
         state.token = null;
         localStorage.removeItem('token');
       })
+
+      // Google Login
+      .addCase(googleLogin.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+
+      .addCase(googleLogin.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+
+        localStorage.setItem(
+          'auth',
+          JSON.stringify({
+            user: action.payload.user,
+            isAuthenticated: true,
+          })
+        );
+      })
+
+      .addCase(googleLogin.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
+
       // Get Profile
       .addCase(getProfile.pending, (state) => {
         state.isLoading = true;

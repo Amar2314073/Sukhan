@@ -6,6 +6,7 @@ const User = require('../models/user');
 const userValidator = require('../utils/userValidator');
 const Poem = require('../models/poem')
 const Stat = require('../models/stat');
+const verifyGoogleToken = require('../utils/googleVerify');
 
 const tokenValidity = '100d';
 
@@ -539,4 +540,71 @@ exports.getSavedPoems = async (req, res) => {
         console.error("Get saved poems error:", error);
         res.status(500).json({ message: "Error fetching saved poems" });
     }
+};
+
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: 'Google token required' });
+    }
+
+    // Google se verify
+    const payload = await verifyGoogleToken(token);
+    const { email, name, picture } = payload;
+
+    //  find User
+    let user = await User.findOne({ email });
+
+    // if coming first time from the google
+    if (!user) {
+      user = await User.create({
+        name,
+        email,
+        avatar: picture,
+        role: 'user',
+        provider: 'google',
+        isVerified: true
+      });
+
+      await Stat.findByIdAndUpdate(
+        'GLOBAL_STATS',
+        { $inc: { users: 1 } },
+        { upsert: true }
+      );
+    }
+
+    // JWT + cookie 
+    const jwtToken = jwt.sign(
+      { _id: user._id, email: user.email, role: user.role },
+      process.env.JWT_KEY,
+      { expiresIn: tokenValidity }
+    );
+
+    res.cookie("token", jwtToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: ms(tokenValidity)
+    });
+
+    const response = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      likedPoems: user.likedPoems || [],
+      savedPoems: user.savedPoems || []
+    };
+
+    res.status(200).json({
+      user: response,
+      message: "Google login successful"
+    });
+
+  } catch (error) {
+    console.error("Google auth error:", error);
+    res.status(401).json({ message: "Google authentication failed" });
+  }
 };

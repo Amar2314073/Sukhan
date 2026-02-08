@@ -20,6 +20,7 @@ router.post('/save/:poemId', authMiddleware, authController.toggleSave);
 router.get('/loadUser', authMiddleware, authController.loadUser);
 router.get('/likedPoems', authMiddleware, authController.getLikedPoems);
 router.get('/savedPoems', authMiddleware, authController.getSavedPoems);
+router.post('/google', authController.googleAuth);
 
 
 module.exports = router;

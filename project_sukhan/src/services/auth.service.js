@@ -9,5 +9,6 @@ export const authService = {
   deleteProfile: () => axiosClient.delete("/auth/profile").then(r => r.data),
   toggleLike: (id) => axiosClient.post(`/auth/like/${id}`).then(r => r.data),
   toggleSave: (id) => axiosClient.post(`/auth/save/${id}`).then(r => r.data),
-  loadUser: () => axiosClient.get('/auth/loadUser').then(r=>r.data)
+  loadUser: () => axiosClient.get('/auth/loadUser').then(r=>r.data),
+  googleLogin: (token) => axiosClient.post('/auth/google', { token }).then(r => r.data)
 };
