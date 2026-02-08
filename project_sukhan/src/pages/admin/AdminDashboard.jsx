@@ -6,10 +6,67 @@ import AdminShimmer from '../../shimmer/AdminShimmer';
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const navigate = useNavigate();
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+
 
   useEffect(() => {
     adminService.dashboard().then(res => setStats(res.data));
   }, []);
+
+  const handleSync = async () => {
+    try {
+      setSyncing(true);
+      const res = await adminService.syncStats();
+      setStats(res.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSyncing(false);
+      setShowConfirm(false);
+    }
+  };
+
+    const cardsData = [
+    {
+      title: 'Manage Poets',
+      desc: "Create, edit or delete poets",
+      count: stats?.poets,
+      onClick: () => navigate('/admin/poets')
+    },
+    {
+      title: "Manage Poems",
+      desc: "Create, edit or delete poems",
+      count: stats?.poems,
+      onClick: () => navigate('/admin/poems')
+    },
+    {
+      title: "Manage Collections",
+      desc: "Create, edit or delete collections",
+      count: stats?.collections,
+      onClick: () => navigate('/admin/collections')
+    },
+    {
+      title: "Manage Books",
+      desc: "Create, edit or delete Books",
+      count: stats?.books,
+      onClick: () => navigate('/admin/books')
+    },
+    {
+      title: "Manage Poet Owners",
+      desc: "Manage the list of owners",
+      count: stats?.poetOwners,
+      onClick: () => navigate('/admin/poet-owners')
+    },
+    {
+      title: "Manage Poet Ownership Requests",
+      desc: "Verify and approve poet claims",
+      count: stats?.pendingOwnershipRequests,
+      onClick: () => navigate("/admin/poet-ownership/requests")
+    }
+  ]
+
 
   if (!stats) return <AdminShimmer />;
 
@@ -23,46 +80,57 @@ const AdminDashboard = () => {
 
         {/* Actions */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <ActionCard
-            title="Manage Poets"
-            desc="Create, edit or delete poets"
-            count={stats.poets}
-            onClick={() => navigate('/admin/poets')}
-          />
-          <ActionCard
-            title="Manage Poems"
-            desc="Create, edit or delete poems"
-            count={stats.poems}
-            onClick={() => navigate('/admin/poems')}
-          />
-          <ActionCard
-            title="Manage Collections"
-            desc="Create, edit or delete collections"
-            count={stats.collections}
-            onClick={() => navigate('/admin/collections')}
-          />
-          <ActionCard
-            title="Manage Books"
-            desc="Create, edit or delete Books"
-            count={stats.books}
-            onClick={() => navigate('/admin/books')}
-          />
-          <ActionCard
-            title="Manage Poet Owners"
-            desc="Manage the list of Owners"
-            count={stats.poetOwners}
-            onClick={() => navigate('/admin/poet-owners')}
-          />
-          <ActionCard
-            title="Manage Poet Ownership Requests"
-            desc="Verify and approve poet claims"
-            count={stats.pendingOwnershipRequests}
-            onClick={() => navigate("/admin/poet-ownership/requests")}
-          />
-
+          {cardsData.map(d => (
+            <ActionCard
+            title = {d.title}
+            desc = {d.desc}
+            count = {d.count}
+            onClick = {d.onClick}
+            />
+          ))}
+        </div>
+        {/* Sync Stat Button */}
+        <div className="flex justify-center mt-14">
+          <button
+            onClick={() => setShowConfirm(true)}
+            className="btn btn-outline btn-ghost px-8"
+          >
+            Sync Stats
+          </button>
         </div>
 
       </div>
+      {showConfirm && (
+        <div className="modal modal-open">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg">Sync Dashboard Stats?</h3>
+
+            <p className="py-4 text-base-content/70">
+              This will re-calculate all admin statistics.
+              Are you sure you want to continue?
+            </p>
+
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowConfirm(false)}
+                disabled={syncing}
+              >
+                Cancel
+              </button>
+
+              <button
+                className="btn bg-base-200 btn-outline"
+                onClick={handleSync}
+                disabled={syncing}
+              >
+                {syncing ? "Syncing..." : "Yes, Sync"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
@@ -116,3 +184,7 @@ const ActionCard = ({ title, desc, count, onClick }) => (
 );
 
 export default AdminDashboard;
+
+
+
+
