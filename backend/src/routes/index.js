@@ -20,5 +20,9 @@ router.use('/sitemap', require('./sitemap.routes'));
 router.use('/admin', authMiddleware, require('./admin.routes'));
 router.use('/poetOwner', authMiddleware, adminOnlyMiddleware, require('./poetOwner.routes'));
 
+// payment route 
+router.use('/payment', require('./payment.routes'));
+router.use('/webhook', require('./webhook.routes'));
+
 
 module.exports = router;

@@ -17,6 +17,9 @@ app.use(cors({
     credentials: true
 }))
 
+// payment route
+app.use('/api/webhook',express.raw({ type: 'application/json' }));
+
 
 app.use(express.json());   // to convert json into js object
 app.use(cookieParser());   // to parse cookie
