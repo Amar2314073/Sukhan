@@ -247,7 +247,10 @@ const Navbar = () => {
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
                 className="w-9 h-9 rounded-full bg-base-300 flex items-center justify-center"
               >
-                {user?.name?.[0]?.toUpperCase() || 'U'}
+                <div className="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center">
+                  <FaUserCircle size={24}/>
+                </div>
+
               </button>
 
               {profileMenuOpen && (
