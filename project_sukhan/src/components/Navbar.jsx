@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
-import { Search, Sun, Moon, LogIn, UserPlus } from 'lucide-react';
+import { Search, Sun, Moon, LogIn, UserPlus, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext'
 import {
@@ -13,7 +13,8 @@ import {
   FaCog,
   FaSignOutAlt,
   FaPenNib,
-  FaShieldAlt
+  FaShieldAlt,
+  FaUserCircle
 } from "react-icons/fa";
 
 
@@ -130,9 +131,10 @@ const Navbar = () => {
 
    // Default profile image (white silhouette)
   const defaultProfileImage = (
-    <svg className="w-6 h-6 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-      <path fillRule="evenodd" d="M12 2.25a5.25 5.25 0 00-5.25 5.25c0 1.92.932 3.615 2.366 4.675a8.25 8.25 0 105.768 0A5.247 5.247 0 0017.25 7.5 5.25 5.25 0 0012 2.25zM12 15a6 6 0 00-6 6h12a6 6 0 00-6-6z" clipRule="evenodd" />
-    </svg>
+    <div className="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center">
+      <FaUserCircle size={36}/>
+    </div>
+
   );
 
   return (
