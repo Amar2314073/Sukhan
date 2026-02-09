@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { logoutUser } from '../redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
-import { Search, Sun, Moon } from 'lucide-react';
+import { Search, Sun, Moon, LogIn, UserPlus } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext'
 import {
@@ -36,6 +36,7 @@ const Navbar = () => {
   const { user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const voiceRecognitionRef = useRef(null);
 
   const startVoiceSearch = () => {
     const SpeechRecognition =
@@ -46,10 +47,19 @@ const Navbar = () => {
       return;
     }
 
+    if(listening || voiceRecognitionRef.current) {
+      voiceRecognitionRef.current.stop();
+      voiceRecognitionRef.current = null;
+      setListening(false);
+      toast.dismiss();
+      return;
+    }
+
     const recognition = new SpeechRecognition();
     recognition.lang = 'hi-IN';
     recognition.interimResults = false;
 
+    voiceRecognitionRef.current = recognition;
     setListening(true);
     const toastId = toast.loading('Listening… Speak your search');
 
@@ -57,24 +67,30 @@ const Navbar = () => {
       const spokenText = event.results[0][0].transcript;
 
       setSearchQuery(spokenText);
+      setListening(false);
+      voiceRecognitionRef.current = null;
 
       toast.dismiss(toastId);
       toast.success(`Searching for “${spokenText}”`);
-      setListening(false);
 
       // optional: auto-search
       navigate(`/search?q=${encodeURIComponent(spokenText)}`);
+
+      setMobileSearchOpen(false);
+      setSearchQuery('');
     };
 
     recognition.onerror = () => {
       toast.dismiss(toastId);
-      toast.error('Could not hear clearly');
       setListening(false);
+      voiceRecognitionRef.current = null;
+      toast.error('Could not hear clearly');
     };
 
     recognition.onend = () => {
       toast.dismiss(toastId);
       setListening(false);
+      voiceRecognitionRef.current = null;
     };
 
     recognition.start();
@@ -87,15 +103,6 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (profileRef.current && !profileRef.current.contains(e.target)) {
-        setProfileMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
 
   const handleSearch = (e) => {
@@ -172,10 +179,7 @@ const Navbar = () => {
               onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
               className="md:hidden p-2 rounded-full bg-base-200 hover:bg-base-300"
             >
-              <svg className="w-5 h-5 text-base-content/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+              <Search size={16} />
             </button>
 
             {/* DESKTOP SEARCH */}
@@ -197,7 +201,7 @@ const Navbar = () => {
               <button
                 onClick={startVoiceSearch}
                 className={`
-                  absolute right-8 top-1/2 -translate-y-1/2
+                  absolute right-4 top-1/2 -translate-y-1/2
                   cursor-pointer
                   transition
                   ${listening
@@ -209,14 +213,6 @@ const Navbar = () => {
                 <FaMicrophone size={16} />
               </button>
 
-              {/* SEARCH ICON */}
-              <button
-                className="absolute right-2 top-1/2 -translate-y-1/2
-                  cursor-pointer
-                  text-base-content/80 hover:text-base-content/60"
-              >
-                <Search size={14} />
-              </button>
             </div>
 
             {/* THEME TOGGLE */}
@@ -360,18 +356,14 @@ const Navbar = () => {
                         to="/login" 
                         onClick={() => setProfileMenuOpen(false)} 
                         className="flex items-center gap-3 px-4 py-3 hover:bg-base-200">
-                        <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                        </svg>
+                        <LogIn size={16} />
                         <span>Login</span>
                       </NavLink>
                       <NavLink 
                         to="/register" 
                         onClick={() => setProfileMenuOpen(false)} 
                         className="flex items-center gap-3 px-4 py-3 hover:bg-base-200">
-                        <svg className="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
+                        <UserPlus size={16} />
                         <span>Sign Up</span>
                       </NavLink>
                     </>
@@ -403,18 +395,11 @@ const Navbar = () => {
           <button
             onClick={startVoiceSearch}
             className={`
-              absolute right-12 top-1/2 -translate-y-1/2
+              absolute right-8 top-1/2 -translate-y-1/2
               ${listening ? 'text-error animate-pulse' : 'text-base-content/80'}
             `}
           >
-            <Mic size={18} />
-          </button>
-
-          {/* SEARCH ICON */}
-          <button
-            className="absolute right-5 top-1/2 -translate-y-1/2 text-base-content/80"
-          >
-            <Search size={16} />
+            <FaMicrophone size={18} />
           </button>
         </div>
 
