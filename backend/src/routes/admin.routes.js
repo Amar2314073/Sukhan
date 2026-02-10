@@ -42,23 +42,17 @@ router.delete('categories/:id', adminController.deleteCategory);
 
 
 /* -------- POET OWNERSHIP -------- */
-
-
-// get all poet owners
 router.get('/poet-owners', adminController.getAllPoetOwners);
-
-// all pending ownership requests
 router.get('/poet-ownership/requests', adminController.getPoetOwnershipRequests);
-
-// approve ownership
 router.post('/poet-ownership/:requestId/approve', adminController.approvePoetOwnership);
-
-// reject ownership
 router.post('/poet-ownership/:requestId/reject', adminController.rejectPoetOwnership);
-
-// revoke existing owner
 router.post('/poet/:poetId/revoke-owner', adminController.revokePoetOwner);
 
 
+/* -------- PAYMENTS -------- */
+router.get('/payments', adminController.getAllPayments);
+router.get('/payments/:id', adminController.getPaymentByIdAdmin);
+router.post('/payments/refund', adminController.refundPayment);
+router.get('/payment-stats', adminController.getPaymentStats);
 
 module.exports = router;

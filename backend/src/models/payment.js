@@ -6,14 +6,14 @@ const paymentSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
-      required: true,
+      default: null,
       index: true
     },
 
     orderId: {
       type: String,
-      required: true,
-      unique: true
+      unique: true,
+      default: null
     },
 
     paymentId: {
@@ -39,7 +39,7 @@ const paymentSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ['created', 'paid', 'failed'],
+      enum: ['created', 'paid', 'failed', 'refunded'],
       default: 'created',
       index: true
     },
@@ -56,6 +56,10 @@ const paymentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+paymentSchema.index({ createdAt: -1 });
+paymentSchema.index({ user: 1, status: 1 });
+
 
 const Payment = mongoose.model('payment', paymentSchema);
 module.exports = Payment;

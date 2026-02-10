@@ -7,6 +7,7 @@ const Stat = require('../models/stat');
 const Book = require('../models/book');
 const PoetOwnershipRequest = require('../models/poetOwnershipRequest');
 const mongoose = require('mongoose');
+const Payment = require('../models/payment');
 
 /* -------- DASHBOARD -------- */
 exports.dashboard = async (req, res) => {
@@ -38,6 +39,81 @@ exports.dashboard = async (req, res) => {
     res.status(500).json({ message: 'Error loading dashboard data' });
   }
 };
+
+
+exports.getPaymentStats = async (req, res) => {
+  try {
+    const { from, to, purpose } = req.query;
+
+    const match = {};
+
+    if (purpose) {
+      match.purpose = purpose;
+    }
+
+    if (from || to) {
+      match.createdAt = {};
+      if (from) match.createdAt.$gte = new Date(from);
+      if (to) match.createdAt.$lte = new Date(to);
+    }
+
+    const stats = await Payment.aggregate([
+      { $match: match },
+      {
+        $group: {
+          _id: null,
+          totalPayments: { $sum: 1 },
+          totalAmount: { $sum: '$amount' },
+          paidAmount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'paid'] }, '$amount', 0]
+            }
+          },
+          refundedAmount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'refunded'] }, '$amount', 0]
+            }
+          },
+          paidCount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'paid'] }, 1, 0]
+            }
+          },
+          failedCount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'failed'] }, 1, 0]
+            }
+          },
+          refundedCount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'refunded'] }, 1, 0]
+            }
+          }
+        }
+      }
+    ]);
+
+    const result = stats[0] || {
+      totalPayments: 0,
+      totalAmount: 0,
+      paidAmount: 0,
+      refundedAmount: 0,
+      paidCount: 0,
+      failedCount: 0,
+      refundedCount: 0
+    };
+
+    return res.status(200).json({
+      success: true,
+      stats: result
+    });
+
+  } catch (error) {
+    console.error('Payment stats error:', error);
+    return res.status(500).json({ message: 'Failed to load payment stats' });
+  }
+};
+
 
 
 /* -------- POETS -------- */
@@ -1223,3 +1299,94 @@ exports.revokePoetOwner = async (req, res) => {
   }
 };
 
+
+// payment controllers
+
+exports.getAllPayments = async (req, res) => {
+    try {
+
+        const { status, purpose, user, from, to, page = 1, limit = 20 } = req.query;
+
+        const query = {};
+
+        if(status) query.status = status;
+        if(purpose) query.purpose = purpose;
+        if(user) query.user = user;
+
+        if(from || to){
+            query.createdAt = {};
+            if(from) query.createdAt.$gte = new Date(from);
+            if(to) query.createdAt.$lte = new Date(to);
+        }
+
+        const payments = await Payment.find(query)
+        .populate('user', '_id name email')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(Number(limit));
+
+        const total = await Payment.countDocuments(query);
+        return res.status(200).json({
+            success: true,
+            total,
+            page: Number(page),
+            payments
+        });
+
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to fetch payments' });
+    }
+}
+
+exports.getPaymentByIdAdmin = async (req, res) => {
+  try {
+    const payment = await Payment.findById(req.params.id)
+      .populate('user', '_id name email');
+
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found' });
+    }
+
+    return res.status(200).json({ success: true, payment });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch payment' });
+  }
+};
+
+exports.refundPayment = async (req, res) => {
+  try {
+    const { paymentId, amount } = req.body;
+
+    if (!paymentId) {
+      return res.status(400).json({ message: 'paymentId is required' });
+    }
+
+    const payment = await Payment.findById(paymentId);
+
+    if (payment.status === 'refunded') {
+        return res.status(400).json({ message: 'Already refunded' });
+    }
+
+    if (!payment || payment.status !== 'paid' || !payment.paymentId) {
+      return res.status(400).json({ message: 'Payment not refundable' });
+    }
+
+    // Call Razorpay
+    const refund = await razorpayService.refundPayment({
+      paymentId: payment.paymentId,
+      amount
+    });
+
+    // Atomic update
+    payment.status = 'refunded';
+    payment.meta = refund;
+    await payment.save();
+
+    return res.status(200).json({
+      success: true,
+      refund
+    });
+  } catch (error) {
+    return res.status(500).json({ message: 'Refund failed' });
+  }
+};
