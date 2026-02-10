@@ -1,16 +1,11 @@
 const crypto = require('crypto');
 const Payment = require('../models/payment');
 
-
-
-
 exports.handleWebhook = async (req, res) => {
   try {
     const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
 
-    // -----------------------------
-    // VERIFY SIGNATURE
-    // -----------------------------
+    /* ---------------- VERIFY SIGNATURE ---------------- */
     const razorpaySignature = req.headers['x-razorpay-signature'];
 
     const expectedSignature = crypto
@@ -19,73 +14,115 @@ exports.handleWebhook = async (req, res) => {
       .digest('hex');
 
     if (expectedSignature !== razorpaySignature) {
-      console.error('❌ Invalid Razorpay webhook signature');
       return res.status(400).json({ message: 'Invalid signature' });
     }
 
-    // -----------------------------
-    // PARSE EVENT
-    // -----------------------------
+    /* ---------------- PARSE EVENT ---------------- */
     const event = JSON.parse(req.body.toString());
 
-    // -----------------------------
-    // HANDLE EVENTS
-    // -----------------------------
+    /* ---------------- HANDLE EVENTS ---------------- */
     switch (event.event) {
 
-      // PAYMENT SUCCESS
+      /* ---------- PAYMENT CAPTURED ---------- */
       case 'payment.captured': {
-        const paymentEntity = event.payload.payment.entity;
-
-        const orderId = paymentEntity.order_id;
-        const paymentId = paymentEntity.id;
-
-        const payment = await Payment.findOneAndUpdate(
-            {
-                orderId,
-                status: { $ne: 'paid' }
-            },
-            {
-                $set: {
-                status: 'paid',
-                paymentId
-                }
-            },
-            { new: true }
-            );
-
-            if (!payment) {
-            break;
-            }
-
-            break;
-        }
-
-      // PAYMENT FAILED
-      case 'payment.failed': {
-        const paymentEntity = event.payload.payment.entity;
-        const orderId = paymentEntity.order_id;
+        const payment = event.payload.payment.entity;
 
         await Payment.findOneAndUpdate(
-            {
-                orderId,
-                status: { $ne: 'paid' }
-            },
-            {
-                $set: { status: 'failed' }
-            });
-
-            break;
+          {
+            orderId: payment.order_id,
+            status: { $ne: 'paid' }   // idempotency
+          },
+          {
+            $set: {
+              status: 'paid',
+              paymentId: payment.id,
+              meta: payment
+            }
+          }
+        );
+        break;
       }
 
+      /* ---------- ORDER PAID (FINAL CONFIRMATION) ---------- */
+      case 'order.paid': {
+        const order = event.payload.order.entity;
+
+        await Payment.findOneAndUpdate(
+          {
+            orderId: order.id,
+            status: { $ne: 'paid' }
+          },
+          {
+            $set: {
+              status: 'paid',
+              meta: order
+            }
+          }
+        );
+        break;
+      }
+
+      /* ---------- PAYMENT FAILED ---------- */
+      case 'payment.failed': {
+        const payment = event.payload.payment.entity;
+
+        await Payment.findOneAndUpdate(
+          {
+            orderId: payment.order_id,
+            status: { $ne: 'paid' }
+          },
+          {
+            $set: {
+              status: 'failed',
+              meta: payment
+            }
+          }
+        );
+        break;
+      }
+
+      /* ---------- REFUND PROCESSED ---------- */
+      case 'refund.processed': {
+        const refund = event.payload.refund.entity;
+
+        await Payment.findOneAndUpdate(
+          {
+            paymentId: refund.payment_id,
+            status: 'paid'
+          },
+          {
+            $set: {
+              status: 'refunded',
+              meta: refund
+            }
+          }
+        );
+        break;
+      }
+
+      /* ---------- REFUND FAILED ---------- */
+      case 'refund.failed': {
+        const refund = event.payload.refund.entity;
+
+        await Payment.findOneAndUpdate(
+          {
+            paymentId: refund.payment_id
+          },
+          {
+            $set: {
+              meta: refund   // payment remains PAID
+            }
+          }
+        );
+        break;
+      }
+
+      /* ---------- IGNORE ALL OTHER EVENTS ---------- */
       default:
-        // Ignore other events
         break;
     }
 
-    // -----------------------------
-    // ACKNOWLEDGE RAZORPAY
-    // -----------------------------
+    /* ---------------- ACKNOWLEDGE RAZORPAY ---------------- */
     return res.status(200).json({ received: true });
 
   } catch (error) {
