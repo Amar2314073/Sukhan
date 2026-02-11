@@ -5,6 +5,7 @@ import { NavLink, useNavigate } from 'react-router';
 import { Search, Sun, Moon, LogIn, UserPlus, User } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTheme } from '../context/ThemeContext'
+import ConfirmModal from './ConfirmModal';
 import {
   FaMicrophone,
   FaUser,
@@ -27,6 +28,8 @@ const Navbar = () => {
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const zenMode = useSelector(state => state.ui.zenMode);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
@@ -114,11 +117,18 @@ const Navbar = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate('/', { replace: true });
-    setProfileMenuOpen(false);
-    setMobileMenuOpen(false);
+
+  const confirmLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await dispatch(logoutUser()).unwrap();
+      navigate('/', { replace: true });
+    } finally {
+      setLoggingOut(false);
+      setShowLogoutConfirm(false);
+      setProfileMenuOpen(false);
+      setMobileMenuOpen(false);
+    }
   };
 
 
@@ -336,7 +346,7 @@ const Navbar = () => {
                       )}
 
                       <button 
-                        onClick={handleLogout}
+                        onClick={() => setShowLogoutConfirm(true)}
                         className="flex items-center gap-3 w-full text-left px-4 py-3 text-error hover:bg-error/10 border-t border-base-300/40">
                         <FaShieldAlt className="text-primary" />
                         <span>Logout</span>
@@ -407,6 +417,20 @@ const Navbar = () => {
         </div>
 
       )}
+
+      {showLogoutConfirm && (
+        <ConfirmModal
+          title="Logout?"
+          message="Are you sure you want to logout?"
+          confirmText="Logout"
+          variant="error"
+          loading={loggingOut}
+          disableCancel={loggingOut}
+          onCancel={() => setShowLogoutConfirm(false)}
+          onConfirm={confirmLogout}
+        />
+      )}
+
 
       {/* MOBILE MENU */}
       {mobileMenuOpen && (

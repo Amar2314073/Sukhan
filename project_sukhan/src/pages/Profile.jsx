@@ -21,6 +21,9 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('overview');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -32,6 +35,18 @@ const Profile = () => {
       dispatch(getProfile());
     }
   }, [dispatch, navigate, isAuthenticated, isLoading, user]);
+
+  const confirmLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await dispatch(logoutUser()).unwrap();
+      navigate('/');
+    } finally {
+      setLoggingOut(false);
+      setShowLogoutModal(false);
+    }
+  };
+
 
 
   if (isLoading || !user) return <ProfileShimmer />;
@@ -105,7 +120,7 @@ const Profile = () => {
               </button>
 
               <button
-                onClick={() => dispatch(logoutUser())}
+                onClick={() => setShowLogoutModal(true)}
                 className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
               >
                 <LogOut size={16} />
@@ -177,6 +192,21 @@ const Profile = () => {
           }}
         />
       )}
+
+      {/* ===== LOGOUT MODAL ===== */}
+      {showLogoutModal && (
+        <ConfirmModal
+          title="Logout?"
+          message="Are you sure you want to logout?"
+          confirmText="Logout"
+          variant="error"
+          loading={loggingOut}
+          disableCancel={loggingOut}
+          onCancel={() => setShowLogoutModal(false)}
+          onConfirm={confirmLogout}
+        />
+      )}
+
 
       {/* ===== DELETE MODAL ===== */}
       {showDeleteModal && (
