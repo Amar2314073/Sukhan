@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { Navigate } from 'react-router';
-import ProfileShimmer from '../shimmer/ProfileShimmer';
+import ProfileShimmer from '../../shimmer/ProfileShimmer';
 
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, isLoading } = useSelector(state => state.auth);

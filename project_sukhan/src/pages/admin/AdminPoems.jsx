@@ -79,7 +79,7 @@ const AdminPoems = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  },[activeCategoryId, debouncedSearch, poems.length]);
+  },[activeCategoryId, debouncedSearch]);
 
   /* ================= RELOAD ON FILTER CHANGE ================= */
   useEffect(() => {

@@ -15,5 +15,21 @@ export default defineConfig({
       globPatterns: ['**/*.{js,css,html,png,svg,jpg,jpeg}']
     },
   })],
+  build: {
+    chunkSizeWarningLimit: 800,
+
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react')) return 'react-vendor'
+            if (id.includes('react-router')) return 'router'
+            if (id.includes('redux')) return 'redux'
+            return 'vendor'
+          }
+        }
+      }
+    }
+  }
 })
 

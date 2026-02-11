@@ -23,7 +23,7 @@ export default function Login() {
 
   const submit = async (data) => {
     const res = await dispatch(loginUser(data)).unwrap();
-    if (res) navigate('/');
+    if (res) navigate('/', { replace: true });
   };
 
   return (

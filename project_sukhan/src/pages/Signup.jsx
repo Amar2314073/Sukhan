@@ -8,6 +8,7 @@ import { registerUser } from '../redux/slices/authSlice';
 import { TfiEye } from 'react-icons/tfi';
 import { FiEyeOff } from 'react-icons/fi'
 import GoogleAuthButton from '../components/GoogleAuthButton';
+import toast from 'react-hot-toast'
 
 const schema = z.object({
   name: z.string().min(2, 'Name too short'),
@@ -35,12 +36,18 @@ export default function Signup() {
     useForm({ resolver: zodResolver(schema) });
 
   useEffect(() => {
-    if (isAuthenticated) navigate('/');
-  }, [isAuthenticated]);
+    if (isAuthenticated) navigate('/', { replace: true });
+  }, [isAuthenticated, navigate]);
 
-  const submit = ({ confirmPassword, ...data }) => {
-    dispatch(registerUser(data));
+  const submit = async ({ confirmPassword, ...data }) => {
+    try {
+      await dispatch(registerUser(data)).unwrap();
+      navigate('/', { replace: true });
+    } catch (err) {
+      toast.error(err?.message || 'Signup failed')
+    }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#0f0f0f] to-[#1a1a1a] px-4">
@@ -137,6 +144,15 @@ export default function Signup() {
           {errors.confirmPassword && (
             <p className="text-error text-xs">{errors.confirmPassword.message}</p>
           )}
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="btn btn-primary w-full mt-2"
+          >
+            {isLoading ? 'Creating account...' : 'Create account'}
+          </button>
+
           <GoogleAuthButton text='Sign up with Google' />
         </form>
       </div>
