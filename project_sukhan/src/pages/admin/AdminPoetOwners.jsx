@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { adminService } from "../../services/admin.service";
 import AdminPoemsShimmer from "../../shimmer/AdminPoemsShimmer";
 import { toast } from "react-hot-toast";
-import ConfirmDelete from "../../components/ConfirmDelete";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const AdminPoetOwners = () => {
   const [owners, setOwners] = useState([]);
@@ -41,8 +41,9 @@ const AdminPoetOwners = () => {
 
       toast.success("Poet owner revoked successfully");
       setConfirmPoet(null);
-      fetchOwners();
-
+      setOwners(prev => 
+        prev.filter(o => o._id !== confirmPoet._id)
+      );
     } catch (err) {
       toast.error(err.response?.data?.message || "Revoke failed");
     } finally {
@@ -119,8 +120,13 @@ const AdminPoetOwners = () => {
 
       {/* ================= CONFIRM MODAL ================= */}
       {confirmPoet && (
-        <ConfirmDelete
-          title={`Delete ownership of "${confirmPoet.name}"?`}
+        <ConfirmModal
+          title={`Revoke ownership of "${confirmPoet.name}"?`}
+          message={`Are you sure you want to revoke ownership of "${confirmPoet.name}"? This action cannot be undone.`}
+          confirmText="Revoke"
+          variant="error"
+          loading={revokingId === confirmPoet._id}
+          disableCancel={revokingId === confirmPoet._id}
           onCancel={() => setConfirmPoet(null)}
           onConfirm={confirmRevokeOwner}
         />

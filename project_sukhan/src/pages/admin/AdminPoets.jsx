@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { adminService } from '../../services/admin.service';
 import PoetForm from '../../components/admin/PoetForm';
-import ConfirmDelete from '../../components/ConfirmDelete';
+import ConfirmModal from '../../components/ConfirmModal';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
 
@@ -95,6 +95,34 @@ const AdminPoets = () => {
       loadPoets(page);
     }
   }, [page]);
+
+
+  const confirmDeletePoet = async () => {
+    if (!deletePoet) return;
+
+    const toastId = toast.loading('Deleting poet...');
+
+    try {
+      setDeletingId(deletePoet._id);
+
+      await adminService.deletePoet(deletePoet._id);
+
+      toast.success('Poet deleted successfully', { id: toastId });
+
+      // Optimistic update
+      setPoets(prev =>
+        prev.filter(p => p._id !== deletePoet._id)
+      );
+
+      setDeletePoet(null);
+
+    } catch (err) {
+      toast.error('Failed to delete poet', { id: toastId });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
 
   if (initialLoading) return <AdminPoemsShimmer />;
 
@@ -212,13 +240,13 @@ const AdminPoets = () => {
                     </button>
                     <button
                       onClick={() => setDeletePoet(poet)}
-                      disabled={deletingId === poet._id}
+                      disabled={deletingId !== null}
                       className={`
                         text-error hover:underline
                         disabled:opacity-50 disabled:cursor-not-allowed
                       `}
                     >
-                      {deletingId === poet._id ? 'Deleting…' : 'Delete'}
+                      Delete
                     </button>
                   </td>
                 </tr>
@@ -266,13 +294,10 @@ const AdminPoets = () => {
               </button>
               <button
                 onClick={() => setDeletePoet(poet)}
-                disabled={deletingId === poet._id}
-                className="
-                  text-error text-sm
-                  disabled:opacity-50 disabled:cursor-not-allowed
-                "
+                disabled={deletingId !== null}
+                className="text-error hover:underline disabled:opacity-50"
               >
-                {deletingId === poet._id ? 'Deleting…' : 'Delete'}
+                Delete
               </button>
 
             </div>
@@ -300,25 +325,15 @@ const AdminPoets = () => {
       )}
 
       {deletePoet && (
-        <ConfirmDelete
+        <ConfirmModal
           title={`Delete "${deletePoet.name}"?`}
+          message={`Are you sure you want to delete "${deletePoet.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          variant="error"
+          loading={deletingId === deletePoet._id}
+          disableCancel={deletingId === deletePoet._id}
           onCancel={() => setDeletePoet(null)}
-          onConfirm={async () => {
-            const toastId = toast.loading('Deleting poet...');
-            setDeletingId(deletePoet._id)
-            try {
-              await adminService.deletePoet(deletePoet._id);
-              toast.success('Poet deleted successfully', { id: toastId });
-              setDeletePoet(null);
-              setDeletingId(null);
-              setPage(1);
-              setPoets([]);
-              loadPoets(1);
-            } catch (err) {
-              toast.error('Failed to delete poet', { id: toastId });
-              console.error(err);
-            }
-          }}
+          onConfirm={confirmDeletePoet}
         />
       )}
     </div>

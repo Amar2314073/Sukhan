@@ -1,9 +1,9 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { adminService } from '../../services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/slices/categorySlice';
 import CollectionForm from '../../components/admin/CollectionForm';
-import ConfirmDelete from '../../components/ConfirmDelete';
+import ConfirmModal from '../../components/ConfirmModal';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import CollectionPoemsModal from '../../components/admin/CollectionPoemsModal';
 import toast from 'react-hot-toast';
@@ -23,6 +23,7 @@ const AdminCollections = () => {
   const [editingCollection, setEditingCollection] = useState(null);
   const [deleteCollection, setDeleteCollection] = useState(null);
   const [showPoemsManager, setShowPoemsManager] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
 
   const [search, setSearch] = useState('');
@@ -53,7 +54,7 @@ const AdminCollections = () => {
   }, [search]);
 
   /* ================= LOAD COLLECTIONS ================= */
-  const loadCollections = async (pageNo = 1) => {
+  const loadCollections = useCallback(async (pageNo = 1) => {
     try {
       if (!hasLoadedOnceRef.current) {
         setInitialLoading(true);
@@ -83,7 +84,8 @@ const AdminCollections = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  }, [activeCategoryId, debouncedSearch]);
+
 
   /* ================= RELOAD ON FILTER CHANGE ================= */
   useEffect(() => {
@@ -94,7 +96,7 @@ const AdminCollections = () => {
     setHasNext(true);
     loadCollections(1);
 
-  }, [activeCategoryId, debouncedSearch]);
+  }, [activeCategoryId, debouncedSearch, loadCollections]);
 
   /* ================= INFINITE SCROLL ================= */
   useEffect(() => {
@@ -118,6 +120,32 @@ const AdminCollections = () => {
   useEffect(() => {
     if (page > 1) loadCollections(page);
   }, [page]);
+
+  const confirmDeleteCollection = async () => {
+    if (!deleteCollection) return;
+
+    const toastId = toast.loading("Deleting collection...");
+    try {
+      setDeleting(true);
+
+      await adminService.deleteCollection(deleteCollection._id);
+
+      toast.success("Collection deleted", { id: toastId });
+
+      // Optimistic UI update
+      setCollections(prev =>
+        prev.filter(c => c._id !== deleteCollection._id)
+      );
+
+      setDeleteCollection(null);
+
+    } catch (err) {
+      toast.error("Failed to delete collection", { id: toastId });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
   /* ================= FIRST LOAD SHIMMER ================= */
   if (initialLoading && !hasLoadedOnceRef.current) {
@@ -161,11 +189,10 @@ const AdminCollections = () => {
             <button
               key={cat._id}
               onClick={() => setActiveCategoryId(cat._id)}
-              className={`py-3 border-b-2 whitespace-nowrap ${
-                activeCategoryId === cat._id
+              className={`py-3 border-b-2 whitespace-nowrap ${activeCategoryId === cat._id
                   ? 'border-primary text-primary'
                   : 'border-transparent text-base-content/60'
-              }`}
+                }`}
             >
               {cat.name}
             </button>
@@ -303,23 +330,15 @@ const AdminCollections = () => {
       )}
 
       {deleteCollection && (
-        <ConfirmDelete
+        <ConfirmModal
           title={`Delete "${deleteCollection.name}"?`}
+          message={`Are you sure you want to delete "${deleteCollection.name}"? This action cannot be undone.`}
+          confirmText='Delete'
+          variant='error'
+          loading={deleting}
+          disableCancel={deleting}
           onCancel={() => setDeleteCollection(null)}
-          onConfirm={async () => {
-            const toastId = toast.loading('Deleting collection...');
-            try {
-              await adminService.deleteCollection(deleteCollection._id);
-              toast.success('Collection deleted', { id: toastId });
-              setDeleteCollection(null);
-              setPage(1);
-              setCollections([]);
-              setHasNext(true);
-              loadCollections(1);
-            } catch (err) {
-              toast.error('Failed to delete collection', { id: toastId });
-            }
-          }}
+          onConfirm={confirmDeleteCollection}
         />
       )}
 
@@ -328,7 +347,6 @@ const AdminCollections = () => {
           collection={showPoemsManager}
           onClose={() => setShowPoemsManager(null)}
           onUpdated={() => {
-            // agar chaaho to collections reload kar sakte ho
             setPage(1);
             setCollections([]);
             setHasNext(true);

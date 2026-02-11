@@ -3,7 +3,7 @@ import { useNavigate } from "react-router";
 import axiosClient from "../../utils/axiosClient";
 import { adminService } from "../../services/admin.service";
 import toast from "react-hot-toast";
-import ConfirmDelete from "../../components/ConfirmDelete";
+import ConfirmModal from "../../components/ConfirmModal";
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);
@@ -41,8 +41,14 @@ const AdminBooks = () => {
       await adminService.deleteBook(confirmBook._id);
 
       toast.success("Book deleted successfully", { id: toastId });
+
+      // Optimistic UI update
+      setBooks(prev =>
+        prev.filter(b => b._id !== confirmBook._id)
+      );
+
       setConfirmBook(null);
-      fetchBooks();
+
     } catch (err) {
       toast.error(
         err.response?.data?.message || "Delete failed",
@@ -52,6 +58,7 @@ const AdminBooks = () => {
       setDeletingId(null);
     }
   };
+
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10">
@@ -171,8 +178,13 @@ const AdminBooks = () => {
 
       {/* ===== CONFIRM DELETE MODAL ===== */}
       {confirmBook && (
-        <ConfirmDelete
+        <ConfirmModal
           title={`Delete "${confirmBook.title}" ?`}
+          message={`Are you sure you want to delete "${confirmBook.title}"? This action cannot be undone.`}
+          confirmText='Delete'
+          variant='error'
+          loading={deletingId === confirmBook._id}
+          disableCancel={deletingId === confirmBook._id}
           onCancel={() => setConfirmBook(null)}
           onConfirm={confirmDeleteBook}
         />

@@ -1,11 +1,11 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { adminService } from '../../services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllCategories } from '../../redux/slices/categorySlice';
 import PoemForm from '../../components/admin/PoemForm';
-import ConfirmDelete from '../../components/ConfirmDelete';
 import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const AdminPoems = () => {
   const dispatch = useDispatch();
@@ -50,7 +50,7 @@ const AdminPoems = () => {
   }, [search]);
 
   /* ================= LOAD POEMS ================= */
-  const loadPoems = async (pageNo = 1) => {
+  const loadPoems = useCallback(async (pageNo = 1) => {
     try {
       if (pageNo === 1 && poems.length === 0) {
         setInitialLoading(true);
@@ -79,7 +79,7 @@ const AdminPoems = () => {
       setLoading(false);
       setInitialLoading(false);
     }
-  };
+  },[activeCategoryId, debouncedSearch, poems.length]);
 
   /* ================= RELOAD ON FILTER CHANGE ================= */
   useEffect(() => {
@@ -88,7 +88,36 @@ const AdminPoems = () => {
     setPoems([]);
     setHasNext(true);
     loadPoems(1);
-  }, [activeCategoryId, debouncedSearch]);
+  }, [activeCategoryId, debouncedSearch, loadPoems]);
+  
+  
+  /* ================= Confirm Delete function ================= */
+  const confirmDeletePoem = async () => {
+    if (!deletePoem) return;
+
+    const toastId = toast.loading('Deleting poem...');
+
+    try {
+      setDeletingId(deletePoem._id);
+
+      await adminService.deletePoem(deletePoem._id);
+
+      toast.success('Poem deleted successfully', { id: toastId });
+
+      // Optimistic update
+      setPoems(prev =>
+        prev.filter(p => p._id !== deletePoem._id)
+      );
+
+      setDeletePoem(null);
+
+    } catch (err) {
+      toast.error('Failed to delete poem', { id: toastId });
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
 
   /* ================= INFINITE SCROLL ================= */
   useEffect(() => {
@@ -110,7 +139,7 @@ const AdminPoems = () => {
 
   useEffect(() => {
     if (page > 1) loadPoems(page);
-  }, [page]);
+  }, [page, loadPoems]);
 
   if (initialLoading && poems.length === 0) {
     return <AdminPoemsShimmer />;
@@ -171,7 +200,7 @@ const AdminPoems = () => {
         </div>
       </div>
 
-      {poems.length === 0 && (
+      {!initialLoading && poems.length === 0 && (
         <div className="text-center py-10 text-base-content/60">
           No poems found
         </div>
@@ -291,35 +320,18 @@ const AdminPoems = () => {
       )}
 
       {deletePoem && (
-        <ConfirmDelete
-          title={`Delete "${deletePoem.title}"?`}
+        <ConfirmModal
+          title={`Delete poem: "${deletePoem.title}"?`}
+          message={`Are you sure you want to delete "${deletePoem.title}"? This action cannot be undone.`}
+          confirmText="Delete"
+          variant="error"
+          loading={deletingId === deletePoem._id}
+          disableCancel={deletingId === deletePoem._id}
           onCancel={() => setDeletePoem(null)}
-          onConfirm={async () => {
-            const toastId = toast.loading('Deleting poem...');
-            setDeletingId(deletePoem._id)
-
-            try {
-              await adminService.deletePoem(deletePoem._id);
-
-              toast.success('Poem deleted successfully', {
-                id: toastId
-              });
-
-              setDeletePoem(null);
-              setDeletingId(null);
-              setPage(1);
-              setPoems([]);
-              loadPoems(1);
-            } catch (err) {
-              toast.error('Failed to delete poem', {
-                id: toastId
-              });
-              console.error(err);
-            }
-          }}
-
+          onConfirm={confirmDeletePoem}
         />
       )}
+
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { adminService } from '../../services/admin.service';
 import { useNavigate } from 'react-router';
 import AdminShimmer from '../../shimmer/AdminShimmer';
+import ConfirmModal from '../../components/ConfirmModal';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
@@ -82,10 +83,11 @@ const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {cardsData.map(d => (
             <ActionCard
-            title = {d.title}
-            desc = {d.desc}
-            count = {d.count}
-            onClick = {d.onClick}
+              key={d.title}
+              title = {d.title}
+              desc = {d.desc}
+              count = {d.count}
+              onClick = {d.onClick}
             />
           ))}
         </div>
@@ -101,35 +103,18 @@ const AdminDashboard = () => {
 
       </div>
       {showConfirm && (
-        <div className="modal modal-open">
-          <div className="modal-box">
-            <h3 className="font-bold text-lg">Sync Dashboard Stats?</h3>
-
-            <p className="py-4 text-base-content/70">
-              This will re-calculate all admin statistics.
-              Are you sure you want to continue?
-            </p>
-
-            <div className="modal-action">
-              <button
-                className="btn btn-ghost"
-                onClick={() => setShowConfirm(false)}
-                disabled={syncing}
-              >
-                Cancel
-              </button>
-
-              <button
-                className="btn bg-base-200 btn-outline"
-                onClick={handleSync}
-                disabled={syncing}
-              >
-                {syncing ? "Syncing..." : "Yes, Sync"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <ConfirmModal
+          title="Sync Dashboard Stats?"
+          message="This will re-calculate all admin statistics. Are you sure you want to continue?"
+          confirmText="Yes, Sync"
+          variant="primary"
+          loading={syncing}
+          disableCancel={syncing}
+          onCancel={() => setShowConfirm(false)}
+          onConfirm={handleSync}
+        />
       )}
+
 
     </div>
   );
