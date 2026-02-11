@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
+import { Pencil, LogOut, Trash2, BookOpen, Heart, Library } from "lucide-react";
 import {
   logoutUser,
   deleteProfile,
@@ -65,15 +66,30 @@ const Profile = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`w-full text-left px-4 py-2 rounded-lg mb-1 transition
+                  className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg mb-1 transition
                     ${activeTab === tab
                       ? 'bg-base-300/40 text-base-content/90'
                       : 'text-base-content/60 hover:bg-base-300 hover:text-base-content/80'}
                   `}
                 >
-                  {tab === 'overview' && '📖 Overview'}
-                  {tab === 'favorites' && '❤️ Favorites'}
-                  {tab === 'collections' && '📚 Collections'}
+                  {tab === 'overview' && (
+                    <>
+                      <BookOpen size={16} />
+                      <span>Overview</span>
+                    </>
+                  )}
+                  {tab === 'favorites' && (
+                    <>
+                      <Heart size={16} />
+                      <span>favourites</span>
+                    </>
+                  )}
+                  {tab === 'collections' && (
+                    <>
+                      <Library size={16} />
+                      <span>Collections</span>
+                    </>
+                  )}
                 </button>
               ))}
 
@@ -81,23 +97,26 @@ const Profile = () => {
 
               <button
                 onClick={() => setShowEditModal(true)}
-                className="w-full px-4 py-2 rounded-lg text-base-content/80 hover:bg-base-300"
+                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-base-content/80 hover:bg-base-300 transition"
               >
-                ✏️ Edit Profile
+                <Pencil size={16} />
+                <span>Edit Profile</span>
               </button>
 
               <button
                 onClick={() => dispatch(logoutUser())}
-                className="w-full px-4 py-2 rounded-lg text-red-400 hover:bg-base-300"
+                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
               >
-                🚪 Logout
+                <LogOut size={16} />
+                <span>Logout</span>
               </button>
 
               <button
                 onClick={() => setShowDeleteModal(true)}
-                className="w-full px-4 py-2 rounded-lg text-red-500 hover:bg-base-300"
+                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
               >
-                🗑 Delete Account
+                <Trash2 size={16} />
+                <span>Delete Account</span>
               </button>
             </div>
           </aside>
@@ -130,7 +149,7 @@ const Profile = () => {
                       <Link
                         key={p._id}
                         to={`/poems/${p._id}`}
-                        className="block border-b border-base-300/40 py-3 hover:text-white"
+                        className="block border-b border-base-300/40 py-3 hover:text-primary transition"
                       >
                         <p className="italic line-clamp-2">
                           {p.content?.hindi || p.content?.roman}
@@ -191,17 +210,17 @@ const Stat = ({ title, value, onClick }) => (
 );
 
 const ConfirmModal = ({ onCancel, onConfirm }) => (
-  <div className="fixed inset-0 bg-base-900/70 z-50 flex items-center justify-center">
+  <div className="fixed inset-0 bg-base-content/30 backdrop-blur-sm z-50 flex items-center justify-center">
     <div className="bg-base-200 border border-base-300/40 rounded-xl p-6 w-full max-w-sm">
-      <h3 className="text-lg text-red-400 font-semibold mb-3">Delete Account</h3>
+      <h3 className="text-lg text-error font-semibold mb-3">Delete Account</h3>
       <p className="text-base-content/60 mb-4">
         This action is permanent.
       </p>
       <div className="flex justify-end gap-3">
-        <button onClick={onCancel} className="px-4 py-2 bg-base-300/40 rounded-lg">
+        <button onClick={onCancel} className="px-4 py-2 bg-base-300 hover:bg-base-300/70 rounded-lg transition">
           Cancel
         </button>
-        <button onClick={onConfirm} className="px-4 py-2 bg-red-600 rounded-lg">
+        <button onClick={onConfirm} className="px-4 py-2 bg-error text-error-content rounded-lg hover:bg-error/90 transition">
           Delete
         </button>
       </div>
