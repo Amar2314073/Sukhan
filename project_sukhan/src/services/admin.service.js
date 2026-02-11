@@ -42,4 +42,10 @@ export const adminService = {
   rejectPoetOwnership: (requestId) => axiosClient.post(`/admin/poet-ownership/${requestId}/reject`),
   revokePoetOwner: (poetId) => axiosClient.post(`/admin/poet/${poetId}/revoke-owner`),
 
+  // payment 
+  getAllPayments: (params) => axiosClient.get('/admin/payments', {params}),
+  getPaymentById: (id) => axiosClient.get('/admin/:id'),
+  refundPayment: (data) => axiosClient.post('/admin/payments/refund', data),
+  getPaymentStats: (params) => axiosClient.get('/admin/payment-stats', {params})
+
 };
