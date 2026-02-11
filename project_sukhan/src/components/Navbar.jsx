@@ -129,15 +129,6 @@ const Navbar = () => {
       : 'text-base-content/70 hover:text-base-content'
     }`;
 
-    console.log(user);
-   // Default profile image (white silhouette)
-  const defaultProfileImage = (
-    
-    <div className="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center">
-      <FaUserCircle size={36}/>
-    </div>
-
-  );
 
   return (
     <nav
@@ -247,12 +238,17 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="w-9 h-9 rounded-full bg-base-300 flex items-center justify-center"
+                className="w-9 h-9 rounded-full bg-base-300 flex items-center justify-center overflow-hidden"
               >
-                <div className="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center">
-                  <FaUserCircle size={24}/>
-                </div>
-
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt="profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <FaUserCircle size={24} className="text-base-content/70" />
+                )}
               </button>
 
               {profileMenuOpen && (
@@ -261,21 +257,21 @@ const Navbar = () => {
                     <>
                       <div className="p-4 border-b border-base-300/40 bg-base-200/40">
                         <div className="flex items-center gap-3">
-                            {user.profileImage ? (
+                            {user?.avatar ? (
                               <img 
-                                src={user.profileImage} 
+                                src={user.avatar} 
                                 alt={user.name} 
-                                className="w-10 h-10 rounded-full object-cover border border-amber-200"
+                                className="w-10 h-10 rounded-full object-cover border border-base-300"
                               />
                             ) : (
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 
-                              text-white flex items-center justify-center font-semibold">
+                              <div className="w-10 h-10 rounded-full bg-primary text-primary-content 
+                               flex items-center justify-center font-semibold">
                                 {user.name?.charAt(0).toUpperCase()}
                               </div>
                             )}
                             <div>
-                              <p className="font-semibold bg-base-content-90">{user.name}</p>
-                              <p className="text-xs bg-base-content-80">{user.email}</p>
+                              <p className="font-semibold text-base-content/90">{user.name}</p>
+                              <p className="text-xs text-base-content/70">{user.email}</p>
                             </div>
                           </div>
                       </div>
@@ -284,7 +280,7 @@ const Navbar = () => {
                         to="/profile" 
                         onClick={() => setProfileMenuOpen(false)} 
                         className="flex items-center gap-3 px-4 py-3 hover:bg-base-200 transition duration-200">
-                        <FaUser className="text-amber-600" />
+                        <FaUser className="text-primary" />
 
                         <span>My Profile</span>
                       </NavLink>
@@ -342,16 +338,16 @@ const Navbar = () => {
                       <button 
                         onClick={handleLogout}
                         className="flex items-center gap-3 w-full text-left px-4 py-3 text-error hover:bg-error/10 border-t border-base-300/40">
-                        <FaShieldAlt className="text-amber-600" />
+                        <FaShieldAlt className="text-primary" />
                         <span>Logout</span>
                       </button>
                     </>
                   ) : (
                     <>
-                      <div className="p-4 border-b border-amber-100 bg-gradient-to-r from-gray-900 to-gray-800">
+                      <div className="p-4 border-b border-base-300 bg-base-200">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                            {defaultProfileImage}
+                          <div className="w-10 h-10 rounded-full bg-base-300 flex items-center justify-center">
+                                <FaUserCircle size={36}/>
                           </div>
                           <div>
                             <p className="font-semibold text-base-content/90">Welcome Guest</p>
