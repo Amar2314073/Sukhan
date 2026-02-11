@@ -10,6 +10,7 @@ import {
 } from '../redux/slices/authSlice';
 import ProfileShimmer from '../shimmer/ProfileShimmer';
 import UserForm from '../components/UserForm';
+import ConfirmModal from '../components/ConfirmModal';
 
 const Profile = () => {
   const dispatch = useDispatch();
@@ -180,6 +181,10 @@ const Profile = () => {
       {/* ===== DELETE MODAL ===== */}
       {showDeleteModal && (
         <ConfirmModal
+          title="Delete Account"
+          message="This action is permanent. Are you sure you want to delete your account?"
+          confirmText="Delete"
+          variant="error"
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={() => {
             dispatch(deleteProfile());
@@ -187,6 +192,7 @@ const Profile = () => {
           }}
         />
       )}
+
     </div>
   );
 };
@@ -209,23 +215,5 @@ const Stat = ({ title, value, onClick }) => (
   </div>
 );
 
-const ConfirmModal = ({ onCancel, onConfirm }) => (
-  <div className="fixed inset-0 bg-base-content/30 backdrop-blur-sm z-50 flex items-center justify-center">
-    <div className="bg-base-200 border border-base-300/40 rounded-xl p-6 w-full max-w-sm">
-      <h3 className="text-lg text-error font-semibold mb-3">Delete Account</h3>
-      <p className="text-base-content/60 mb-4">
-        This action is permanent.
-      </p>
-      <div className="flex justify-end gap-3">
-        <button onClick={onCancel} className="px-4 py-2 bg-base-300 hover:bg-base-300/70 rounded-lg transition">
-          Cancel
-        </button>
-        <button onClick={onConfirm} className="px-4 py-2 bg-error text-error-content rounded-lg hover:bg-error/90 transition">
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-);
 
 export default Profile;
