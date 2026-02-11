@@ -129,8 +129,10 @@ const Navbar = () => {
       : 'text-base-content/70 hover:text-base-content'
     }`;
 
+    console.log(user);
    // Default profile image (white silhouette)
   const defaultProfileImage = (
+    
     <div className="w-10 h-10 rounded-full bg-base-100 flex items-center justify-center">
       <FaUserCircle size={36}/>
     </div>
