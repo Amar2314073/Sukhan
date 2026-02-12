@@ -31,8 +31,8 @@ export const adminService = {
   deleteCategory: (id) => axiosClient.delete(`/admin/categories/${id}`),
 
 
-  resetStats: () => axiosClient.post('/admin/reset'),
-  syncStats: () => axiosClient.post('/admin/sync'),
+  resetStats: () => axiosClient.post('/admin/stats/reset'),
+  syncStats: () => axiosClient.post('/admin/stats/sync'),
 
 
   // Poet ownership
@@ -40,12 +40,12 @@ export const adminService = {
   getPoetOwnershipRequests: () => axiosClient.get('/admin/poet-ownership/requests'),
   approvePoetOwnership: (requestId) => axiosClient.post(`/admin/poet-ownership/${requestId}/approve`),
   rejectPoetOwnership: (requestId) => axiosClient.post(`/admin/poet-ownership/${requestId}/reject`),
-  revokePoetOwner: (poetId) => axiosClient.post(`/admin/poet/${poetId}/revoke-owner`),
+  revokePoetOwner: (poetId) => axiosClient.post(`/admin/poet-ownership/${poetId}/revoke-owner`),
 
   // payment 
   getAllPayments: (params) => axiosClient.get('/admin/payments', {params}),
-  getPaymentById: (id) => axiosClient.get('/admin/:id'),
+  getPaymentById: (id) => axiosClient.get(`/admin/payments/${id}`),
   refundPayment: (data) => axiosClient.post('/admin/payments/refund', data),
-  getPaymentStats: (params) => axiosClient.get('/admin/payment-stats', {params})
+  getPaymentStats: (params) => axiosClient.get('/admin/payments/stats', {params})
 
 };

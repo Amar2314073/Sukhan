@@ -46,13 +46,13 @@ router.get('/poet-owners', adminController.getAllPoetOwners);
 router.get('/poet-ownership/requests', adminController.getPoetOwnershipRequests);
 router.post('/poet-ownership/:requestId/approve', adminController.approvePoetOwnership);
 router.post('/poet-ownership/:requestId/reject', adminController.rejectPoetOwnership);
-router.post('/poet/:poetId/revoke-owner', adminController.revokePoetOwner);
+router.post('/poet-ownership/:poetId/revoke-owner', adminController.revokePoetOwner);
 
 
 /* -------- PAYMENTS -------- */
 router.get('/payments', adminController.getAllPayments);
 router.get('/payments/:id', adminController.getPaymentByIdAdmin);
 router.post('/payments/refund', adminController.refundPayment);
-router.get('/payment-stats', adminController.getPaymentStats);
+router.get('/payments/stats', adminController.getPaymentStats);
 
 module.exports = router;
