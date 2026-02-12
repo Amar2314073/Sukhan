@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { FiCalendar, FiClock, FiMapPin } from 'react-icons/fi'
@@ -16,6 +16,34 @@ const PoetProfile = () => {
   const { currentPoet, poetPoems, loading, error } = useSelector(
     state => state.poets
   );
+
+  const [showClaim, setShowClaim] = useState(false);
+  const timerRef = useRef(null);
+
+  const handleDoubleClick = () => {
+    setShowClaim(true);
+
+    setTimeout(() => {
+      setShowClaim(false);
+    }, 5000); // 5 seconds visible
+  };
+
+  const handleTouchStart = () => {
+    timerRef.current = setTimeout(() => {
+      setShowClaim(true);
+
+      setTimeout(() => {
+        setShowClaim(false);
+      }, 5000); // 5 seconds visible
+
+    }, 300); // 600ms long press
+  };
+
+  const handleTouchEnd = () => {
+    clearTimeout(timerRef.current);
+  };
+
+
 
   const [activeCategory, setActiveCategory] = useState(null);
   const categoryCounts = useMemo(() => {
@@ -116,7 +144,11 @@ const PoetProfile = () => {
             <img
               src={currentPoet?.image || '/poet-placeholder.png'}
               alt={currentPoet?.name}
+              onDoubleClick={handleDoubleClick}
+              onTouchStart={handleTouchStart}
+              onTouchEnd={handleTouchEnd}
               className="
+                cursor-pointer
                 w-28 h-28
                 sm:w-36 sm:h-36
                 md:w-40 md:h-40
@@ -182,7 +214,7 @@ const PoetProfile = () => {
       </div>
 
       {/* Mobile Claim Button */}
-      {isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
+      {showClaim && isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
         <div className="md:hidden px-4 mt-4">
           <Link
             to={`/poet-ownership/claim/${currentPoet._id}`}
@@ -311,7 +343,7 @@ const PoetProfile = () => {
             "
           >
             {/* Claim ownership */}
-            {isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
+            {showClaim && isAuthenticated && !currentPoet.owner && !currentPoet.hasPendingClaim && (
               <Link
                 to={`/poet-ownership/claim/${currentPoet._id}`}
                 className="

@@ -18,7 +18,7 @@ router.use('/books', require('./books.routes'));
 router.use('/search', require('./search.routes'));
 router.use('/sitemap', require('./sitemap.routes'));
 router.use('/admin', authMiddleware, require('./admin.routes'));
-router.use('/poetOwner', authMiddleware, adminOnlyMiddleware, require('./poetOwner.routes'));
+router.use('/poetOwner', authMiddleware, require('./poetOwner.routes'));
 
 // payment route 
 router.use('/payment', require('./payment.routes'));
