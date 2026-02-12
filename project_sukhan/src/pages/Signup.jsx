@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
 import { NavLink, useNavigate } from 'react-router';
-import { registerUser } from '../redux/slices/authSlice';
+import { registerUser } from '@/redux/slices/authSlice';
 import { TfiEye } from 'react-icons/tfi';
 import { FiEyeOff } from 'react-icons/fi'
-import GoogleAuthButton from '../components/GoogleAuthButton';
+import GoogleAuthButton from '@/components/GoogleAuthButton';
 import toast from 'react-hot-toast'
 
 const schema = z.object({

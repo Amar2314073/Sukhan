@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { poetOwnerService } from "../../services/poetOwner.service";
+import { poetOwnerService } from "@/services/poetOwner.service";
 import { toast } from "react-hot-toast";
 import PoetOwnerPoetProfile from "./PoetOwnerPoetProfile";
 import PoetOwnerPoems from "./PoetOwnerPoems";

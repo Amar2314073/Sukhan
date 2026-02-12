@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { commentService } from '../services/comment.service';
+import { commentService } from '@/services/comment.service';
 
 const CommentForm = ({ poemId, parentComment = null, onSuccess }) => {
   const [text, setText] = useState('');

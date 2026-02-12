@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router';
-import PoemCard from '../components/PoemCard';
+import PoemCard from '@/components/PoemCard';
 import {
   fetchPoemsByCategory,
   clearPoemsByCategory
-} from '../redux/slices/poemSlice';
-import { getAllCategories } from '../redux/slices/categorySlice';
+} from '@/redux/slices/poemSlice';
+import { getAllCategories } from '@/redux/slices/categorySlice';
 
 const Poems = () => {
   const dispatch = useDispatch();

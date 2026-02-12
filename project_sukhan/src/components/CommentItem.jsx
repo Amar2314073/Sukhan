@@ -1,5 +1,5 @@
 import { Trash2 } from 'lucide-react';
-import { commentService } from '../services/comment.service';
+import { commentService } from '@/services/comment.service';
 
 const CommentItem = ({ comment, onReply, reload }) => {
   const deleteComment = async () => {

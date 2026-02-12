@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router';
-import { globalSearch, clearGlobalSearch } from '../redux/slices/globalSearchSlice';
+import { globalSearch, clearGlobalSearch } from '@/redux/slices/globalSearchSlice';
 
-import PoetCard from '../components/PoetCard';
-import PoemCard from '../components/PoemCard';
-import BookCard from '../components/BookCard';
+import PoetCard from '@/components/PoetCard';
+import PoemCard from '@/components/PoemCard';
+import BookCard from '@/components/BookCard';
 
 const Search = () => {
   const [params] = useSearchParams();

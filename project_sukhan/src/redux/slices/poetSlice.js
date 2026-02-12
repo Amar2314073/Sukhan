@@ -1,6 +1,6 @@
 // redux/slices/poetSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axiosClient from '../../utils/axiosClient';
+import axiosClient from '@/utils/axiosClient';
 
 // Async thunks
 export const fetchAllPoets = createAsyncThunk(

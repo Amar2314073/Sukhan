@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { searchService } from '../../services/search.service';
+import { searchService } from '@/services/search.service';
 
 export const globalSearch = createAsyncThunk(
   'globalSearch/search',

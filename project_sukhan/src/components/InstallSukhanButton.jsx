@@ -1,4 +1,4 @@
-import usePWAInstall from "../hooks/usePWAInstall";
+import usePWAInstall from "@/hooks/usePWAInstall";
 
 const InstallSukhanButton = () => {
   const { isInstallable, installApp } = usePWAInstall();

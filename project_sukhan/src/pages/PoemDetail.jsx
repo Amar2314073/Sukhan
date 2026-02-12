@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchPoemById, clearCurrentPoem } from '../redux/slices/poemSlice';
-import { toggleLikePoem, toggleSavePoem } from '../redux/slices/authSlice';
-import { toggleZenMode } from '../redux/slices/uiSlice';
-import AutoFitMisra from '../components/AutoFitMisra';
-import CommentSheet from '../components/CommentSheet';
+import { fetchPoemById, clearCurrentPoem } from '@/redux/slices/poemSlice';
+import { toggleLikePoem, toggleSavePoem } from '@/redux/slices/authSlice';
+import { toggleZenMode } from '@/redux/slices/uiSlice';
+import AutoFitMisra from '@/components/AutoFitMisra';
+import CommentSheet from '@/components/CommentSheet';
 import { FiThumbsUp , FiBookmark, FiVolumeX, FiBookOpen, FiX, FiChevronDown, FiStar } from 'react-icons/fi'
 import { TfiVolume, TfiHeart, TfiCommentAlt } from 'react-icons/tfi'
 const BG_IMAGE =

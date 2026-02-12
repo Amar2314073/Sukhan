@@ -7,10 +7,10 @@ import {
   deleteProfile,
   getProfile,
   updateProfile
-} from '../redux/slices/authSlice';
-import ProfileShimmer from '../shimmer/ProfileShimmer';
-import UserForm from '../components/UserForm';
-import ConfirmModal from '../components/ConfirmModal';
+} from '@/redux/slices/authSlice';
+import ProfileShimmer from '@/shimmer/ProfileShimmer';
+import UserForm from '@/components/UserForm';
+import ConfirmModal from '@/components/ConfirmModal';
 
 const Profile = () => {
   const dispatch = useDispatch();

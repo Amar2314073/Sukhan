@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router";
 import { Heart, Bookmark } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { toggleLikePoem, toggleSavePoem } from "../redux/slices/authSlice"
+import { toggleLikePoem, toggleSavePoem } from "@/redux/slices/authSlice"
 
 const PoemCard = ({ poem }) => {
   const navigate = useNavigate();

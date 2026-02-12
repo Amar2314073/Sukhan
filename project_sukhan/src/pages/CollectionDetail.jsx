@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft } from 'lucide-react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect } from 'react';
-import { clearSelectedCollection, fetchCollectionById } from '../redux/slices/collectionSlice';
+import { clearSelectedCollection, fetchCollectionById } from '@/redux/slices/collectionSlice';
 
 const CollectionDetail = () => {
   const navigate = useNavigate();

@@ -1,10 +1,10 @@
 import { Route } from "react-router"
 import PrivateRoute from "./guards/PrivateRoute"
-import Profile from "../pages/Profile"
-import LikedPoems from "../pages/LikedPoems"
-import SavedPoems from "../pages/SavedPoems"
 import PoetOwnerRoute from "./guards/PoetOwnerRoute"
-import PoetOwnerDashboard from "../pages/poetOwner/PoetOwnerDashboard"
+import Profile from "@/pages/Profile"
+import LikedPoems from "@/pages/LikedPoems"
+import SavedPoems from "@/pages/SavedPoems"
+import PoetOwnerDashboard from "@/pages/poetOwner/PoetOwnerDashboard"
 
 
 

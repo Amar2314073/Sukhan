@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllCategories } from '../../redux/slices/categorySlice';
-import { adminService } from '../../services/admin.service';
+import { getAllCategories } from '@/redux/slices/categorySlice';
+import { adminService } from '@/services/admin.service';
 import toast from 'react-hot-toast';
 
 const CollectionForm = ({ collection, onClose, onSuccess }) => {

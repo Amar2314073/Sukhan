@@ -1,7 +1,7 @@
 const Payment = require('../models/payment');
 const razorpayService = require('../services/razorpay.service');
 
-
+// if purpose of payment is not 'public' then login is required
 exports.createOrder = async (req, res) => {
   try {
 

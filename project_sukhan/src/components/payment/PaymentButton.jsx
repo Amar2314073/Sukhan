@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { usePayment } from "../hooks/usePayment";
-import { openRazorpayCheckout } from "../utils/razorpayCheckout";
+import { usePayment } from "@/hooks/usePayment";
+import { openRazorpayCheckout } from "@/utils/razorpayCheckout";
 
 
 const PaymentButton = ({

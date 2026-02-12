@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-import axiosClient from "../../utils/axiosClient";
-import { adminService } from "../../services/admin.service";
+import axiosClient from "@/utils/axiosClient";
+import { adminService } from "@/services/admin.service";
 import toast from "react-hot-toast";
-import ConfirmModal from "../../components/ConfirmModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const AdminBooks = () => {
   const [books, setBooks] = useState([]);

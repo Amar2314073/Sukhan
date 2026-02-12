@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { adminService } from "../../services/admin.service";
-import AdminPoemsShimmer from "../../shimmer/AdminPoemsShimmer";
+import { adminService } from "@/services/admin.service";
+import AdminPoemsShimmer from "@/shimmer/AdminPoemsShimmer";
 import { toast } from "react-hot-toast";
-import ConfirmModal from "../../components/ConfirmModal";
+import ConfirmModal from "@/components/ConfirmModal";
 
 const AdminPoetOwners = () => {
   const [owners, setOwners] = useState([]);

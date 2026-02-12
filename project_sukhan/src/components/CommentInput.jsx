@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Send, X } from 'lucide-react';
-import { commentService } from '../services/comment.service';
+import { commentService } from '@/services/comment.service';
 
 const CommentInput = ({ poemId, replyTo, clearReply, onSuccess }) => {
   const [text, setText] = useState('');

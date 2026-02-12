@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { useSelector } from 'react-redux';
-import axiosClient from '../utils/axiosClient';
-import PoemCard from '../components/PoemCard';
+import axiosClient from '@/utils/axiosClient';
+import PoemCard from '@/components/PoemCard';
 
 const LikedPoems = () => {
   const navigate = useNavigate();

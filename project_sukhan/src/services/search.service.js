@@ -1,4 +1,4 @@
-import axiosClient from "../utils/axiosClient";
+import axiosClient from "@/utils/axiosClient";
 
 export const searchService = {
     searchPoems: (q, params = {}) => axiosClient.get('/search/poems', {params: {q, ...params}}),

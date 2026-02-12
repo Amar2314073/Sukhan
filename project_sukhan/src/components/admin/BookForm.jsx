@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { searchService } from '../../services/search.service';
+import { searchService } from '@/services/search.service';
 import toast from 'react-hot-toast';
 
 const BookForm = ({ initialData = {}, onSubmit }) => {

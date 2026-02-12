@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchStats, setStatsFromCache } from '../redux/slices/statSlice';
-import PoemCardShimmer from '../shimmer/PoemCardShimmer';
-import PoetCardShimmer from '../shimmer/PoetCardShimmer';
-import CollectionCardShimmer from '../shimmer/CollectionCardShimmer';
-import InstallSukhanButton from '../components/InstallSukhanButton';
-import axiosClient from '../utils/axiosClient';
+import { fetchStats, setStatsFromCache } from '@/redux/slices/statSlice';
+import PoemCardShimmer from '@/shimmer/PoemCardShimmer';
+import PoetCardShimmer from '@/shimmer/PoetCardShimmer';
+import CollectionCardShimmer from '@/shimmer/CollectionCardShimmer';
+import InstallSukhanButton from '@/components/InstallSukhanButton';
+import axiosClient from '@/utils/axiosClient';
 
 const Home = () => {
   const dispatch = useDispatch();

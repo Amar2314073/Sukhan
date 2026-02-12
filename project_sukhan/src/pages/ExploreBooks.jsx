@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import axiosClient from '../utils/axiosClient';
-import BookCard from '../components/BookCard';
+import axiosClient from '@/utils/axiosClient';
+import BookCard from '@/components/BookCard';
 
 const ExploreBooks = () => {
   const [books, setBooks] = useState([]);

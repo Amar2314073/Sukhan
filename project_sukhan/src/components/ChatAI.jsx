@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import axiosClient from '../utils/axiosClient';
+import axiosClient from '@/utils/axiosClient';
 import { Mic, Speech } from 'lucide-react';
 import toast from 'react-hot-toast';
 

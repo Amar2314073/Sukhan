@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { logoutUser } from '../redux/slices/authSlice';
+import { logoutUser } from '@/redux/slices/authSlice';
 import { NavLink, useNavigate } from 'react-router';
 import { Search, Sun, Moon, LogIn, UserPlus, User } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { useTheme } from '../context/ThemeContext'
+import { useTheme } from '@/context/ThemeContext'
 import ConfirmModal from './ConfirmModal';
 import {
   FaMicrophone,

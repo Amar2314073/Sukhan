@@ -6,7 +6,7 @@ import {
   getPoetById,
   getPoemsByPoet,
   clearCurrentPoet
-} from '../redux/slices/poetSlice';
+} from '@/redux/slices/poetSlice';
 
 const PoetProfile = () => {
   const { id } = useParams();

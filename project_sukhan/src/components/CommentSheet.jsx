@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import CommentItem from './CommentItem';
 import CommentInput from './CommentInput';
-import { commentService } from '../services/comment.service';
+import { commentService } from '@/services/comment.service';
 
 const CommentSheet = ({ open, onClose, poemId }) => {
   const sheetRef = useRef(null);

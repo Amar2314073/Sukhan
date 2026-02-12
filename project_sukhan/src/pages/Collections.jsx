@@ -5,8 +5,8 @@ import {
   fetchCollections,
   clearCollections,
   setFilters
-} from '../redux/slices/collectionSlice';
-import { getAllCategories } from '../redux/slices/categorySlice';
+} from '@/redux/slices/collectionSlice';
+import { getAllCategories } from '@/redux/slices/categorySlice';
 
 const Collections = () => {
   const dispatch = useDispatch();

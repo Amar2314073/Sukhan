@@ -6,7 +6,7 @@ import {
   setCurrentPage,
   setFilters,
   clearSearchResults
-} from '../redux/slices/poetSlice';
+} from '@/redux/slices/poetSlice';
 
 const ERAS = ['all', 'Classical', 'Modern', 'Contemporary'];
 

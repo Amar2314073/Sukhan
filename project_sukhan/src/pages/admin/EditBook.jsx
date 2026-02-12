@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
-import axiosClient from '../../utils/axiosClient';
-import BookForm from '../../components/admin/BookForm';
+import axiosClient from '@/utils/axiosClient';
+import BookForm from '@/components/admin/BookForm';
 
 const EditBook = () => {
   const { id } = useParams();

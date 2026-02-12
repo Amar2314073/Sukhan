@@ -1,5 +1,5 @@
-import BookForm from '../../components/admin/BookForm';
-import { adminService } from '../../services/admin.service';
+import BookForm from '@/components/admin/BookForm';
+import { adminService } from '@/services/admin.service';
 import { useNavigate } from 'react-router';
 
 const AddBook = () => {

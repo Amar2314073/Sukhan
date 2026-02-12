@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux';
-import { Navigate } from 'react-router';
-import ProfileShimmer from '../../shimmer/ProfileShimmer';
+import { Navigate, Outlet } from 'react-router';
+import ProfileShimmer from '@/shimmer/ProfileShimmer';
 
-const PrivateRoute = ({ children }) => {
+const PrivateRoute = () => {
   const { isAuthenticated, isLoading } = useSelector(state => state.auth);
 
   if (isLoading) return <ProfileShimmer/>;
@@ -11,7 +11,7 @@ const PrivateRoute = ({ children }) => {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
 
 export default PrivateRoute;

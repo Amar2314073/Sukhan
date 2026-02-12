@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { adminService } from "../../services/admin.service";
-import AdminShimmer from "../../shimmer/AdminShimmer";
+import { adminService } from "@/services/admin.service";
+import AdminShimmer from "@/shimmer/AdminShimmer";
 
 const AdminPoetOwnershipRequests = () => {
   const [requests, setRequests] = useState([]);

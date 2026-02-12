@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from 'react';
-import { adminService } from '../../services/admin.service';
-import PoetForm from '../../components/admin/PoetForm';
-import ConfirmModal from '../../components/ConfirmModal';
-import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
+import { adminService } from '@/services/admin.service';
+import PoetForm from '@/components/admin/PoetForm';
+import ConfirmModal from '@/components/ConfirmModal';
+import AdminPoemsShimmer from '@/shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
 
 const AdminPoets = () => {

@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { adminService } from '../../services/admin.service';
+import { adminService } from '@/services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllCategories } from '../../redux/slices/categorySlice';
-import CollectionForm from '../../components/admin/CollectionForm';
-import ConfirmModal from '../../components/ConfirmModal';
-import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
-import CollectionPoemsModal from '../../components/admin/CollectionPoemsModal';
+import { getAllCategories } from '@/redux/slices/categorySlice';
+import CollectionForm from '@/components/admin/CollectionForm';
+import ConfirmModal from '@/components/ConfirmModal';
+import AdminPoemsShimmer from '@/shimmer/AdminPoemsShimmer';
+import CollectionPoemsModal from '@/components/admin/CollectionPoemsModal';
 import toast from 'react-hot-toast';
 
 const AdminCollections = () => {

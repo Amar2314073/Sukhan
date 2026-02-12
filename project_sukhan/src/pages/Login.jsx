@@ -4,8 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router';
-import { loginUser } from '../redux/slices/authSlice';
-import GoogleAuthButton from '../components/GoogleAuthButton';
+import { loginUser } from '@/redux/slices/authSlice';
+import GoogleAuthButton from '@/components/GoogleAuthButton';
 
 const schema = z.object({
   email: z.string().email(),

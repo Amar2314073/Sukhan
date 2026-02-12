@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-import { adminService } from '../../services/admin.service';
+import { adminService } from '@/services/admin.service';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllCategories } from '../../redux/slices/categorySlice';
-import PoemForm from '../../components/admin/PoemForm';
-import AdminPoemsShimmer from '../../shimmer/AdminPoemsShimmer';
+import { getAllCategories } from '@/redux/slices/categorySlice';
+import PoemForm from '@/components/admin/PoemForm';
+import AdminPoemsShimmer from '@/shimmer/AdminPoemsShimmer';
 import toast from 'react-hot-toast';
-import ConfirmModal from '../../components/ConfirmModal';
+import ConfirmModal from '@/components/ConfirmModal';
 
 const AdminPoems = () => {
   const dispatch = useDispatch();

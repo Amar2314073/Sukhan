@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { poemService } from '../../services/poem.service';
+import { poemService } from '@/services/poem.service';
 
 
 // Async thunks for API calls

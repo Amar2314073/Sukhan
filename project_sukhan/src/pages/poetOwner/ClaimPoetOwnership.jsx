@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { poetOwnerService } from "../../services/poetOwner.service";
+import { poetOwnerService } from "@/services/poetOwner.service";
 import toast from "react-hot-toast";
 
 const ClaimPoetOwnership = () => {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllCategories } from "../../redux/slices/categorySlice";
-import { poetOwnerService } from "../../services/poetOwner.service";
+import { getAllCategories } from "@/redux/slices/categorySlice";
+import { poetOwnerService } from "@/services/poetOwner.service";
 import toast from "react-hot-toast";
 
 const PoetOwnerPoemForm = ({ poem, onClose, onSuccess }) => {
