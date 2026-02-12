@@ -37,8 +37,8 @@ router.post('/stats/sync', adminController.syncStats);
 
 /* -------- Categories -------- */
 router.post('/categories', adminController.createCategory);
-router.put('categories/:id', adminController.updateCategory);
-router.delete('categories/:id', adminController.deleteCategory);
+router.put('/categories/:id', adminController.updateCategory);
+router.delete('/categories/:id', adminController.deleteCategory);
 
 
 /* -------- POET OWNERSHIP -------- */

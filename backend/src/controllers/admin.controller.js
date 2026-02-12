@@ -8,6 +8,7 @@ const Book = require('../models/book');
 const PoetOwnershipRequest = require('../models/poetOwnershipRequest');
 const mongoose = require('mongoose');
 const Payment = require('../models/payment');
+const razorpayService = require('../services/razorpay.service');
 
 /* -------- DASHBOARD -------- */
 exports.dashboard = async (req, res) => {
@@ -733,7 +734,7 @@ exports.addPoemToCollection = async (req, res) => {
         }
 
         // Check if poem already in collection
-        if (collection.poems.includes(poemId)) {
+        if (collection.poems.some(p => p.toString() === poemId)) {
             return res.status(409).json({ message: "Poem already in collection" });
         }
 
@@ -786,7 +787,7 @@ exports.removePoemFromCollection = async (req, res) => {
         }
 
         // Check if poem is in collection
-        if (!collection.poems.includes(poemId)) {
+        if (!collection.poems.some(p => p.toString() === poemId)) {
             return res.status(404).json({ message: "Poem not found in collection" });
         }
 
@@ -899,7 +900,7 @@ exports.deleteBook = async (req, res) => {
 
     await Stat.findByIdAndUpdate(
         'GLOBAL_STATS',
-        { $inc: { poets: -1 } },
+        { $inc: { books: -1 } },
         { upsert: true }
     );
 
@@ -1195,6 +1196,8 @@ exports.approvePoetOwnership = async (req, res) => {
       .findById(request.poet)
       .session(session);
 
+    if (!poet) throw new Error('Poet not found');
+
     if (poet.owner) {
       throw new Error('Poet already has an owner');
     }
@@ -1211,15 +1214,16 @@ exports.approvePoetOwnership = async (req, res) => {
     poet.ownerVerifiedBy = req.user._id;
     await poet.save({ session });
 
-    await User.findByIdAndUpdate(request.user, {
-        isPoetOwner: true,
-        ownedPoet: poet._id
-    });
+    await User.findByIdAndUpdate(
+      request.user,
+      { isPoetOwner: true, ownedPoet: poet._id },
+      { session }
+    );
 
     await Stat.findByIdAndUpdate(
         'GLOBAL_STATS',
         { $inc: { poetOwners: 1 } },
-        { upsert: true }
+        { upsert: true, session }
     );
 
     await session.commitTransaction();
@@ -1269,6 +1273,12 @@ exports.revokePoetOwner = async (req, res) => {
       return res.status(404).json({ message: 'Poet not found' });
     }
 
+    if (!poet.owner) {
+      return res.status(400).json({ message: 'Poet has no owner' });
+    }
+
+    const previousOwner = poet.owner;
+
     // Poems are intentionally preserved for historical integrity
     poet.owner = null;
     poet.ownerAssignedAt = null;
@@ -1276,11 +1286,11 @@ exports.revokePoetOwner = async (req, res) => {
     await poet.save();
 
     await PoetOwnershipRequest.updateMany(
-        { poet: poet._id, status: 'pending' },
-        { status: 'rejected' }
+        { poet: poet._id, status: 'approved' },
+        { status: 'revoked' }
     );
 
-    await User.findByIdAndUpdate(request.user, {
+    await User.findByIdAndUpdate(previousOwner, {
         isPoetOwner: false,
         ownedPoet: null
     });
@@ -1363,11 +1373,15 @@ exports.refundPayment = async (req, res) => {
 
     const payment = await Payment.findById(paymentId);
 
+    if (!payment) {
+      return res.status(404).json({ message: 'Payment not found' });
+    }
+
     if (payment.status === 'refunded') {
         return res.status(400).json({ message: 'Already refunded' });
     }
 
-    if (!payment || payment.status !== 'paid' || !payment.paymentId) {
+    if (payment.status !== 'paid' || !payment.paymentId) {
       return res.status(400).json({ message: 'Payment not refundable' });
     }
 

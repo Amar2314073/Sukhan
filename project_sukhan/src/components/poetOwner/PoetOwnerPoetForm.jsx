@@ -8,7 +8,7 @@ const PoetOwnerPoetForm = ({ poet, onClose, onSuccess }) => {
     bio: poet?.bio || "",
     era: poet?.era || "Contemporary",
     birthYear: poet?.birthYear || "",
-    deathYear: poet.deathYear || "",
+    deathYear: poet?.deathYear || "",
     country: poet?.country || "",
     image: poet?.image || ""
   });
@@ -19,7 +19,10 @@ const PoetOwnerPoetForm = ({ poet, onClose, onSuccess }) => {
     const toastId = toast.loading("Updating poet profile...");
 
     try {
-      const res = await poetOwnerService.updatePoetProfile(form);
+      const res = await poetOwnerService.updatePoetProfile(
+        poet._id,
+        form
+      );
       toast.success("Poet profile updated successfully!", { id: toastId });
       onSuccess(res.data.poet);
     } catch (err) {

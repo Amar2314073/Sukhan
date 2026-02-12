@@ -4,10 +4,11 @@ import { getAllCategories } from "@/redux/slices/categorySlice";
 import { poetOwnerService } from "@/services/poetOwner.service";
 import toast from "react-hot-toast";
 
-const PoetOwnerPoemForm = ({ poem, onClose, onSuccess }) => {
+const PoetOwnerPoemForm = ({ poetId, poem, onClose, onSuccess }) => {
   const dispatch = useDispatch();
   const { categories } = useSelector(state => state.categories);
   const [submitting, setSubmitting] = useState(false);
+
 
 
   /* ================= FORM STATE ================= */
@@ -38,10 +39,10 @@ const PoetOwnerPoemForm = ({ poem, onClose, onSuccess }) => {
     try {
       let res;
       if (poem) {
-        res = await poetOwnerService.updatePoem(poem._id, form);
+        res = await poetOwnerService.updatePoem(poetId, poem._id, form);
         toast.success("Poem updated successfully", { id: toastId });
       } else {
-        res = await poetOwnerService.createPoem(form);
+        res = await poetOwnerService.createPoem(poetId, form);
         toast.success("Poem created successfully", { id: toastId });
       }
 

@@ -30,7 +30,7 @@ const poetOwnershipRequestSchema = new Schema({
 
   status: {
     type: String,
-    enum: ['pending', 'approved', 'rejected'],
+    enum: ['pending', 'approved', 'rejected', 'revoked'],
     default: 'pending'
   },
 
@@ -46,7 +46,7 @@ const poetOwnershipRequestSchema = new Schema({
 
 // ek user ek poet ke liye sirf ek active request
 poetOwnershipRequestSchema.index(
-  { poet: 1, user: 1, status: 1 },
+  { poet: 1, user: 1 },
   { unique: true }
 );
 

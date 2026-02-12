@@ -7,7 +7,6 @@ import PoetOwnerPoems from "./PoetOwnerPoems";
 
 const PoetOwnerDashboard = () => {
   const { user } = useSelector((state) => state.auth);
-  console.log(user.ownedPoet);
 
   const [poet, setPoet] = useState(null);
   const [poems, setPoems] = useState([]);
@@ -52,7 +51,7 @@ const PoetOwnerDashboard = () => {
       </h1>
 
       <PoetOwnerPoetProfile poet={poet} setPoet={setPoet} />
-      <PoetOwnerPoems poems={poems} setPoems={setPoems} />
+      <PoetOwnerPoems poetId={poet?._id} poems={poems} setPoems={setPoems} />
     </div>
   );
 };

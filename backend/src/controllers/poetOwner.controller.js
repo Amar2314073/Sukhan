@@ -71,7 +71,7 @@ exports.createPoem = async (req, res) => {
 /* Update poem belonging to own poet */
 exports.updatePoem = async (req, res) => {
   try {
-    const poemId = req.params.id;
+    const poemId = req.params.poemId;
     const { title, content, category } = req.body;
 
     const poem = await Poem.findOne({

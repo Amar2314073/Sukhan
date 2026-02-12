@@ -6,8 +6,8 @@ const claimLimiter = require('../middleware/claimLimiter');
 
 
 router.post('/claim', claimLimiter, poetOwnerController.submitClaim);
-router.put('/poet', poetOwnershipMiddleware, poetOwnerController.updatePoet);
-router.post('/poems', poetOwnershipMiddleware, poetOwnerController.createPoem);
-router.put('/poems/:id', poetOwnershipMiddleware, poetOwnerController.updatePoem);
+router.put('/poet/:poetId', poetOwnershipMiddleware, poetOwnerController.updatePoet);
+router.post('/poet/:poetId/poems', poetOwnershipMiddleware, poetOwnerController.createPoem);
+router.put('/poet/:poetId/poems/:poemId', poetOwnershipMiddleware, poetOwnerController.updatePoem);
 
 module.exports = router;
