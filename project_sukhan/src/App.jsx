@@ -12,7 +12,6 @@ import { loadUser } from "./redux/slices/authSlice"
 
 import Navbar from "./components/Navbar"
 import { Toaster } from "react-hot-toast"
-import PaymentFailed from "./components/payment/PaymentFailed"
 
 function App() {
   const dispatch = useDispatch()
@@ -37,7 +36,6 @@ function App() {
           >
             <Suspense fallback={<AppLoader />}>
               <Routes>
-                <Route path='/test' element={<PaymentFailed />} />
                 {publicRoutes}
                 {userRoutes}
                 {adminAppRoute}

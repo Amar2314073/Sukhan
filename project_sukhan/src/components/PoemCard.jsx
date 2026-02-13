@@ -41,6 +41,7 @@ const PoemCard = ({ poem }) => {
     };
 
 
+
   return (
     <div
       onClick={() => navigate(`/poems/${poem._id}`)}

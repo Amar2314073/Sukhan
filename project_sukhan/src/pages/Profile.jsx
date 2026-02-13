@@ -1,187 +1,147 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate, Link } from 'react-router';
-import { Pencil, LogOut, Trash2, BookOpen, Heart, Library } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate, Link } from "react-router";
+import { useTheme } from '@/context/ThemeContext';
+import {
+  LogOut,
+  Trash2,
+  Moon,
+  Heart,
+  BookOpen,
+  Library,
+  Pencil,
+  Info
+} from "lucide-react";
 import {
   logoutUser,
   deleteProfile,
   getProfile,
   updateProfile
-} from '@/redux/slices/authSlice';
-import ProfileShimmer from '@/shimmer/ProfileShimmer';
-import UserForm from '@/components/UserForm';
-import ConfirmModal from '@/components/ConfirmModal';
+} from "@/redux/slices/authSlice";
+import ConfirmModal from "@/components/ConfirmModal";
+import ProfileShimmer from "@/shimmer/ProfileShimmer";
+import UserForm from "@/components/UserForm";
 
 const Profile = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { user, isAuthenticated, isLoading } = useSelector(s => s.auth);
 
-  const [activeTab, setActiveTab] = useState('overview');
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
-
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
-
     if (isAuthenticated && !user) {
       dispatch(getProfile());
     }
   }, [dispatch, navigate, isAuthenticated, isLoading, user]);
 
+
   const confirmLogout = async () => {
-    try {
-      setLoggingOut(true);
-      await dispatch(logoutUser()).unwrap();
-      navigate('/');
-    } finally {
-      setLoggingOut(false);
-      setShowLogoutModal(false);
-    }
+    setLoggingOut(true);
+    await dispatch(logoutUser()).unwrap();
+    setLoggingOut(false);
+    navigate("/");
   };
 
-
-
-  if (isLoading || !user) return <ProfileShimmer />;
+  if (isLoading || !user) return <ProfileShimmer />
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content py-10">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-base-100 px-4 py-6">
 
-        {/* ===== HEADER ===== */}
-        <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8 mb-10 flex items-center gap-6">
-          <div className="w-12 h-12 md:w-24 md:h-24 rounded-full bg-base-300/40 flex items-center justify-center text-3xl font-bold">
+      {/* ===== USER CARD ===== */}
+      <div className="bg-base-200 rounded-2xl p-6 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-base-300 flex items-center justify-center text-xl font-bold">
             {user.avatar ? (
-              <img src={user.avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
+              <img src={user.avatar} alt="" className="w-full h-full rounded-full object-cover" />
             ) : (
               user.name.charAt(0).toUpperCase()
             )}
           </div>
           <div>
-            <h1 className="text-3xl font-serif">{user.name}</h1>
-            <p className="text-base-content/60">{user.email}</p>
-            {user.bio && (
-              <p className="mt-2 text-base-content/80 max-w-xl">{user.bio}</p>
-            )}
+            <h2 className="text-lg font-semibold">{user.name}</h2>
+            <p className="text-sm text-base-content/60">{user.email}</p>
           </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row gap-8">
-
-          {/* ===== SIDEBAR ===== */}
-          <aside className="lg:w-1/4">
-            <div className="bg-base-200 border border-base-300/40 rounded-2xl p-6">
-              {['overview', 'favorites', 'collections'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg mb-1 transition
-                    ${activeTab === tab
-                      ? 'bg-base-300/40 text-base-content/90'
-                      : 'text-base-content/60 hover:bg-base-300 hover:text-base-content/80'}
-                  `}
-                >
-                  {tab === 'overview' && (
-                    <>
-                      <BookOpen size={16} />
-                      <span>Overview</span>
-                    </>
-                  )}
-                  {tab === 'favorites' && (
-                    <>
-                      <Heart size={16} />
-                      <span>favourites</span>
-                    </>
-                  )}
-                  {tab === 'collections' && (
-                    <>
-                      <Library size={16} />
-                      <span>Collections</span>
-                    </>
-                  )}
-                </button>
-              ))}
-
-              <div className="border-t border-base-300/40 my-4" />
-
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-base-content/80 hover:bg-base-300 transition"
-              >
-                <Pencil size={16} />
-                <span>Edit Profile</span>
-              </button>
-
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
-              >
-                <LogOut size={16} />
-                <span>Logout</span>
-              </button>
-
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
-              >
-                <Trash2 size={16} />
-                <span>Delete Account</span>
-              </button>
-            </div>
-          </aside>
-
-          {/* ===== MAIN ===== */}
-          <main className="lg:w-3/4">
-
-            {activeTab === 'overview' && (
-              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <Stat 
-                    onClick = {()=>navigate('/profile/likedPoems')} 
-                    title="Liked Poems" 
-                    value={user.likedPoems?.length || 0} 
-                  />
-                  <Stat
-                    onClick = {()=>navigate('/profile/savedPoems')} 
-                    title="Saved Poems" 
-                    value={user.savedPoems?.length || 0} />
-                  <Stat title="Collections" value={user.collections?.length || 0} />                  
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'favorites' && (
-              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
-                {user.likedPoems.length === 0
-                  ? <p className="text-base-content/60">No liked poems yet.</p>
-                  : user.likedPoems.map(p => (
-                      <Link
-                        key={p._id}
-                        to={`/poems/${p._id}`}
-                        className="block border-b border-base-300/40 py-3 hover:text-primary transition"
-                      >
-                        <p className="italic line-clamp-2">
-                          {p.content?.hindi || p.content?.roman}
-                        </p>
-                        <p className="text-sm text-base-content/50">— {p.poet?.name}</p>
-                      </Link>
-                    ))
-                }
-              </div>
-            )}
-
-          </main>
         </div>
       </div>
 
-      {/* ===== EDIT MODAL ===== */}
+      {/* ===== MY ACTIVITY ===== */}
+      <div className="bg-base-200 rounded-2xl p-5 mb-6">
+        <h3 className="font-semibold mb-4">My Activity</h3>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <Stat
+            icon={<Heart size={18} />}
+            value={user.likedPoems?.length || 0}
+            label="Liked"
+            onClick={() => navigate("/profile/likedPoems")}
+          />
+          <Stat
+            icon={<BookOpen size={18} />}
+            value={user.savedPoems?.length || 0}
+            label="Saved"
+            onClick={() => navigate("/profile/savedPoems")}
+          />
+          <Stat
+            icon={<Library size={18} />}
+            value={user.collections?.length || 0}
+            label="Collections"
+          />
+        </div>
+      </div>
+
+      {/* ===== SETTINGS ===== */}
+      <div className="bg-base-200 rounded-2xl divide-y divide-base-300 mb-6">
+
+        <RowItem
+          icon={<Pencil size={18} />}
+          label="Edit Profile"
+          onClick={() => setShowEditModal(true)}
+        />
+
+        <RowItem
+          icon={<Moon size={18} />}
+          label="Dark Mode"
+          right={
+            <input
+              type="checkbox"
+              className="toggle"
+              checked={isDark}
+              onChange={toggleTheme}
+            />
+          }
+        />
+
+        <RowItem
+          icon={<Info size={18} />}
+          label="About Us"
+          onClick={() => navigate("/about")}
+        />
+
+
+        <RowItem
+          icon={<LogOut size={18} />}
+          label="Logout"
+          onClick={() => setShowLogoutModal(true)}
+        />
+
+        <RowItem
+          icon={<Trash2 size={18} />}
+          label="Delete Account"
+          onClick={() => setShowDeleteModal(true)}
+          danger
+        />
+      </div>
+
+      {/* ===== MODALS ===== */}
       {showEditModal && (
         <UserForm
           user={user}
@@ -193,7 +153,6 @@ const Profile = () => {
         />
       )}
 
-      {/* ===== LOGOUT MODAL ===== */}
       {showLogoutModal && (
         <ConfirmModal
           title="Logout?"
@@ -207,18 +166,16 @@ const Profile = () => {
         />
       )}
 
-
-      {/* ===== DELETE MODAL ===== */}
       {showDeleteModal && (
         <ConfirmModal
           title="Delete Account"
-          message="This action is permanent. Are you sure you want to delete your account?"
+          message="This action is permanent."
           confirmText="Delete"
           variant="error"
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={() => {
             dispatch(deleteProfile());
-            navigate('/');
+            navigate("/");
           }}
         />
       )}
@@ -227,23 +184,32 @@ const Profile = () => {
   );
 };
 
-const Stat = ({ title, value, onClick }) => (
+const Stat = ({ icon, value, label, onClick }) => (
   <div
     onClick={onClick}
-    className="
-      bg-base-300/40
-      rounded-xl
-      p-6
-      text-center
-      cursor-pointer
-      hover:bg-base-300
-      transition
-    "
+    className="cursor-pointer bg-base-300/40 rounded-xl p-4 hover:bg-base-300 transition"
   >
-    <div className="text-3xl font-semibold">{value}</div>
-    <div className="text-base-content/60 mt-1">{title}</div>
+    <div className="flex justify-center mb-2 text-base-content/70">
+      {icon}
+    </div>
+    <div className="text-lg font-semibold">{value}</div>
+    <div className="text-xs text-base-content/60">{label}</div>
   </div>
 );
 
+const RowItem = ({ icon, label, right, onClick, danger }) => (
+  <div
+    onClick={onClick}
+    className={`flex items-center justify-between px-5 py-4 transition cursor-pointer
+      ${danger ? "text-error hover:bg-error/10" : "hover:bg-base-300/40"}
+    `}
+  >
+    <div className="flex items-center gap-3">
+      {icon}
+      <span>{label}</span>
+    </div>
+    {right}
+  </div>
+);
 
 export default Profile;

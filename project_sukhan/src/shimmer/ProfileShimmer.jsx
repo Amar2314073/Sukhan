@@ -1,75 +1,52 @@
 const ProfileShimmer = () => {
   return (
-    <div className="min-h-screen bg-base-100 py-8">
-      <div className="container mx-auto px-4 max-w-6xl">
+    <div className="min-h-screen bg-base-100 px-4 py-6 animate-pulse">
 
-        {/* ================= HEADER SHIMMER ================= */}
-        <div className="bg-base-200 rounded-2xl p-8 mb-10">
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-
-            {/* avatar */}
-            <div className="w-24 h-24 rounded-full shimmer-card" />
-
-            {/* name + email + bio */}
-            <div className="flex-1 space-y-3 w-full">
-              <div className="h-7 w-56 rounded shimmer-card" />
-              <div className="h-4 w-72 rounded shimmer-card" />
-              <div className="h-4 w-full max-w-xl rounded shimmer-card" />
-            </div>
-
+      {/* ===== USER CARD SHIMMER ===== */}
+      <div className="bg-base-200 rounded-2xl p-6 mb-6">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-full bg-base-300 shimmer-card" />
+          <div className="space-y-2 flex-1">
+            <div className="h-5 w-40 bg-base-300 rounded shimmer-card" />
+            <div className="h-4 w-56 bg-base-300 rounded shimmer-card" />
           </div>
         </div>
+      </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
+      {/* ===== MY ACTIVITY SHIMMER ===== */}
+      <div className="bg-base-200 rounded-2xl p-5 mb-6">
+        <div className="h-5 w-32 bg-base-300 rounded shimmer-card mb-6" />
 
-          {/* ================= SIDEBAR SHIMMER ================= */}
-          <aside className="lg:w-1/4">
-            <div className="bg-base-200 rounded-2xl p-6 space-y-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="h-4 w-40 rounded shimmer-card" />
-              ))}
+        <div className="grid grid-cols-3 gap-4">
+          {[...Array(3)].map((_, i) => (
+            <div
+              key={i}
+              className="bg-base-300/40 rounded-xl p-4 space-y-3"
+            >
+              <div className="h-4 w-6 mx-auto bg-base-300 rounded shimmer-card" />
+              <div className="h-5 w-12 mx-auto bg-base-300 rounded shimmer-card" />
+              <div className="h-3 w-16 mx-auto bg-base-300 rounded shimmer-card" />
             </div>
-          </aside>
-
-          {/* ================= MAIN CONTENT SHIMMER ================= */}
-          <main className="lg:w-3/4 space-y-8">
-
-            {/* Overview card */}
-            <div className="bg-base-200 rounded-2xl p-8">
-              <div className="h-6 w-48 rounded shimmer-card mb-6" />
-
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-6 mb-10">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="bg-base-100 rounded-xl p-6 text-center space-y-3"
-                  >
-                    <div className="h-8 w-20 mx-auto rounded shimmer-card" />
-                    <div className="h-4 w-24 mx-auto rounded shimmer-card" />
-                  </div>
-                ))}
-              </div>
-
-              <div className="h-10 w-36 rounded-xl shimmer-card" />
-            </div>
-
-            {/* Favorites shimmer list */}
-            {/* <div className="bg-base-200 rounded-2xl p-8">
-              <div className="h-6 w-40 rounded shimmer-card mb-6" />
-
-              <div className="space-y-4">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="border-b pb-3 space-y-2">
-                    <div className="h-4 w-full rounded shimmer-card" />
-                    <div className="h-3 w-32 rounded shimmer-card" />
-                  </div>
-                ))}
-              </div>
-            </div> */}
-
-          </main>
+          ))}
         </div>
       </div>
+
+      {/* ===== SETTINGS SHIMMER ===== */}
+      <div className="bg-base-200 rounded-2xl divide-y divide-base-300">
+        {[...Array(5)].map((_, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between px-5 py-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-5 h-5 bg-base-300 rounded shimmer-card" />
+              <div className="h-4 w-32 bg-base-300 rounded shimmer-card" />
+            </div>
+            <div className="h-4 w-8 bg-base-300 rounded shimmer-card" />
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };

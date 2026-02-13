@@ -529,7 +529,13 @@ exports.getLikedPoems = async (req, res) => {
 exports.getSavedPoems = async (req, res) => {
     try {
         const userId = req.user._id;
-        const user = await User.findById(userId).populate('savedPoems');
+        const user = await User.findById(userId).populate({
+            path: 'savedPoems',
+            populate: {
+                path: 'poet',
+                select: 'name _id'
+            }
+        });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
