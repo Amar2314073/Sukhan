@@ -1,249 +1,750 @@
-import { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router';
-import { Pencil, LogOut, Trash2, BookOpen, Heart, Library } from "lucide-react";
-import {
-  logoutUser,
-  deleteProfile,
-  getProfile,
-  updateProfile
-} from '@/redux/slices/authSlice';
-import ProfileShimmer from '@/shimmer/ProfileShimmer';
-import UserForm from '@/components/UserForm';
-import ConfirmModal from '@/components/ConfirmModal';
+import { useSelector, useDispatch } from 'react-redux';
+import { fetchStats, setStatsFromCache } from '@/redux/slices/statSlice';
+import PoemCardShimmer from '@/shimmer/PoemCardShimmer';
+import PoetCardShimmer from '@/shimmer/PoetCardShimmer';
+import CollectionCardShimmer from '@/shimmer/CollectionCardShimmer';
+import InstallSukhanButton from '@/components/InstallSukhanButton';
+import axiosClient from '@/utils/axiosClient';
 
-const Profile = () => {
+const Home = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const sherRef = useRef(null);
+  const freeVerseRef = useRef(null);
+  const ghazalRef = useRef(null);
+  const poemsRef = useRef(null);
+  const collectionsRef = useRef(null);
+  
+  const { statsData, loading, error } = useSelector((state) => state.stats);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const [homePageData, setHomePageData] = useState(null);
+  const [homeLoading, setHomeLoading] = useState(true);
 
-  const { user, isAuthenticated, isLoading } = useSelector(s => s.auth);
+  const [randomSher, setRandomSher] = useState([]);
+  const [randomFreeVerse, setRandomFreeVerse] = useState([]);
+  const [randomGhazal, setRandomGhazal] = useState([]);
+  const [sherLoading, setSherLoading] = useState(true);
+  const [freeVerseLoading, setFreeVerseLoading] = useState(true);
+  const [ghazalLoading, setGhazalLoading] = useState(true);
 
-  const [activeTab, setActiveTab] = useState('overview');
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [loggingOut, setLoggingOut] = useState(false);
+  const getCachedData = (key, ttl) => {
+    const cached = JSON.parse(localStorage.getItem(key));
+    if (!cached) return null;
+    if (Date.now() - cached.time > ttl) return null;
+    return cached.data;
+  };
 
+  const RANDOM_CONFIG = {
+    sher: {
+      endpoint: '/home/random/sher',
+      setData: setRandomSher,
+      setLoading: setSherLoading,
+      storageKey: 'RANDOM_SHER',
+      responseKey: 'randomSher',
+    },
+    freeverse: {
+      endpoint: '/home/random/freeverse',
+      setData: setRandomFreeVerse,
+      setLoading: setFreeVerseLoading,
+      storageKey: 'RANDOM_FREEVERSE',
+      responseKey: 'randomFreeVerse',
+    },
+    ghazal: {
+      endpoint: '/home/random/ghazal',
+      setData: setRandomGhazal,
+      setLoading: setGhazalLoading,
+      storageKey: 'RANDOM_GHAZAL',
+      responseKey: 'randomGhazal',
+    },
+  };
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      navigate('/login');
-      return;
-    }
+  const fetchRandom = async (type) => {
+    const config = RANDOM_CONFIG[type];
+    if (!config) return;
 
-    if (isAuthenticated && !user) {
-      dispatch(getProfile());
-    }
-  }, [dispatch, navigate, isAuthenticated, isLoading, user]);
+    const { endpoint, setData, setLoading, storageKey, responseKey } = config;
 
-  const confirmLogout = async () => {
+    setLoading(true);
     try {
-      setLoggingOut(true);
-      await dispatch(logoutUser()).unwrap();
-      navigate('/');
+      const res = await axiosClient.get(endpoint);
+      const data = res.data[responseKey];
+
+      setData(data);
+      localStorage.setItem(
+        storageKey,
+        JSON.stringify({ data, time: Date.now() })
+      );
+    } catch (e) {
+      console.error(e);
     } finally {
-      setLoggingOut(false);
-      setShowLogoutModal(false);
+      setLoading(false);
+    }
+  };
+
+  const refreshRandomSher = () => fetchRandom('sher');
+  const refreshRandomFreeVerse = () => fetchRandom('freeverse');
+  const refreshRandomGhazal = () => fetchRandom('ghazal');
+
+  const STATS_CACHE_KEY = 'SUKHAN_STATS';
+  const today = new Date().toDateString();
+
+  const getCachedStats = () => {
+    try {
+      const cached = localStorage.getItem(STATS_CACHE_KEY);
+      if (!cached) return null;
+
+      const parsed = JSON.parse(cached);
+      if (parsed.date !== today) {
+        localStorage.removeItem(STATS_CACHE_KEY);
+        return null;
+      }
+      return parsed.data;
+    } catch {
+      localStorage.removeItem(STATS_CACHE_KEY);
+      return null;
     }
   };
 
 
+  const setCachedStats = (statsData) => {
+    localStorage.setItem(
+      STATS_CACHE_KEY,
+      JSON.stringify({
+        data: statsData,
+        date: new Date().toDateString()
+      })
+    );
+  };
 
-  if (isLoading || !user) return <ProfileShimmer />;
+  
+  useEffect(() => {
+    const cachedStats = getCachedStats();
+
+    if (cachedStats) {
+      dispatch(setStatsFromCache(cachedStats));
+    } else {
+      dispatch(fetchStats()).then((res) => {
+        if (res.meta.requestStatus === 'fulfilled') {
+          setCachedStats(res.payload);
+        }
+      });
+    }
+
+
+    /* ---------------- HOME PAGE (24 HOURS) ---------------- */
+    const homeCache = localStorage.getItem('Home_Page_Cache');
+    if (homeCache) {
+      const parsed = JSON.parse(homeCache);
+      if (parsed.date === today) {
+        setHomePageData(parsed.data);
+        setHomeLoading(false);
+      } else {
+        fetchHome();
+      }
+    } else {
+      fetchHome();
+    }
+
+    async function fetchHome() {
+      try {
+        setHomeLoading(true);
+        const res = await axiosClient.get('/home');
+        setHomePageData(res.data);
+        localStorage.setItem(
+          'Home_Page_Cache',
+          JSON.stringify({ data: res.data, date: today })
+        );
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setHomeLoading(false);
+      }
+    }
+
+    /* ---------------- RANDOM SECTIONS (1 HOUR) ---------------- */
+   const initRandom = () => {
+      const ONE_HOUR = 60 * 60 * 1000;
+
+      const sherData = getCachedData(RANDOM_CONFIG.sher.storageKey, ONE_HOUR);
+      const fvData = getCachedData(RANDOM_CONFIG.freeverse.storageKey, ONE_HOUR);
+      const ghazalData = getCachedData(RANDOM_CONFIG.ghazal.storageKey, ONE_HOUR);
+
+      if (sherData) {
+        setRandomSher(sherData);
+        setSherLoading(false);
+      } else {
+        fetchRandom('sher');
+      }
+
+      if (fvData) {
+        setRandomFreeVerse(fvData);
+        setFreeVerseLoading(false);
+      } else {
+        fetchRandom('freeverse');
+      }
+
+      if (ghazalData) {
+        setRandomGhazal(ghazalData);
+        setGhazalLoading(false);
+      } else {
+        fetchRandom('ghazal');
+      }
+    };
+
+    initRandom();
+  }, [dispatch]);
+
+  const scrollNext = (ref, fallback = 320) => {
+    if (!ref.current) return;
+    const cardWidth = ref.current.firstChild?.offsetWidth || fallback;
+    ref.current.scrollBy({
+      left: cardWidth + 24,
+      behavior: 'smooth'
+    });
+  };
+
+
+
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-red-500">Error loading data: {error}</p>
+      </div>
+    );
+  }
+
+  const featuredPoems = homePageData?.featuredPoems || [];
+  const popularPoets = homePageData?.popularPoets || [];
+  const todaysFeaturedPoetry = homePageData?.todaysPoetry || [];
+  const trendingCollections = homePageData?.poetryCollections || [];
+
+
 
   return (
-    <div className="min-h-screen bg-base-100 text-base-content py-10">
-      <div className="max-w-6xl mx-auto px-4">
+    <div className="min-h-screen bg-base-200 text-base-content">
 
-        {/* ===== HEADER ===== */}
-        <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8 mb-10 flex items-center gap-6">
-          <div className="w-12 h-12 md:w-24 md:h-24 rounded-full bg-base-300/40 flex items-center justify-center text-3xl font-bold">
-            {user.avatar ? (
-              <img src={user.avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
-            ) : (
-              user.name.charAt(0).toUpperCase()
-            )}
+      {/* HEADER */}
+      <div className="border-b border-base-300/40 bg-base-200">
+        <div className="max-w-6xl mx-auto px-4 py-10 text-center space-y-4">
+
+          {/* H1 – BRAND ONLY */}
+          <h1 className="text-5xl font-serif font-bold tracking-wide">
+            Sukhan <span className="text-primary">سخن</span>
+          </h1>
+
+          {/* H2 – PLATFORM IDENTITY */}
+          <h2 className="text-xl font-serif text-base-content/80">
+            An Urdu & Hindi Poetry Platform
+          </h2>
+
+          {/* DESCRIPTION */}
+          <p className="max-w-2xl mx-auto text-base-content/60 italic">
+            Sukhan is a home for Urdu ghazals, nazms, shers, and soulful poetry —
+            where words carry emotion, silence, and meaning.
+          </p>
+
+          {/* INTERNAL LINK (SEO GOLD) */}
+          <p className="text-sm">
+            Curious about the meaning of Sukhan?{" "}
+            <Link to="/about" className="text-primary underline">
+              Learn more
+            </Link>
+          </p>
+
+          {/* CTA */}
+          <div className="pt-4">
+            <InstallSukhanButton />
           </div>
-          <div>
-            <h1 className="text-3xl font-serif">{user.name}</h1>
-            <p className="text-base-content/60">{user.email}</p>
-            {user.bio && (
-              <p className="mt-2 text-base-content/80 max-w-xl">{user.bio}</p>
-            )}
-          </div>
-        </div>
 
-        <div className="flex flex-col lg:flex-row gap-8">
-
-          {/* ===== SIDEBAR ===== */}
-          <aside className="lg:w-1/4">
-            <div className="bg-base-200 border border-base-300/40 rounded-2xl p-6">
-              {['overview', 'favorites', 'collections'].map(tab => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`w-full flex items-center gap-2 text-left px-4 py-2 rounded-lg mb-1 transition
-                    ${activeTab === tab
-                      ? 'bg-base-300/40 text-base-content/90'
-                      : 'text-base-content/60 hover:bg-base-300 hover:text-base-content/80'}
-                  `}
-                >
-                  {tab === 'overview' && (
-                    <>
-                      <BookOpen size={16} />
-                      <span>Overview</span>
-                    </>
-                  )}
-                  {tab === 'favorites' && (
-                    <>
-                      <Heart size={16} />
-                      <span>favourites</span>
-                    </>
-                  )}
-                  {tab === 'collections' && (
-                    <>
-                      <Library size={16} />
-                      <span>Collections</span>
-                    </>
-                  )}
-                </button>
-              ))}
-
-              <div className="border-t border-base-300/40 my-4" />
-
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-base-content/80 hover:bg-base-300 transition"
-              >
-                <Pencil size={16} />
-                <span>Edit Profile</span>
-              </button>
-
-              <button
-                onClick={() => setShowLogoutModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
-              >
-                <LogOut size={16} />
-                <span>Logout</span>
-              </button>
-
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="w-full px-4 py-2 rounded-lg flex items-center gap-2 text-error hover:bg-error/10 transition"
-              >
-                <Trash2 size={16} />
-                <span>Delete Account</span>
-              </button>
-            </div>
-          </aside>
-
-          {/* ===== MAIN ===== */}
-          <main className="lg:w-3/4">
-
-            {activeTab === 'overview' && (
-              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                  <Stat 
-                    onClick = {()=>navigate('/profile/likedPoems')} 
-                    title="Liked Poems" 
-                    value={user.likedPoems?.length || 0} 
-                  />
-                  <Stat
-                    onClick = {()=>navigate('/profile/savedPoems')} 
-                    title="Saved Poems" 
-                    value={user.savedPoems?.length || 0} />
-                  <Stat title="Collections" value={user.collections?.length || 0} />                  
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'favorites' && (
-              <div className="bg-base-200 border border-base-300/40 rounded-2xl p-8">
-                {user.likedPoems.length === 0
-                  ? <p className="text-base-content/60">No liked poems yet.</p>
-                  : user.likedPoems.map(p => (
-                      <Link
-                        key={p._id}
-                        to={`/poems/${p._id}`}
-                        className="block border-b border-base-300/40 py-3 hover:text-primary transition"
-                      >
-                        <p className="italic line-clamp-2">
-                          {p.content?.hindi || p.content?.roman}
-                        </p>
-                        <p className="text-sm text-base-content/50">— {p.poet?.name}</p>
-                      </Link>
-                    ))
-                }
-              </div>
-            )}
-
-          </main>
         </div>
       </div>
 
-      {/* ===== EDIT MODAL ===== */}
-      {showEditModal && (
-        <UserForm
-          user={user}
-          onClose={() => setShowEditModal(false)}
-          onSave={(data) => {
-            dispatch(updateProfile(data));
-            setShowEditModal(false);
-          }}
-        />
-      )}
 
-      {/* ===== LOGOUT MODAL ===== */}
-      {showLogoutModal && (
-        <ConfirmModal
-          title="Logout?"
-          message="Are you sure you want to logout?"
-          confirmText="Logout"
-          variant="error"
-          loading={loggingOut}
-          disableCancel={loggingOut}
-          onCancel={() => setShowLogoutModal(false)}
-          onConfirm={confirmLogout}
-        />
-      )}
+      <div className="max-w-6xl mx-auto px-4 py-10">
+
+        {/* TODAY'S SHAYARI */}
+        <section className="mb-14">
+          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+            Today’s Featured Poetry
+          </h2>
+
+          <div className="bg-base-200 rounded-2xl p-8 space-y-8">
+            {todaysFeaturedPoetry.map(s => (
+              <div
+                key={s._id}
+                onClick={()=>navigate(`/poems/${s._id}`)}
+                className="border-b border-base-300/30 pb-6 last:border-0">
+                <p className="font-serif text-md mb-2">{(s.content?.hindi)
+                  ?.split('\n')
+                  .filter(line => line.trim() !== '')
+                  .slice(0, 1)
+                  .join('\n')}
+                </p>
+                <p className="font-serif text-md mb-2">{(s.content?.hindi)
+                  ?.split('\n')
+                  .filter(line => line.trim() !== '')
+                  .slice(1, 2)
+                  .join('\n')}
+                </p>
+                <p className="text-sm text-primary mt-2">
+                  {s.poet.name} · <span className="text-base-content/50">{s.content.roman}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* FEATURED POEMS */}
+        <section className="mb-16">
+          <div className='flex justify-between items-center mb-2'>
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6">
+              Featured Poems
+            </h2>
+            <Link to="/poems" className="text-primary hover:underline">
+              All Poems
+            </Link>
+          </div>
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={poemsRef}>
+            {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                <PoemCardShimmer />
+              </div>
+            )) : featuredPoems.map((p) => (
+              <div
+                key={p._id}
+                onClick={()=>navigate(`/poems/${p._id}`)}
+                className="min-w-[320px] max-w-[320px] snap-center
+                          bg-gradient-to-br from-base-300/80 to-base-100
+                          border border-white/10
+                          rounded-2xl p-6
+                          hover:scale-[1.03] hover:border-primary/40
+                          transition-all duration-300"
+              >
+                {/* Title */}
+                <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
+                  {p.title}
+                </h3>
+
+                {/* Content preview */}
+                <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
+                  {(p.content?.hindi || p.content?.english)
+                    ?.split('\n')
+                    .filter(line => line.trim() !== '')
+                    .slice(0, 2)
+                    .join('\n')}
+                </p>
+
+                {/* Poet */}
+                <p className="text-sm text-base-content font-medium">
+                  — {p.poet?.name}
+                </p>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => scrollNext(poemsRef, 320)}
+            className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+          >
+            Drift further →
+          </button>
+        </section>
 
 
-      {/* ===== DELETE MODAL ===== */}
-      {showDeleteModal && (
-        <ConfirmModal
-          title="Delete Account"
-          message="This action is permanent. Are you sure you want to delete your account?"
-          confirmText="Delete"
-          variant="error"
-          onCancel={() => setShowDeleteModal(false)}
-          onConfirm={() => {
-            dispatch(deleteProfile());
-            navigate('/');
-          }}
-        />
-      )}
+        {/* POPULAR POETS */}
+        <section className="mb-16">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
+              Popular Poets
+            </h2>
+            <Link to="/poets" className="text-primary hover:underline">
+              All Poets
+            </Link>
+          </div>
+
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {homeLoading ? Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="min-w-[240px]">
+                <PoetCardShimmer />
+              </div>
+            )) : popularPoets.map((p) => (
+              <div
+                key={p._id}
+                onClick={()=>navigate(`/poets/${p._id}`)}
+                className="min-w-[240px]
+                          bg-gradient-to-br from-base-300/80 to-base-100
+                          border border-white/10
+                          rounded-2xl p-6 text-center
+                          hover:scale-[1.04] hover:border-primary/40
+                          transition-all duration-300"
+              >
+                {/* Poet Image */}
+                {p.image && (
+                  <img
+                    src={p.image}
+                    alt={p.name}
+                    className="w-20 h-20 mx-auto rounded-full object-cover mb-4
+                              border border-white/20"
+                  />
+                )}
+
+                {/* Name */}
+                <h3 className="font-serif text-lg text-base-content mb-2 line-clamp-1">
+                  {p.name}
+                </h3>
+
+                {/* Era */}
+                <p className="text-sm text-base-content/70 mt-1">
+                  {p.era}
+                </p>
+
+                {/* Country */}
+                <p className="text-xs text-base-content/60 mt-2">
+                  {p.country}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* About Sukhan */}
+        <section className="my-14 text-center">
+          <p className="font-serif text-base-content/70 italic">
+            Every word has a story —
+            <Link
+              to="/about"
+              className="text-primary underline ml-1"
+            >
+              what is Sukhan?
+            </Link>
+          </p>
+        </section>
+
+      
+        {/* ================= RANDOM PICKS ================= */}
+        <section className="mb-16 space-y-16">
+
+          {/* ===== RANDOM SHER ===== */}
+          <div>
+            <h2 onClick={refreshRandomSher} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
+              Sher of the Moment
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={sherRef}>
+              {sherLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomSher.map((s) => (
+                <div
+                  key={s._id}
+                  onClick={()=>navigate(`/poems/${s._id}`)}
+                  className="min-w-[320px] max-w-[320px]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <p className="font-serif text-lg text-base-content italic mb-4 whitespace-pre-line">
+                    {(s.content?.hindi || s.content?.english)
+                      ?.split('\n')
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {s.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => scrollNext(sherRef, 320)}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Explore more →
+            </button>
+
+          </div>
+
+          {/* ===== RANDOM FREE VERSE ===== */}
+          <div>
+            <h2 onClick={refreshRandomFreeVerse} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
+              Verses to Wander With
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={freeVerseRef}>
+              {freeVerseLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomFreeVerse.map((p) => (
+                <div
+                  key={p._id}
+                  onClick={()=>navigate(`/poems/${p._id}`)}
+                  className="min-w-[340px] max-w-[340px]
+                            snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
+                    {p.title}
+                  </h3>
+
+                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
+                    {(p.content?.hindi || p.content?.roman)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 4)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {p.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => scrollNext(freeVerseRef, 340)}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Continue reading →
+            </button>
+
+          </div>
+
+          {/* ===== RANDOM GHAZAL ===== */}
+          <div>
+            <h2 onClick={refreshRandomGhazal} className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-6 cursor-pointer">
+              A Ghazal for the Soul
+            </h2>
+
+            <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory" ref={ghazalRef}>
+              {ghazalLoading ? Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="min-w-[320px] max-w-[320px] snap-center">
+                  <PoemCardShimmer />
+                </div>
+              )) : randomGhazal.map((g) => (
+                <div
+                  key={g._id}
+                  onClick={()=>navigate(`/poems/${g._id}`)}
+                  className="min-w-[340px] max-w-[340px] snap-center
+                            bg-gradient-to-br from-base-300/80 to-base-100
+                            border border-white/10
+                            rounded-2xl p-6
+                            hover:scale-[1.03] hover:border-primary/40
+                            transition-all duration-300"
+                >
+                  <h3 className="font-serif text-lg text-base-content mb-3 line-clamp-1">
+                    {g.title}
+                  </h3>
+
+                  <p className="text-sm text-base-content/70 italic mb-4 whitespace-pre-line">
+                    {(g.content?.hindi || g.content?.english)
+                      ?.split('\n')
+                      .filter(l => l.trim())
+                      .slice(0, 2)
+                      .join('\n')}
+                  </p>
+
+                  <p className="text-sm text-base-content font-medium">
+                    — {g.poet?.name}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => scrollNext(ghazalRef, 340)}
+              className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+            >
+              Dive deeper →
+            </button>
+          </div>
+
+        </section>
+
+        {/* COLLECTIONS */}
+        <section className="mb-14">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4">
+              Poetry Collections
+            </h2>
+            <Link to="/collections" className="text-primary hover:underline">
+              Browse all
+            </Link>
+          </div>
+
+          <div className="flex overflow-x-auto pb-4 gap-6 snap-x snap-mandatory">
+            {homeLoading
+              ? Array.from({ length: 5 }).map((_, i) => (
+                  <CollectionCardShimmer key={i} />
+                ))
+              : trendingCollections.map(col => (
+                  <div
+                    key={col._id}
+                    onClick={() => navigate(`/collections/${col._id}`)}
+                    className="
+                      min-w-[320px] max-w-[320px]
+                      cursor-pointer snap-center
+                      rounded-2xl
+                      bg-base-200/60
+                      hover:bg-base-200
+                      transition
+                      overflow-hidden
+                    "
+                  >
+                    {/* Image */}
+                    <div className="h-44 bg-base-300 relative">
+                      {col.image ? (
+                        <img
+                          src={col.image}
+                          alt={col.name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center text-4xl opacity-30">
+                          📚
+                        </div>
+                      )}
+
+                      {col.featured && (
+                        <span className="absolute top-3 left-3 bg-primary text-primary-content text-xs px-3 py-1 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-5 space-y-2">
+                      <h3 className="font-serif text-lg line-clamp-1">
+                        {col.name}
+                      </h3>
+
+                      <p className="text-sm text-base-content/60 line-clamp-2">
+                        {col.description}
+                      </p>
+
+                      <div className="flex justify-between text-xs text-base-content/50 pt-3">
+                        <span>{col.category?.name || '—'}</span>
+                        <span>{col.poems?.length || 0} poems</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+          </div>
+
+          <button
+            onClick={() => scrollNext(collectionsRef, 320)}
+            className="btn btn-ghost btn-md sm:hidden mb-1 text-base-content/60"
+          >
+            Delve into Collections →
+          </button>
+
+
+        </section>
+
+        {/* ================= STATS ================= */}
+        <section className="mb-14">
+          <h2 className="text-2xl font-serif font-bold border-l-4 border-primary pl-4 mb-8">
+            Sukhan in Numbers
+          </h2>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${statsData.poems - statsData.poems % 100}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poems
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${statsData.poets-1}+`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Poets
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${statsData.literaryEras}`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Literary Eras
+              </p>
+            </div>
+
+            <div>
+              <p className="text-4xl font-serif font-bold text-primary">
+                {loading ? '—' : `${statsData.languages}`}
+              </p>
+              <p className="mt-2 text-base-content/60">
+                Languages
+              </p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+      {/* FOOTER */}
+      <div className="bg-base-200 border-t border-base-300/40 py-16 text-center">
+
+        {!isAuthenticated ? (
+          <>
+            <h2 className="text-3xl font-serif font-bold mb-4">
+              Begin Your Journey with Words
+            </h2>
+            <p className="text-base-content/60 max-w-xl mx-auto mb-8">
+              Discover, read, and feel poetry across languages and eras.
+            </p>
+
+            <div className="flex justify-center gap-4">
+              <Link to="/register" className="btn btn-primary">
+                Create Account
+              </Link>
+              <Link to="/books/explore" className="btn btn-outline">
+                Explore Books
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="text-2xl font-serif font-semibold mb-3">
+              Explore more poetry!
+            </h2>
+            <p className="text-base-content/60 max-w-xl mx-auto mb-8">
+              Your words, your silences, your Sukhan.
+            </p>
+
+            <div className="flex justify-center gap-4 mb-6">
+              <Link to="/poems" className="btn btn-primary">
+                Explore Poems
+              </Link>
+              <Link to="/books/explore" className="btn btn-outline">
+                Explore Books
+              </Link>
+            </div>
+            <p className="text-sm text-base-content/60">
+              About the name <Link to="/about" className="underline text-lg text-primary">Sukhan</Link>
+            </p>
+          </>
+        )}
+      </div>
 
     </div>
   );
 };
 
-const Stat = ({ title, value, onClick }) => (
-  <div
-    onClick={onClick}
-    className="
-      bg-base-300/40
-      rounded-xl
-      p-6
-      text-center
-      cursor-pointer
-      hover:bg-base-300
-      transition
-    "
-  >
-    <div className="text-3xl font-semibold">{value}</div>
-    <div className="text-base-content/60 mt-1">{title}</div>
-  </div>
-);
-
-
-export default Profile;
+export default Home;

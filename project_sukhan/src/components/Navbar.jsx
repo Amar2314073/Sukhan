@@ -248,7 +248,7 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileMenuOpen(!profileMenuOpen)}
-                className="w-9 h-9 rounded-full bg-base-300 flex items-center justify-center overflow-hidden"
+                className="w-8 h-8 rounded-full bg-base-300 flex items-center justify-center overflow-hidden"
               >
                 {user?.avatar ? (
                   <img

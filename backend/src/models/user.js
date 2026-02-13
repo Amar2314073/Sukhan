@@ -25,8 +25,7 @@ const userSchema = new Schema({
 
   // Profile Information
   avatar: {
-    type: String,
-    default: 'https://www.gravatar.com/avatar/?d=mp&s=200'
+    type: String
   },
   bio: {
     type: String,
