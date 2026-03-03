@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchStats } from "@/redux/slices/statSlice";
+import { homeService } from "@/services/home.service";
 import InstallSukhanButton from "@/components/InstallSukhanButton";
-import { homeService } from "../services/home.service";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -209,7 +209,7 @@ const Home = () => {
 
           <div className="grid grid-cols-2 md:grid-cols-2 gap-10">
             <Stat label="Poems" value={loading ? "—" : `${statsData?.poems-statsData?.poems%100}+`} />
-            <Stat label="Poets" value={loading ? "—" : statsData?.poets-statsData?.poets%100 ?`${statsData?.poets-statsData?.poets%100}+` : '100+'} />
+            <Stat label="Poets" value={loading ? "—" : `${statsData?.poets-statsData?.poets%100}+`} />
           </div>
         </section>
       </div>

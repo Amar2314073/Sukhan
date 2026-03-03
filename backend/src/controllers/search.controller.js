@@ -16,16 +16,14 @@ exports.searchPoets = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const lower = query.toLowerCase();
-    const loose = query.split('').join('.*');
-
     const matchStage = {
       isActive: true,
       $or: [
-        { name: { $regex: loose, $options: 'i' } },
-        { bio: { $regex: loose, $options: 'i' } }
+        { name: { $regex: query, $options: 'i' } },
+        { bio: { $regex: query, $options: 'i' } }
       ]
     };
+    
 
     if (req.query.era) {
       matchStage.era = req.query.era;
@@ -34,32 +32,11 @@ exports.searchPoets = async (req, res) => {
     const poets = await Poet.aggregate([
       { $match: matchStage },
 
-      // relevance scoring
-      {
-        $addFields: {
-          relevance: {
-            $cond: [
-              { $eq: [{ $toLower: "$name" }, lower] }, 3,
-              {
-                $cond: [
-                  {
-                    $regexMatch: {
-                      input: { $toLower: "$name" },
-                      regex: `^${lower}`
-                    }
-                  }, 2,
-                  1
-                ]
-              }
-            ]
-          }
-        }
-      },
+
 
       // final ordering
       {
         $sort: {
-          relevance: -1,
           popularity: -1,
           name: 1
         }
@@ -91,7 +68,6 @@ exports.searchPoets = async (req, res) => {
   }
 };
 
-
 exports.searchPoems = async (req, res) => {
   try {
     const query = req.query.q?.trim();
@@ -103,15 +79,13 @@ exports.searchPoems = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    const loose = query.split('').join('.*'); 
-    // galib → g.*a.*l.*i.*b
 
     const searchFilter = {
       isActive: true,
       $or: [
-        { title: { $regex: loose, $options: 'i' } },
-        { 'content.hindi': { $regex: loose, $options: 'i' } },
-        { 'content.roman': { $regex: loose, $options: 'i' } }
+        { title: { $regex: query, $options: 'i' } },
+        { 'content.hindi': { $regex: query, $options: 'i' } },
+        { 'content.roman': { $regex: query, $options: 'i' } }
       ]
     };
 
@@ -160,14 +134,13 @@ exports.searchCollections = async (req, res) => {
             return res.status(400).json({ message: "Search query is required" });
         }
 
-        const loose = query.split('').join('.*');
 
         // Build search filter
         const searchFilter = {
             isActive: true,
             $or: [
-                { name: { $regex: loose, $options: 'i' } },
-                { description: { $regex: loose, $options: 'i' } }
+                { name: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
             ]
         };
 
@@ -220,6 +193,7 @@ exports.searchCategories = async (req, res) => {
         if (!query || query.trim() === '') {
             return res.status(400).json({ message: "Search query is required" });
         }
+
 
         // Build search filter
         const searchFilter = {
@@ -274,16 +248,13 @@ exports.searchBooks = async (req, res) => {
       return res.status(400).json({ message: "Search query is required" });
     }
 
-    // loose fuzzy regex
-    const loose = query.split('').join('.*');
-
     const searchFilter = {
       isActive: true,
       $or: [
-        { title: { $regex: loose, $options: 'i' } },
-        { author: { $regex: loose, $options: 'i' } },
-        { category: { $regex: loose, $options: 'i' } },
-        { language: { $regex: loose, $options: 'i' } }
+        { title: { $regex: query, $options: 'i' } },
+        { author: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } },
+        { language: { $regex: query, $options: 'i' } }
       ]
     };
 
